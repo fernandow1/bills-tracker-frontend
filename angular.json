@@ -6,6 +6,11 @@
     "analytics": "287a1063-75b6-4a7f-a1cd-1b5665a9d6a1"
   },
   "newProjectRoot": "projects",
+  "schematics": {
+    "@schematics/angular:component": {
+      "style": "scss"
+    }
+  },
   "projects": {
     "bills-tracker": {
       "projectType": "application",
