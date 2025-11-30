@@ -1,0 +1,131 @@
+// Variables
+$mobile-breakpoint: 768px;
+$desktop-breakpoint: 1200px;
+
+// Layout principal
+.example-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+// Toolbar
+.example-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  span:not(.example-spacer) {
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    font-weight: 500;
+  }
+
+  @media (max-width: $mobile-breakpoint) {
+    min-height: 56px;
+  }
+
+  @media (min-width: #{$mobile-breakpoint + 1px}) {
+    min-height: 64px;
+  }
+}
+
+.example-spacer {
+  flex: 1 1 auto;
+}
+
+// Sidenav
+mat-sidenav {
+  width: 250px;
+
+  @media (min-width: #{$mobile-breakpoint + 1px}) {
+    width: clamp(240px, 20vw, 280px);
+  }
+
+  mat-nav-list {
+    padding-top: 0;
+
+    a[mat-list-item] {
+      font-size: clamp(0.875rem, 2vw, 1rem);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 4px 8px;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+      }
+    }
+  }
+}
+
+// Contenedor principal
+.example-sidenav-container {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+// Contenido del sidenav
+mat-sidenav-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+// Contenido principal
+.main-content {
+  flex: 1;
+  padding: clamp(16px, 3vw, 32px);
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: $mobile-breakpoint) {
+    padding: 16px 12px;
+  }
+
+  @media (min-width: $desktop-breakpoint) {
+    padding: 32px clamp(24px, 5vw, 80px);
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+// Contenido de demostración
+.demo-content {
+  flex: 1;
+
+  p {
+    font-size: clamp(0.875rem, 2vw, 1rem);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    max-width: 70ch;
+    color: rgba(0, 0, 0, 0.7);
+
+    @media (max-width: $mobile-breakpoint) {
+      max-width: none;
+      line-height: 1.5;
+    }
+  }
+}
+
+// Ajustes móvil
+.example-is-mobile {
+  .example-toolbar {
+    position: fixed;
+    width: 100%;
+    z-index: 1001;
+  }
+
+  .example-sidenav-container {
+    margin-top: 56px;
+    height: calc(100vh - 56px);
+  }
+
+  .main-content {
+    padding: 16px 12px 32px;
+  }
+}
