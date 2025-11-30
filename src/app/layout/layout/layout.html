@@ -1,6 +1,11 @@
-<div class="example-container">
-  <mat-toolbar>
-    <button matIconButton class="example-icon" aria-label="Example icon-button with menu icon">
+<div class="example-container" [class.example-is-mobile]="isMobile()">
+  <mat-toolbar class="example-toolbar">
+    <button
+      matIconButton
+      (click)="snav.toggle()"
+      class="example-icon"
+      aria-label="Example icon-button with menu icon"
+    >
       <mat-icon>menu</mat-icon>
     </button>
     <span>My App</span>
@@ -16,5 +21,35 @@
       <mat-icon>share</mat-icon>
     </button>
   </mat-toolbar>
-  <router-outlet></router-outlet>
+  <mat-sidenav-container
+    class="example-sidenav-container"
+    [style.marginTop.px]="isMobile() ? 56 : 0"
+  >
+    <mat-sidenav
+      #snav
+      [mode]="isMobile() ? 'over' : 'side'"
+      [fixedInViewport]="isMobile()"
+      fixedTopGap="56"
+    >
+      <mat-nav-list>
+        @for (nav of navOptions; track nav) {
+        <a mat-list-item>{{ nav }}</a>
+        }
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <main class="main-content">
+        <router-outlet></router-outlet>
+        <!-- Contenido temporal de ejemplo (se puede remover cuando tengas rutas) -->
+        @if (fillerContent.length > 0) {
+        <section class="demo-content">
+          @for (content of fillerContent; track content) {
+          <p>{{ content }}</p>
+          }
+        </section>
+        }
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
 </div>
