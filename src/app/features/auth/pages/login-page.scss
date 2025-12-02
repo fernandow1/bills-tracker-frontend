@@ -1,0 +1,269 @@
+// Variables para breakpoints
+$mobile-small: 360px; // Móviles pequeños
+$mobile-large: 480px; // Móviles grandes
+$tablet-small: 768px; // Tablets pequeñas
+$tablet-large: 1024px; // Tablets grandes / laptops pequeñas
+$desktop: 1200px; // Desktop
+$desktop-large: 1440px; // Desktop grande
+
+// Contenedor principal del login
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  overflow: auto;
+  background-color: var(--mat-sys-surface-container-lowest);
+  padding: 20px;
+  box-sizing: border-box;
+
+  @media (max-width: $mobile-small) {
+    padding: 16px;
+    justify-content: flex-start;
+    padding-top: 10vh;
+  }
+
+  @media (min-width: $tablet-small) {
+    padding: 32px;
+  }
+
+  @media (min-width: $desktop) {
+    padding: 40px;
+  }
+}
+
+// Tarjeta del formulario de login
+.login-card {
+  width: 100%;
+  transition: all 0.3s ease;
+
+  // Ancho responsivo usando clamp()
+  max-width: clamp(320px, 50vw, 450px);
+
+  // Ajustes específicos por tamaño de pantalla
+  @media (max-width: $mobile-small) {
+    max-width: calc(100vw - 24px);
+    margin: 0 12px;
+  }
+
+  @media (min-width: $mobile-large) and (max-width: $tablet-small) {
+    max-width: 400px;
+  }
+
+  @media (min-width: $tablet-small) and (max-width: $tablet-large) {
+    max-width: 450px;
+  }
+
+  @media (min-width: $desktop) {
+    max-width: 480px;
+  }
+
+  @media (min-width: $desktop-large) {
+    max-width: 520px;
+  }
+}
+
+// Header de la tarjeta
+.login-header {
+  text-align: center;
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  padding: 24px 20px 16px;
+
+  @media (max-width: $mobile-small) {
+    padding: 20px 16px 12px;
+  }
+
+  @media (min-width: $desktop) {
+    padding: 28px 24px 20px;
+  }
+
+  mat-card-title {
+    font-weight: 500;
+    margin-bottom: 6px;
+    font-size: 1.5rem;
+
+    @media (max-width: $mobile-small) {
+      font-size: 1.3rem;
+    }
+
+    @media (min-width: $desktop) {
+      font-size: 1.6rem;
+    }
+  }
+
+  mat-card-subtitle {
+    color: var(--mat-sys-on-primary-container);
+    opacity: 0.8;
+    font-size: 0.9rem;
+
+    @media (max-width: $mobile-small) {
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// Contenido de la tarjeta
+.login-content {
+  padding: 28px 24px 24px;
+
+  @media (max-width: $mobile-small) {
+    padding: 24px 20px 20px;
+  }
+
+  @media (min-width: $desktop) {
+    padding: 32px 28px 28px;
+  }
+}
+
+// Formulario
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// Campos del formulario en columna
+.form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  @media (max-width: $mobile-small) {
+    gap: 14px;
+  }
+}
+
+// Form fields de ancho completo
+.full-width {
+  width: 100%;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+// Acciones del formulario
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+// Botón de ancho completo
+.full-width-button {
+  width: 100% !important;
+  height: 48px;
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0.5px;
+
+  @media (max-width: $mobile-small) {
+    height: 44px;
+    font-size: 0.95rem;
+  }
+}
+
+// Estado de carga
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px;
+  color: var(--mat-sys-on-surface-variant);
+
+  p {
+    margin: 0;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+}
+
+// Orientación landscape para móviles
+@media (max-height: 600px) and (orientation: landscape) {
+  .login-container {
+    justify-content: flex-start;
+    padding-top: clamp(16px, 3vh, 40px);
+    min-height: 100vh;
+  }
+
+  .login-card {
+    max-width: clamp(400px, 60vw, 600px);
+  }
+
+  .login-header {
+    padding: 16px 20px 12px;
+
+    mat-card-title {
+      font-size: 1.3rem;
+      margin-bottom: 4px;
+    }
+
+    mat-card-subtitle {
+      font-size: 0.85rem;
+    }
+  }
+
+  .login-content {
+    padding: 20px 24px;
+  }
+
+  .form-fields {
+    gap: 12px;
+  }
+
+  .full-width-button {
+    height: 40px;
+  }
+}
+
+// Dispositivos con pantalla muy ancha (ultra-wide)
+@media (min-width: 1600px) {
+  .login-container {
+    padding: 60px;
+  }
+
+  .login-card {
+    max-width: 520px;
+  }
+}
+
+// Dispositivos con densidad alta (Retina, etc.)
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .login-card {
+    // Bordes más suaves en pantallas de alta densidad
+    border-radius: 0.75rem;
+  }
+
+  .full-width-button {
+    // Texto más nítido en pantallas retina
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+// Modo de contraste alto (accesibilidad)
+@media (prefers-contrast: high) {
+  .login-header {
+    border-bottom: 2px solid var(--mat-sys-outline);
+  }
+
+  .login-card {
+    border: 1px solid var(--mat-sys-outline);
+  }
+}
+
+// Preferencia de movimiento reducido (accesibilidad)
+@media (prefers-reduced-motion: reduce) {
+  .login-card {
+    transition: none;
+  }
+
+  .full-width-button {
+    transition: none;
+  }
+}
