@@ -1,0 +1,25 @@
+# Build outputs
+dist/
+out-tsc/
+bazel-out/
+.angular/
+
+# Dependencies
+node_modules/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Config files
+package-lock.json
+yarn.lock
