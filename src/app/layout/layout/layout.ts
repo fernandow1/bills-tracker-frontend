@@ -47,7 +47,7 @@ export class Layout implements OnDestroy {
     this._mobileQuery.addEventListener('change', this._mobileQueryListener);
   }
 
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     this._mobileQuery.removeEventListener('change', this._mobileQueryListener);
   }
 }

@@ -1,3 +1,4 @@
+<!-- eslint-disable @angular-eslint/template/no-call-expression -->
 <div class="example-container" [class.example-is-mobile]="isMobile()">
   <mat-toolbar class="example-toolbar">
     <button
@@ -25,12 +26,14 @@
     class="example-sidenav-container"
     [style.marginTop.px]="isMobile() ? 56 : 0"
   >
+    <!-- eslint-disable @angular-eslint/template/no-call-expression -->
     <mat-sidenav
       #snav
       [mode]="isMobile() ? 'over' : 'side'"
       [fixedInViewport]="isMobile()"
       fixedTopGap="56"
     >
+      <!-- eslint-enable @angular-eslint/template/no-call-expression -->
       <mat-nav-list>
         @for (nav of navOptions; track nav) {
         <a mat-list-item>{{ nav }}</a>
