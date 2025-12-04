@@ -33,9 +33,14 @@
             color="primary"
             type="submit"
             class="full-width-button"
-            [disabled]="form.invalid"
+            [disabled]="form.invalid || isLoading"
           >
-            Iniciar Sesión
+            @if (isLoading) {
+            <ng-container>
+              <mat-icon>hourglass_empty</mat-icon>
+              Iniciando sesión...
+            </ng-container>
+            } @else { Iniciar Sesión }
           </button>
         </div>
       </form>

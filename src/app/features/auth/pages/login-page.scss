@@ -165,6 +165,18 @@ $desktop-large: 1440px; // Desktop grande
     height: 44px;
     font-size: 0.95rem;
   }
+
+  // Estado de carga
+  &:disabled {
+    opacity: 0.7;
+  }
+
+  mat-icon {
+    margin-right: 8px;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
 }
 
 // Estado de carga
