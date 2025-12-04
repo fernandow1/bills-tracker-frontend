@@ -1,17 +1,41 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
+import { Router, ActivatedRoute } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { provideHttpClient } from '@angular/common/http';
 
 import { LoginPage } from './login-page';
+import { AuthService } from '../services/auth.service';
 
 describe('LoginPage', () => {
   let component: LoginPage;
   let fixture: ComponentFixture<LoginPage>;
 
   beforeEach(async () => {
+    const mockRouter = {
+      navigate: vi.fn(),
+    };
+
+    const mockActivatedRoute = {
+      snapshot: {
+        queryParams: {},
+      },
+    };
+
+    const mockSnackBar = {
+      open: vi.fn(),
+    };
+
     await TestBed.configureTestingModule({
       imports: [LoginPage, ReactiveFormsModule],
+      providers: [
+        provideHttpClient(),
+        { provide: Router, useValue: mockRouter },
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        { provide: MatSnackBar, useValue: mockSnackBar },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginPage);
@@ -239,8 +263,11 @@ describe('LoginPage', () => {
       fixture.detectChanges();
     });
 
-    it('should log form data when valid form is submitted', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(vi.fn());
+    it('should call AuthService when valid form is submitted', () => {
+      // Mock AuthService methods
+      const authService = TestBed.inject(AuthService);
+      const resetSpy = vi.spyOn(authService, 'resetLoginResource').mockImplementation(vi.fn());
+      const loginSpy = vi.spyOn(authService, 'loginWithResource').mockImplementation(vi.fn());
 
       component.form?.patchValue({
         username: 'testuser',
@@ -249,12 +276,11 @@ describe('LoginPage', () => {
 
       component.onSubmit();
 
-      expect(consoleSpy).toHaveBeenCalledWith('Login attempt:', {
+      expect(resetSpy).toHaveBeenCalled();
+      expect(loginSpy).toHaveBeenCalledWith({
         username: 'testuser',
         password: 'password123',
       });
-
-      consoleSpy.mockRestore();
     });
 
     it('should mark all fields as touched when invalid form is submitted', () => {

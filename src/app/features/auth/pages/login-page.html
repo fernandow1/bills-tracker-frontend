@@ -33,12 +33,12 @@
             color="primary"
             type="submit"
             class="full-width-button"
-            [disabled]="form.invalid || isLoading()"
+            [disabled]="form.invalid || isCurrentlyLoading"
           >
-            @if (isLoading()) {
+            @if (isCurrentlyLoading) {
             <ng-container>
-              <mat-icon>hourglass_empty</mat-icon>
-              Iniciando sesión...
+              <mat-progress-spinner diameter="20" strokeWidth="3" mode="indeterminate">
+              </mat-progress-spinner>
             </ng-container>
             } @else { Iniciar Sesión }
           </button>

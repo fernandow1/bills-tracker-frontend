@@ -6,6 +6,7 @@ import {
   inject,
   OnInit,
   signal,
+  effect,
 } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -19,7 +20,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService, LoginRequest } from '@features/auth/services/auth.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, throwError } from 'rxjs';
-import { ConfigService } from '@src/app/core/services/config.service';
 
 @Component({
   selector: 'app-login-page',
@@ -48,6 +48,27 @@ export class LoginPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly snackBar = inject(MatSnackBar);
 
+  constructor() {
+    // Effect para monitorear el estado del loginResource
+    effect(() => {
+      const resource = this.authService.loginResource;
+
+      if (resource.isLoading()) {
+        this.isLoading.set(true);
+      } else {
+        this.isLoading.set(false);
+      }
+
+      if (resource.hasValue() && resource.value()) {
+        this.handleLoginSuccess();
+      }
+
+      if (resource.error()) {
+        this.handleLoginError(resource.error());
+      }
+    });
+  }
+
   public ngOnInit(): void {
     this.buildForm();
   }
@@ -60,61 +81,51 @@ export class LoginPage implements OnInit {
     return this.form !== null;
   }
 
+  // Computed para determinar si está cargando (combina ambos métodos)
+  public get isCurrentlyLoading(): boolean {
+    return this.isLoading() || this.authService.loginResource.isLoading();
+  }
+
+  /**
+   * Método experimental con httpResource (sin RxJS)
+   */
   public onSubmit(): void {
-    if (this.form?.valid && !this.isLoading()) {
+    if (this.form?.valid && !this.isCurrentlyLoading) {
+      const credentials: LoginRequest = this.form.value;
+      this.authService.resetLoginResource();
+      this.authService.loginWithResource(credentials);
+    } else {
+      this.markFormGroupTouched();
+    }
+  }
+
+  /**
+   * Método original con RxJS (mantener como respaldo)
+   */
+  public onSubmitRxJS(): void {
+    if (this.form?.valid && !this.isCurrentlyLoading) {
       this.isLoading.set(true);
       const credentials: LoginRequest = this.form.value;
-
-      ConfigService.debug('Intentando login para usuario:', credentials.username);
 
       this.authService
         .login(credentials)
         .pipe(
           takeUntilDestroyed(this.destroyRef),
           catchError((error) => {
-            ConfigService.error('Error en login:', error);
             return throwError(() => error);
           })
         )
         .subscribe({
           next: () => {
             this.isLoading.set(false);
-
-            ConfigService.log('Login exitoso para usuario:', credentials.username);
-
-            // Mostrar mensaje de éxito
-            this.snackBar.open('¡Bienvenido!', 'Cerrar', {
-              duration: 3000,
-              panelClass: ['success-snackbar'],
-            });
-
-            // Redirigir a la URL original o al dashboard
-            const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-            ConfigService.debug('Redirigiendo a:', returnUrl);
-            this.router.navigate([returnUrl]);
+            this.handleLoginSuccess();
           },
           error: (error) => {
             this.isLoading.set(false);
-
-            // Usar ConfigService para logging detallado del error
-            ConfigService.error('Error en autenticación:', {
-              username: credentials.username,
-              error: error.error,
-              status: error.status,
-              timestamp: new Date().toISOString(),
-            });
-
-            // Mostrar mensaje de error
-            const errorMessage =
-              error.error?.message || 'Credenciales incorrectas. Inténtalo de nuevo.';
-            this.snackBar.open(errorMessage, 'Cerrar', {
-              duration: 5000,
-              panelClass: ['error-snackbar'],
-            });
+            this.handleLoginError(error);
           },
         });
     } else {
-      ConfigService.warn('Formulario inválido, marcando campos como touched');
       this.markFormGroupTouched();
     }
   }
@@ -129,13 +140,50 @@ export class LoginPage implements OnInit {
   }
 
   private buildForm(): void {
-    ConfigService.debug('Construyendo formulario de login');
-
     this.form = this.formBuilder.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
+  }
 
-    ConfigService.log('Formulario de login construido exitosamente');
+  /**
+   * Maneja el login exitoso (común para ambos métodos)
+   */
+  private handleLoginSuccess(): void {
+    // Mostrar mensaje de éxito
+    this.snackBar.open('¡Bienvenido!', 'Cerrar', {
+      duration: 3000,
+      panelClass: ['success-snackbar'],
+    });
+
+    // Redirigir a la URL original o al dashboard
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    this.router.navigate([returnUrl]);
+  }
+
+  /**
+   * Maneja errores de login (común para ambos métodos)
+   */
+  private handleLoginError(error: unknown): void {
+    const credentials: LoginRequest = this.form?.value || { username: 'unknown', password: '' };
+
+    // Type guard para error HTTP
+    const httpError = error as { error?: { message?: string }; status?: number };
+
+    // Log del error para debugging
+    console.error('Error en autenticación:', {
+      username: credentials.username,
+      error: httpError.error,
+      status: httpError.status,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Mostrar mensaje de error
+    const errorMessage =
+      httpError.error?.message || 'Credenciales incorrectas. Inténtalo de nuevo.';
+    this.snackBar.open(errorMessage, 'Cerrar', {
+      duration: 5000,
+      panelClass: ['error-snackbar'],
+    });
   }
 }
