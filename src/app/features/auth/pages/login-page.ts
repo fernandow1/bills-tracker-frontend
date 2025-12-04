@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -32,7 +39,7 @@ import { ConfigService } from '@src/app/core/services/config.service';
 })
 export class LoginPage implements OnInit {
   public form: FormGroup | null = null;
-  public isLoading = false;
+  public isLoading = signal<boolean>(false);
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
@@ -54,8 +61,8 @@ export class LoginPage implements OnInit {
   }
 
   public onSubmit(): void {
-    if (this.form?.valid && !this.isLoading) {
-      this.isLoading = true;
+    if (this.form?.valid && !this.isLoading()) {
+      this.isLoading.set(true);
       const credentials: LoginRequest = this.form.value;
 
       ConfigService.debug('Intentando login para usuario:', credentials.username);
@@ -71,7 +78,7 @@ export class LoginPage implements OnInit {
         )
         .subscribe({
           next: () => {
-            this.isLoading = false;
+            this.isLoading.set(false);
 
             ConfigService.log('Login exitoso para usuario:', credentials.username);
 
@@ -87,7 +94,7 @@ export class LoginPage implements OnInit {
             this.router.navigate([returnUrl]);
           },
           error: (error) => {
-            this.isLoading = false;
+            this.isLoading.set(false);
 
             // Usar ConfigService para logging detallado del error
             ConfigService.error('Error en autenticación:', {

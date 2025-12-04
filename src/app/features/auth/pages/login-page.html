@@ -33,9 +33,9 @@
             color="primary"
             type="submit"
             class="full-width-button"
-            [disabled]="form.invalid || isLoading"
+            [disabled]="form.invalid || isLoading()"
           >
-            @if (isLoading) {
+            @if (isLoading()) {
             <ng-container>
               <mat-icon>hourglass_empty</mat-icon>
               Iniciando sesión...
