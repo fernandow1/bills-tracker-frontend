@@ -22,6 +22,19 @@ $desktop-breakpoint: 1200px;
     font-weight: 500;
   }
 
+  // Botón de logout
+  .logout-button {
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
   @media (max-width: $mobile-breakpoint) {
     min-height: 56px;
   }

@@ -1,11 +1,13 @@
 import { MediaMatcher } from '@angular/cdk/layout';
 import { ChangeDetectionStrategy, Component, inject, signal, OnDestroy } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { AuthService } from '@features/auth/services/auth.service';
+import { ConfigService } from '@core/services/config.service';
 @Component({
   selector: 'app-layout',
   imports: [
@@ -38,6 +40,8 @@ export class Layout implements OnDestroy {
 
   private readonly _mobileQuery: MediaQueryList;
   private readonly _mobileQueryListener: () => void;
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   constructor() {
     const media = inject(MediaMatcher).matchMedia('(max-width: 768px)');
@@ -49,5 +53,20 @@ export class Layout implements OnDestroy {
 
   public ngOnDestroy(): void {
     this._mobileQuery.removeEventListener('change', this._mobileQueryListener);
+  }
+
+  /**
+   * Cierra la sesión del usuario
+   */
+  public logout(): void {
+    ConfigService.log('Usuario iniciando logout desde toolbar');
+
+    try {
+      // El AuthService se encarga de limpiar datos y redirigir
+      this.authService.logout();
+      ConfigService.log('Logout ejecutado exitosamente');
+    } catch (error) {
+      ConfigService.error('Error durante el logout:', error);
+    }
   }
 }
