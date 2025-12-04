@@ -8,3 +8,24 @@ body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
+
+/* Estilos para snackbars */
+.success-snackbar {
+  --mdc-snackbar-container-color: var(--mat-sys-tertiary-container);
+  --mdc-snackbar-supporting-text-color: var(--mat-sys-on-tertiary-container);
+}
+
+.error-snackbar {
+  --mdc-snackbar-container-color: var(--mat-sys-error-container);
+  --mdc-snackbar-supporting-text-color: var(--mat-sys-on-error-container);
+}
+
+.warning-snackbar {
+  --mdc-snackbar-container-color: var(--mat-sys-secondary-container);
+  --mdc-snackbar-supporting-text-color: var(--mat-sys-on-secondary-container);
+}
+
+.info-snackbar {
+  --mdc-snackbar-container-color: var(--mat-sys-primary-container);
+  --mdc-snackbar-supporting-text-color: var(--mat-sys-on-primary-container);
+}
