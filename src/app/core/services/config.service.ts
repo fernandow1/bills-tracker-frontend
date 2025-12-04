@@ -120,17 +120,6 @@ export class ConfigService {
   }
 
   /**
-   * Debug condicional basado en la configuración
-   */
-  public static debug(message: string, ...args: unknown[]): void {
-    const instance = ConfigService.getInstance();
-    if (instance.enableDebugMode) {
-      // eslint-disable-next-line no-console
-      console.debug(`[${instance.appName} DEBUG]`, message, ...args);
-    }
-  }
-
-  /**
    * Error logging (siempre activo)
    */
   public static error(message: string, error?: unknown): void {
