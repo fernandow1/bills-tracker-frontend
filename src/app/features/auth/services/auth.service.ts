@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, resource } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, tap, catchError, throwError } from 'rxjs';
 import { ConfigService } from '@core/services/config.service';
@@ -55,6 +55,9 @@ export class AuthService {
   public readonly isAuthenticated = signal<boolean>(this.hasValidToken());
   public readonly currentUser = signal<User | null>(this.getStoredUser());
 
+  // Signal para controlar el login request (httpResource experimental)
+  private readonly loginRequest = signal<LoginRequest | null>(null);
+
   // BehaviorSubject para compatibilidad con observables
   private readonly authState$ = new BehaviorSubject<AuthState>({
     isAuthenticated: this.hasValidToken(),
@@ -64,13 +67,47 @@ export class AuthService {
 
   public readonly authState = this.authState$.asObservable();
 
+  // HttpResource experimental para login usando fetch
+  public readonly loginResource = resource({
+    loader: async () => {
+      const request = this.loginRequest();
+
+      if (!request) {
+        return null;
+      }
+
+      const response = await fetch(this.config.buildApiUrl(this.config.authEndpoints.login), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
+        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
+        Object.assign(error, {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+        });
+        throw error;
+      }
+
+      const loginResponse: LoginResponse = await response.json();
+      this.handleLoginSuccess(loginResponse);
+      return loginResponse;
+    },
+  });
+
   constructor() {
     // Verificar token al inicializar el servicio
     this.checkTokenValidity();
   }
 
   /**
-   * Realiza el login del usuario
+   * Realiza el login del usuario (método original con RxJS)
    */
   public login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http
@@ -79,6 +116,21 @@ export class AuthService {
         tap((response) => this.handleLoginSuccess(response)),
         catchError((error) => this.handleAuthError(error))
       );
+  }
+
+  /**
+   * Realiza el login usando httpResource experimental (alternativa moderna sin RxJS)
+   */
+  public loginWithResource(credentials: LoginRequest): void {
+    this.loginRequest.set(credentials);
+    this.loginResource.reload();
+  }
+
+  /**
+   * Resetea el estado del login resource
+   */
+  public resetLoginResource(): void {
+    this.loginRequest.set(null);
   }
 
   /**
