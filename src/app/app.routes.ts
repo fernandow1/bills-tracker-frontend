@@ -18,11 +18,16 @@ export const routes: Routes = [
         loadComponent: () => import('@features/dashboard/dashboard').then((m) => m.Dashboard),
         title: 'Dashboard',
       },
-      // {
-      //   path: 'bills',
-      //   loadChildren: () => import('./features/bills/bills.routes').then((m) => m.billsRoutes),
-      //   title: 'Facturas',
-      // },
+      {
+        path: 'products',
+        loadComponent: () => import('@features/product/product').then((m) => m.Product),
+        title: 'Productos',
+      },
+      {
+        path: 'categories',
+        loadComponent: () => import('@features/category/category').then((m) => m.Category),
+        title: 'Categorías',
+      },
     ],
   },
   {
