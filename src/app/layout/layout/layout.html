@@ -37,8 +37,8 @@
     >
       <!-- eslint-enable @angular-eslint/template/no-call-expression -->
       <mat-nav-list>
-        @for (nav of navOptions; track nav) {
-        <a mat-list-item>{{ nav }}</a>
+        @for (navItem of navigationItems; track navItem.id) {
+        <app-nav-item [item]="navItem"></app-nav-item>
         }
       </mat-nav-list>
     </mat-sidenav>
