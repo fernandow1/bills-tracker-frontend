@@ -46,14 +46,6 @@
     <mat-sidenav-content>
       <main class="main-content">
         <router-outlet></router-outlet>
-        <!-- Contenido temporal de ejemplo (se puede remover cuando tengas rutas) -->
-        @if (fillerContent.length > 0) {
-        <section class="demo-content">
-          @for (content of fillerContent; track content) {
-          <p>{{ content }}</p>
-          }
-        </section>
-        }
       </main>
     </mat-sidenav-content>
   </mat-sidenav-container>
