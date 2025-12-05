@@ -7,24 +7,23 @@ export const routes: Routes = [
     path: '',
     component: Layout,
     canActivate: [authGuard],
-    // children: [
-    //   {
-    //     path: '',
-    //     redirectTo: 'dashboard',
-    //     pathMatch: 'full',
-    //   },
-    //   {
-    //     path: 'dashboard',
-    //     loadComponent: () =>
-    //       import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
-    //     title: 'Dashboard',
-    //   },
-    //   {
-    //     path: 'bills',
-    //     loadChildren: () => import('./features/bills/bills.routes').then((m) => m.billsRoutes),
-    //     title: 'Facturas',
-    //   },
-    // ],
+    children: [
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full',
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('@features/dashboard/dashboard').then((m) => m.Dashboard),
+        title: 'Dashboard',
+      },
+      // {
+      //   path: 'bills',
+      //   loadChildren: () => import('./features/bills/bills.routes').then((m) => m.billsRoutes),
+      //   title: 'Facturas',
+      // },
+    ],
   },
   {
     path: 'auth',
