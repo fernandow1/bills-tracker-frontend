@@ -1,0 +1,148 @@
+/* You can add global styles to this file, and also import other style files */
+
+// ================================================
+// VARIABLES GLOBALES - BREAKPOINTS RESPONSIVOS
+// ================================================
+
+// Variables para breakpoints
+$mobile-small: 360px; // Móviles pequeños (iPhone SE, etc.)
+$mobile-large: 480px; // Móviles grandes (iPhone 12, etc.)
+$tablet-small: 768px; // Tablets pequeñas (iPad mini)
+$tablet-large: 1024px; // Tablets grandes / laptops pequeñas
+$desktop: 1200px; // Desktop estándar
+$desktop-large: 1440px; // Desktop grande
+
+// ================================================
+// MIXINS PARA BREAKPOINTS
+// ================================================
+
+@mixin mobile-small {
+  @media (max-width: $mobile-small) {
+    @content;
+  }
+}
+
+@mixin mobile-large {
+  @media (min-width: $mobile-large) and (max-width: 767px) {
+    @content;
+  }
+}
+
+@mixin tablet-small {
+  @media (min-width: $tablet-small) and (max-width: 1023px) {
+    @content;
+  }
+}
+
+@mixin tablet-large {
+  @media (min-width: $tablet-large) and (max-width: 1199px) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: $desktop) and (max-width: 1439px) {
+    @content;
+  }
+}
+
+@mixin desktop-large {
+  @media (min-width: $desktop-large) {
+    @content;
+  }
+}
+
+// Mixins más genéricos
+@mixin mobile-only {
+  @media (max-width: 767px) {
+    @content;
+  }
+}
+
+@mixin tablet-up {
+  @media (min-width: $tablet-small) {
+    @content;
+  }
+}
+
+@mixin desktop-up {
+  @media (min-width: $desktop) {
+    @content;
+  }
+}
+
+// ================================================
+// ESTILOS GLOBALES
+// ================================================
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+/* Estilos para snackbars */
+.success-snackbar {
+  --mdc-snackbar-container-color: var(--mat-sys-tertiary-container);
+  --mdc-snackbar-supporting-text-color: var(--mat-sys-on-tertiary-container);
+}
+
+.error-snackbar {
+  --mdc-snackbar-container-color: var(--mat-sys-error-container);
+  --mdc-snackbar-supporting-text-color: var(--mat-sys-on-error-container);
+}
+
+.warning-snackbar {
+  --mdc-snackbar-container-color: var(--mat-sys-secondary-container);
+  --mdc-snackbar-supporting-text-color: var(--mat-sys-on-secondary-container);
+}
+
+.info-snackbar {
+  --mdc-snackbar-container-color: var(--mat-sys-primary-container);
+  --mdc-snackbar-supporting-text-color: var(--mat-sys-on-primary-container);
+}
+
+// ================================================
+// ESTILOS PARA MENSAJES DE ERROR EN FORMULARIOS
+// ================================================
+
+// Mejoras para mat-error de Angular Material
+mat-error {
+  animation: slideInError 0.2s ease-out;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  line-height: 1.3;
+
+  @include mobile-small {
+    font-size: 0.6875rem;
+    margin-top: 3px;
+  }
+
+  @include desktop-up {
+    font-size: 0.8125rem;
+    margin-top: 6px;
+  }
+}
+
+@keyframes slideInError {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Espaciado cuando hay múltiples errores
+mat-error + mat-error {
+  margin-top: 2px;
+
+  @include desktop-up {
+    margin-top: 4px;
+  }
+}
