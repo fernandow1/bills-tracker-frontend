@@ -146,3 +146,30 @@ mat-error + mat-error {
     margin-top: 4px;
   }
 }
+
+// ================================================
+// ESTILOS PARA ACCIONES DE PÁGINA
+// ================================================
+
+.page-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+
+  @include mobile-only {
+    flex-direction: column;
+    align-items: stretch;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  @include tablet-up {
+    gap: 16px;
+  }
+}
