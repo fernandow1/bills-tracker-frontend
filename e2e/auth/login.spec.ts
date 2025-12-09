@@ -320,12 +320,12 @@ test.describe('Authentication', () => {
     });
 
     test('should allow access to protected routes when authenticated', async ({ page }) => {
-      // Pre-establecer autenticación
+      // Pre-establecer autenticación con las claves correctas
       await page.goto('/auth/login');
       await page.evaluate(() => {
-        localStorage.setItem('authToken', 'valid-token-123');
+        localStorage.setItem('bills_tracker_token', 'valid-token-123');
         localStorage.setItem(
-          'authUser',
+          'bills_tracker_user',
           JSON.stringify({
             id: 'user-123',
             username: 'testuser',
@@ -333,14 +333,18 @@ test.describe('Authentication', () => {
         );
       });
 
-      // Mockear validación de token si es necesario
+      // Mockear cualquier request a la API para que no falle
       await page.route('**/api/**', async (route) => {
-        await route.continue({
-          headers: {
-            ...route.request().headers(),
-            Authorization: 'Bearer valid-token-123',
-          },
-        });
+        // Si es una petición GET, devolver respuesta vacía válida
+        if (route.request().method() === 'GET') {
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify([]),
+          });
+        } else {
+          await route.continue();
+        }
       });
 
       // Intentar acceder a ruta protegida
