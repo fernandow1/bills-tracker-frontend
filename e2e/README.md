@@ -90,7 +90,7 @@ La configuración está en `playwright.config.ts` en la raíz del proyecto.
 ## TODO
 
 - [ ] Ajustar selectores según la UI real
-- [ ] Agregar tests de autenticación
+- [x] Agregar tests de autenticación
 - [ ] Tests de navegación completa
 - [ ] Tests de responsive design
 - [ ] Tests de accessibility
