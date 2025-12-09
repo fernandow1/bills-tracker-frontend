@@ -44,6 +44,10 @@ export class ConfigService {
     return environment.endpoints.users;
   }
 
+  public get categoryEndpoints() {
+    return environment.endpoints.categories;
+  }
+
   // Auth Configuration
   public get authConfig() {
     return environment.auth;
