@@ -1,7 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from '@features/auth/services/auth.service';
-import { catchError, throwError } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 
 /**
  * Interceptor funcional para manejar la autenticación en peticiones HTTP
@@ -30,7 +30,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Procesar la petición y manejar errores de autenticación
   return next(authReq).pipe(
-    catchError((error) => {
+    catchError((error): Observable<never> => {
       // Si recibimos un 401, el token probablemente expiró
       if (error.status === 401) {
         console.warn('Token expired or invalid, logging out user');
