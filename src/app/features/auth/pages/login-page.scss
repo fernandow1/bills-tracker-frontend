@@ -1,10 +1,4 @@
-// Variables para breakpoints
-$mobile-small: 360px; // Móviles pequeños
-$mobile-large: 480px; // Móviles grandes
-$tablet-small: 768px; // Tablets pequeñas
-$tablet-large: 1024px; // Tablets grandes / laptops pequeñas
-$desktop: 1200px; // Desktop
-$desktop-large: 1440px; // Desktop grande
+@use '../../../../styles.scss' as *;
 
 // Contenedor principal del login
 .login-container {

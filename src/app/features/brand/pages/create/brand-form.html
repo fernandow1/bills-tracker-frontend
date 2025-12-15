@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit Brand' : 'New Brand' }}</h2>
+
+<mat-dialog-content>
+  <form class="brand-form">
+    <div class="form-fields">
+      <div>
+        <mat-form-field class="full-width">
+          <mat-label>Brand Name</mat-label>
+          <input matInput [field]="brandForm.name" />
+          <mat-icon matSuffix>branding_watermark</mat-icon>
+        </mat-form-field>
+        @if(brandForm.name().invalid()) { @for (error of brandForm.name().errors(); track error) {
+        <mat-error>{{ error.message }}</mat-error>
+        } }
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close type="button">
+    <mat-icon>cancel</mat-icon>
+    Cancel
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    type="button"
+    [disabled]="brandForm().invalid() || isLoading"
+    (click)="onSubmit()"
+  >
+    @if (isLoading) {
+    <mat-progress-spinner diameter="20" strokeWidth="3" mode="indeterminate">
+    </mat-progress-spinner>
+    <span>{{ isEditMode ? 'Updating...' : 'Creating...' }}</span>
+    } @else {
+    <ng-container>
+      <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+      <span>{{ isEditMode ? 'Update' : 'Create Brand' }}</span>
+    </ng-container>
+    }
+  </button>
+</mat-dialog-actions>

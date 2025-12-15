@@ -1,0 +1,61 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Editar Categoría' : 'Nueva Categoría' }}</h2>
+
+<mat-dialog-content>
+  <form class="category-form">
+    <div class="form-fields">
+      <div>
+        <mat-form-field class="full-width">
+          <mat-label>Nombre de la categoría</mat-label>
+          <input matInput [field]="categoryForm.name" />
+          <mat-icon matSuffix>category</mat-icon>
+        </mat-form-field>
+        @if(categoryForm.name().invalid()) { @for (error of categoryForm.name().errors(); track
+        error) {
+        <mat-error>{{ error.message }}</mat-error>
+        } }
+      </div>
+
+      <div>
+        <mat-form-field class="full-width">
+          <mat-label>Descripción</mat-label>
+          <textarea
+            matInput
+            rows="3"
+            [field]="categoryForm.description"
+            placeholder="Describe brevemente esta categoría"
+          ></textarea>
+          <mat-icon matSuffix>description</mat-icon>
+        </mat-form-field>
+        @if(categoryForm.description().invalid()) { @for (error of
+        categoryForm.description().errors(); track error) {
+        <mat-error>{{ error.message }}</mat-error>
+        } }
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close type="button">
+    <mat-icon>cancel</mat-icon>
+    Cancelar
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    type="button"
+    [disabled]="categoryForm().invalid() || isLoading"
+    (click)="onSubmit()"
+  >
+    @if (isLoading) {
+    <mat-progress-spinner diameter="20" strokeWidth="3" mode="indeterminate">
+    </mat-progress-spinner>
+    <span>{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
+    } @else {
+    <ng-container>
+      <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+      <span>{{ isEditMode ? 'Actualizar' : 'Crear Categoría' }}</span>
+    </ng-container>
+    }
+  </button>
+</mat-dialog-actions>

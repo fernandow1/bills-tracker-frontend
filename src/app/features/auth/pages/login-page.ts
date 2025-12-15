@@ -19,7 +19,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService, LoginRequest } from '@features/auth/services/auth.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, throwError } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-login-page',
@@ -111,7 +111,7 @@ export class LoginPage implements OnInit {
         .login(credentials)
         .pipe(
           takeUntilDestroyed(this.destroyRef),
-          catchError((error) => {
+          catchError((error): Observable<never> => {
             return throwError(() => error);
           })
         )

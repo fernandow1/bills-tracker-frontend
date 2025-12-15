@@ -1,0 +1,275 @@
+@use '../../../../../styles.scss' as *;
+
+// Estilos específicos para el modal
+mat-dialog-content {
+  padding: 24px !important;
+  min-height: 280px;
+  overflow: visible !important;
+}
+
+h2[mat-dialog-title] {
+  margin-bottom: 0 !important;
+  padding-bottom: 16px !important;
+}
+
+// Contenedor principal de la página
+.category-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 64px); // Resta la altura del toolbar
+  overflow: auto;
+  background-color: var(--mat-sys-surface-container-lowest);
+  padding: 20px;
+  box-sizing: border-box;
+
+  @include mobile-small {
+    padding: 16px;
+    justify-content: flex-start;
+    padding-top: 5vh;
+  }
+
+  @include tablet-up {
+    padding: 32px;
+  }
+
+  @include desktop-up {
+    padding: 40px;
+  }
+}
+
+// Tarjeta del formulario
+.category-card {
+  width: 100%;
+  transition: all 0.3s ease;
+  box-shadow: var(--mat-sys-elevation-level3);
+
+  // Ancho responsivo usando clamp()
+  max-width: clamp(320px, 60vw, 600px);
+
+  // Ajustes específicos por tamaño de pantalla
+  @media (max-width: $mobile-small) {
+    max-width: calc(100vw - 24px);
+    margin: 0 12px;
+  }
+
+  @media (min-width: $mobile-large) and (max-width: $tablet-small) {
+    max-width: 500px;
+  }
+
+  @media (min-width: $tablet-small) and (max-width: $tablet-large) {
+    max-width: 600px;
+  }
+
+  @media (min-width: $desktop) {
+    max-width: 650px;
+  }
+
+  @media (min-width: $desktop-large) {
+    max-width: 700px;
+  }
+
+  &:hover {
+    box-shadow: var(--mat-sys-elevation-level4);
+    transform: translateY(-2px);
+  }
+}
+
+// Header de la tarjeta
+.category-header {
+  text-align: center;
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  padding: 24px 20px 16px;
+
+  @include mobile-small {
+    padding: 20px 16px 12px;
+  }
+
+  @include desktop-up {
+    padding: 28px 24px 20px;
+  }
+
+  .mat-mdc-card-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin: 0;
+    line-height: 1.2;
+
+    @media (max-width: $mobile-small) {
+      font-size: 1.25rem;
+    }
+
+    @media (min-width: $desktop) {
+      font-size: 1.75rem;
+    }
+  }
+
+  .mat-mdc-card-subtitle {
+    font-size: 0.875rem;
+    margin: 8px 0 0;
+    opacity: 0.8;
+    line-height: 1.3;
+
+    @media (max-width: $mobile-small) {
+      font-size: 0.8125rem;
+      margin: 6px 0 0;
+    }
+
+    @media (min-width: $desktop) {
+      font-size: 0.9375rem;
+      margin: 10px 0 0;
+    }
+  }
+}
+
+// Contenido de la tarjeta
+.category-content {
+  padding: 24px 20px;
+
+  @include mobile-small {
+    padding: 20px 16px;
+  }
+
+  @include desktop-up {
+    padding: 32px 28px;
+  }
+}
+
+// Formulario
+.category-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  @include desktop-up {
+    gap: 20px;
+  }
+}
+
+// Campos del formulario
+.form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  @include desktop-up {
+    gap: 20px;
+  }
+}
+
+.full-width {
+  width: 100%;
+
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+
+  .mat-mdc-text-field-wrapper {
+    width: 100%;
+  }
+
+  .mdc-text-field {
+    width: 100% !important;
+  }
+}
+
+// Acciones del formulario
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+
+  @include tablet-up {
+    flex-direction: row;
+    gap: 16px;
+  }
+
+  @include desktop-up {
+    margin-top: 16px;
+    gap: 20px;
+  }
+}
+
+.full-width-button {
+  width: 100%;
+  height: 48px;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  @include tablet-up {
+    flex: 1;
+  }
+
+  @include mobile-small {
+    height: 44px;
+    font-size: 0.9375rem;
+  }
+
+  @include desktop-up {
+    height: 52px;
+    font-size: 1.0625rem;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--mat-sys-elevation-level2);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.secondary-button {
+  background-color: transparent;
+  color: var(--mat-sys-primary);
+  border: 1px solid var(--mat-sys-outline-variant);
+
+  &:hover {
+    background-color: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+  }
+}
+
+// Mejoras en los campos de formulario
+.mat-mdc-form-field {
+  .mat-mdc-text-field-wrapper {
+    background-color: var(--mat-sys-surface-variant);
+    border-radius: 8px;
+  }
+
+  &.mat-focused {
+    .mat-mdc-text-field-wrapper {
+      background-color: var(--mat-sys-surface-container-high);
+    }
+  }
+
+  .mat-mdc-form-field-icon-suffix {
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+// Responsive adjustments para textarea
+textarea.mat-mdc-input-element {
+  resize: vertical;
+  min-height: 60px;
+
+  @include desktop-up {
+    min-height: 80px;
+  }
+}

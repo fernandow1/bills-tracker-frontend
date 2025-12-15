@@ -33,6 +33,20 @@ export const environment = {
       update: '/users/profile',
       preferences: '/users/preferences',
     },
+    categories: {
+      list: '/categories',
+      create: '/categories',
+      update: '/categories/:id',
+      delete: '/categories/:id',
+      byId: '/categories/:id',
+    },
+    brands: {
+      list: '/brands',
+      create: '/brands',
+      update: '/brands/:id',
+      delete: '/brands/:id',
+      byId: '/brands/:id',
+    },
   },
 
   // Configuraciones de tokens y sesión

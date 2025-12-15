@@ -1,0 +1,81 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Lista de Categorías</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="page-actions">
+      <button mat-raised-button color="primary" (click)="openCreateDialog()">
+        <mat-icon>add</mat-icon>
+        Nueva Categoría
+      </button>
+      <button mat-raised-button (click)="reload()" [disabled]="isReloadDisabled">
+        <mat-icon>refresh</mat-icon>
+        Actualizar
+      </button>
+    </div>
+
+    @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Cargando categorías...</p>
+    </div>
+    } @else if (hasError) {
+    <div class="error-container">
+      <mat-icon color="warn">error</mat-icon>
+      <p>Error al cargar las categorías</p>
+      <button mat-raised-button color="primary" (click)="reload()">
+        <mat-icon>refresh</mat-icon>
+        Reintentar
+      </button>
+    </div>
+    } @else if (categories.length === 0) {
+    <div class="empty-container">
+      <mat-icon>inbox</mat-icon>
+      <p>No hay categorías registradas</p>
+    </div>
+    } @else {
+    <div class="table-container">
+      <table mat-table [dataSource]="categories" class="mat-elevation-z2">
+        <!-- Columna Nombre -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Nombre</th>
+          <td mat-cell *matCellDef="let category">{{ category.name }}</td>
+        </ng-container>
+
+        <!-- Columna Descripción -->
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef>Descripción</th>
+          <td mat-cell *matCellDef="let category">
+            {{ category.description || 'Sin descripción' }}
+          </td>
+        </ng-container>
+
+        <!-- Columna Fecha de Creación -->
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef>Fecha de Creación</th>
+          <td mat-cell *matCellDef="let category">
+            {{ category.createdAt | date : 'dd/MM/yyyy HH:mm' }}
+          </td>
+        </ng-container>
+
+        <!-- Columna Acciones -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let category">
+            <button mat-icon-button color="primary" title="Editar" (click)="openEditDialog(category)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" title="Eliminar">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+    }
+  </mat-card-content>
+</mat-card>
