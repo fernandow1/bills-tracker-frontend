@@ -1,3 +1,4 @@
+import { httpResource } from '@angular/common/http';
 import { Injectable, signal, resource } from '@angular/core';
 import { ConfigService } from '@core/services/config.service';
 import { ICategoryData } from '@features/category/interfaces/category-data.interface';
@@ -14,6 +15,17 @@ export interface ICategoryResponse extends ICategoryData {
 export class CategoryService {
   private readonly configService = new ConfigService();
 
+  /**
+   * Obtiene los headers con autenticación para fetch
+   */
+  private getAuthHeaders(): HeadersInit {
+    const token = localStorage.getItem(this.configService.authConfig.tokenKey);
+    return {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
+  }
+
   // Signal para controlar cuándo crear una categoría
   private createCategoryTrigger = signal<ICategoryData | null>(null);
 
@@ -21,26 +33,9 @@ export class CategoryService {
   private updateCategoryTrigger = signal<{ id: string; data: ICategoryData } | null>(null);
 
   // Resource para obtener todas las categorías
-  public categoriesResource = resource({
-    loader: async () => {
-      const response = await fetch(
-        this.configService.buildApiUrl(this.configService.categoryEndpoints.list)
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      return (await response.json()) as ICategoryResponse[];
-    },
-  });
+  public categoriesResource = httpResource<ICategoryResponse[]>(() =>
+    this.configService.buildApiUrl(this.configService.categoryEndpoints.list)
+  );
 
   // Resource para crear categoría
   public createCategoryResource = resource({
@@ -55,9 +50,7 @@ export class CategoryService {
         this.configService.buildApiUrl(this.configService.categoryEndpoints.create),
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: this.getAuthHeaders(),
           body: JSON.stringify(categoryData),
         }
       );
@@ -92,9 +85,7 @@ export class CategoryService {
         ),
         {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: this.getAuthHeaders(),
           body: JSON.stringify(updateData.data),
         }
       );
