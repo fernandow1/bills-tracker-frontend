@@ -37,6 +37,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         authService.logout();
       }
 
+      // Si recibimos un 403, el usuario no tiene permisos - redirigir al login
+      if (error.status === 403) {
+        console.warn('Forbidden access (403), redirecting to login');
+        authService.logout();
+      }
+
       return throwError(() => error);
     })
   );

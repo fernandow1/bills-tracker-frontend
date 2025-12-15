@@ -48,6 +48,10 @@ export class ConfigService {
     return environment.endpoints.categories;
   }
 
+  public get brandEndpoints() {
+    return environment.endpoints.brands;
+  }
+
   // Auth Configuration
   public get authConfig() {
     return environment.auth;
