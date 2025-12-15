@@ -40,6 +40,13 @@ export const environment = {
       delete: '/categories/:id',
       byId: '/categories/:id',
     },
+    brands: {
+      list: '/brands',
+      create: '/brands',
+      update: '/brands/:id',
+      delete: '/brands/:id',
+      byId: '/brands/:id',
+    },
   },
 
   // Configuraciones de tokens y sesión

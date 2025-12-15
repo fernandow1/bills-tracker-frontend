@@ -29,6 +29,11 @@ export const routes: Routes = [
           import('@src/app/features/category/pages/list/category-list').then((m) => m.CategoryList),
         title: 'Categorías',
       },
+      {
+        path: 'brands',
+        loadComponent: () => import('@features/brand/pages/list/brand').then((m) => m.Brand),
+        title: 'Marcas',
+      },
     ],
   },
   {
