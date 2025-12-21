@@ -1,7 +1,9 @@
-import { httpResource } from '@angular/common/http';
 import { Injectable, signal, resource } from '@angular/core';
 import { ConfigService } from '@core/services/config.service';
 import { ICategoryData } from '@features/category/interfaces/category-data.interface';
+import { createFilter, buildFilterParams } from '@core/utils/filter-builder.helper';
+import { FilterOperator } from '@core/utils/filter-operators.types';
+import { Pagination } from '@core/interfaces/pagination.interface';
 
 export interface ICategoryResponse extends ICategoryData {
   id: string;
@@ -32,10 +34,88 @@ export class CategoryService {
   // Signal para controlar cuándo actualizar una categoría
   private updateCategoryTrigger = signal<{ id: string; data: ICategoryData } | null>(null);
 
-  // Resource para obtener todas las categorías
-  public categoriesResource = httpResource<ICategoryResponse[]>(() =>
-    this.configService.buildApiUrl(this.configService.categoryEndpoints.list)
-  );
+  // Signal para controlar búsqueda de categorías
+  private searchCategoryTrigger = signal<string | null>(null);
+
+  // Signal para controlar carga completa de categorías (solo para páginas de listado)
+  private loadAllCategoriesTrigger = signal<boolean>(false);
+
+  // Resource para cargar todas las categorías (solo cuando se solicite explícitamente)
+  private allCategoriesResource = resource({
+    loader: async () => {
+      if (!this.loadAllCategoriesTrigger()) {
+        return null;
+      }
+
+      const response = await fetch(
+        this.configService.buildApiUrl(this.configService.categoryEndpoints.list),
+        {
+          method: 'GET',
+          headers: this.getAuthHeaders(),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
+        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
+        Object.assign(error, {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+        });
+        throw error;
+      }
+
+      return (await response.json()) as ICategoryResponse[];
+    },
+  });
+
+  // Resource para búsqueda de categorías con filtro
+  public searchCategoriesResource = resource({
+    loader: async () => {
+      const searchTerm = this.searchCategoryTrigger();
+
+      if (searchTerm === null) {
+        return null;
+      }
+
+      // Si el término está vacío, retornar null
+      if (searchTerm.trim() === '') {
+        return null;
+      }
+
+      // Construir filtro usando los helpers
+      const filter = createFilter('name', searchTerm, FilterOperator.LIKE);
+      const params = buildFilterParams([filter]);
+
+      // Agregar parámetros de paginación para el autocomplete
+      params['page'] = '1';
+      params['pageSize'] = '20';
+
+      const queryString = new URLSearchParams(params).toString();
+      const url = `${this.configService.buildApiUrl(
+        this.configService.categoryEndpoints.search
+      )}?${queryString}`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
+        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
+        Object.assign(error, {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+        });
+        throw error;
+      }
+
+      return (await response.json()) as Pagination<ICategoryResponse>;
+    },
+  });
 
   // Resource para crear categoría
   public createCategoryResource = resource({
@@ -139,6 +219,22 @@ export class CategoryService {
   }
 
   /**
+   * Obtiene las categorías encontradas en la búsqueda
+   */
+  public get searchedCategories(): ICategoryResponse[] {
+    const result = this.searchCategoriesResource.value();
+    return result?.data || [];
+  }
+
+  /**
+   * Obtiene el total de categorías en la búsqueda
+   */
+  public get searchedCategoriesCount(): number {
+    const result = this.searchCategoriesResource.value();
+    return result?.count || 0;
+  }
+
+  /**
    * Obtiene el estado del resource de creación
    */
   public get isCreatingCategory(): boolean {
@@ -198,30 +294,70 @@ export class CategoryService {
   }
 
   /**
+   * Carga todas las categorías (para páginas de listado)
+   */
+  public loadAllCategories(): void {
+    this.loadAllCategoriesTrigger.set(true);
+    this.allCategoriesResource.reload();
+  }
+
+  /**
    * Obtiene todas las categorías
    */
   public get categories(): ICategoryResponse[] | null | undefined {
-    return this.categoriesResource.value();
+    if (!this.loadAllCategoriesTrigger()) {
+      return null;
+    }
+    return this.allCategoriesResource.value() as ICategoryResponse[] | null | undefined;
   }
 
   /**
    * Obtiene el estado de carga de las categorías
    */
   public get isLoadingCategories(): boolean {
-    return this.categoriesResource.status() === 'loading';
+    return this.allCategoriesResource.status() === 'loading';
   }
 
   /**
    * Obtiene el error al cargar categorías si existe
    */
   public get categoriesError(): unknown {
-    return this.categoriesResource.error();
+    if (!this.loadAllCategoriesTrigger()) {
+      return null;
+    }
+    return this.allCategoriesResource.error();
   }
 
   /**
    * Recarga la lista de categorías
    */
   public reloadCategories(): void {
-    this.categoriesResource.reload();
+    if (!this.loadAllCategoriesTrigger()) {
+      this.loadAllCategoriesTrigger.set(true);
+    }
+    this.allCategoriesResource.reload();
+  }
+
+  /**
+   * Busca categorías por nombre
+   * @param searchTerm Término de búsqueda
+   */
+  public searchCategories(searchTerm: string): void {
+    this.searchCategoryTrigger.set(searchTerm);
+    this.searchCategoriesResource.reload();
+  }
+
+  /**
+   * Obtiene el estado de carga de la búsqueda
+   */
+  public get isSearchingCategories(): boolean {
+    return this.searchCategoriesResource.status() === 'loading';
+  }
+
+  /**
+   * Resetea el trigger de búsqueda
+   */
+  public resetSearchTrigger(): void {
+    this.searchCategoryTrigger.set(null);
   }
 }
