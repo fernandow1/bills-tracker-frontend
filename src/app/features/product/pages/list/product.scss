@@ -1,0 +1,187 @@
+// Estilos para la página de lista de productos
+mat-card {
+  margin: 20px;
+}
+
+mat-card-header {
+  margin-bottom: 20px;
+}
+
+mat-card-title {
+  font-size: 24px;
+  font-weight: 500;
+}
+
+// Acciones principales
+.page-actions {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+// Panel de filtros
+.filters-panel {
+  margin-bottom: 20px;
+
+  mat-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .active-filters-badge {
+      background-color: #1976d2;
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      margin-left: 8px;
+    }
+  }
+}
+
+.filters-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  padding: 16px 0;
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  .filters-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    margin-top: 8px;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+}
+
+// Estados (carga, error, vacío)
+.loading-container,
+.error-container,
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  p {
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.6);
+    margin: 0 0 16px 0;
+  }
+
+  mat-spinner {
+    margin-bottom: 16px;
+  }
+}
+
+.error-container {
+  mat-icon {
+    color: #f44336;
+    opacity: 1;
+  }
+}
+
+// Contenedor de la tabla
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+
+  table {
+    width: 100%;
+    background: white;
+
+    th {
+      font-weight: 600;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.87);
+    }
+
+    td {
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.87);
+    }
+
+    .description-cell {
+      display: block;
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    button {
+      margin-right: 8px;
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+
+  mat-paginator {
+    margin-top: 16px;
+    background: transparent;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  mat-card {
+    margin: 10px;
+  }
+
+  .filters-form {
+    grid-template-columns: 1fr;
+  }
+
+  .page-actions {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .table-container {
+    table {
+      font-size: 12px;
+
+      .description-cell {
+        max-width: 150px;
+      }
+    }
+  }
+}
