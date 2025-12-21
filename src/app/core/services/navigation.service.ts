@@ -22,16 +22,28 @@ export class NavigationService {
       icon: 'dashboard',
     },
     {
-      id: 'bills',
-      label: 'Facturas',
-      route: '/bills',
-      icon: 'receipt_long',
+      id: 'brands',
+      label: 'Marcas',
+      route: '/brands',
+      icon: 'business',
     },
     {
       id: 'categories',
       label: 'Categorías',
       route: '/categories',
       icon: 'category',
+    },
+    {
+      id: 'products',
+      label: 'Productos',
+      route: '/products',
+      icon: 'inventory_2',
+    },
+    {
+      id: 'bills',
+      label: 'Facturas',
+      route: '/bills',
+      icon: 'receipt_long',
     },
     {
       id: 'reports',
