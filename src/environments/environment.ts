@@ -35,6 +35,7 @@ export const environment = {
     },
     categories: {
       list: '/categories',
+      search: '/categories/search',
       create: '/categories',
       update: '/categories/:id',
       delete: '/categories/:id',
@@ -42,10 +43,19 @@ export const environment = {
     },
     brands: {
       list: '/brands',
+      search: '/brands/search',
       create: '/brands',
       update: '/brands/:id',
       delete: '/brands/:id',
       byId: '/brands/:id',
+    },
+    products: {
+      list: '/products',
+      search: '/products/search',
+      create: '/products',
+      update: '/products/:id',
+      delete: '/products/:id',
+      byId: '/products/:id',
     },
   },
 
