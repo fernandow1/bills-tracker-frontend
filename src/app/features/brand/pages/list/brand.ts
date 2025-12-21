@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
@@ -25,13 +25,18 @@ import { BrandForm } from '@src/app/features/brand/pages/create/brand-form';
   styleUrl: './brand.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Brand {
+export class Brand implements OnInit {
   public readonly displayedColumns: string[] = ['name', 'createdAt', 'actions'];
 
   private readonly service = inject(BrandService);
   private readonly dialog = inject(MatDialog);
   private reloadCooldown = signal<boolean>(false);
   private readonly COOLDOWN_TIME = 2000; // 2 segundos
+
+  public ngOnInit(): void {
+    // Cargar todas las marcas al iniciar el componente
+    this.service.loadAllBrands();
+  }
 
   public get brands(): IBrandResponse[] {
     return this.service.brands || [];

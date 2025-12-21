@@ -1,8 +1,10 @@
 import { Injectable, signal, resource } from '@angular/core';
-import { httpResource } from '@angular/common/http';
 import { ConfigService } from '@core/services/config.service';
 import { IBrandData } from '@features/brand/interfaces/brand-data.interface';
 import { IBrandResponse } from '@features/brand/interfaces/brand-response.interface';
+import { createFilter, buildFilterParams } from '@core/utils/filter-builder.helper';
+import { FilterOperator } from '@core/utils/filter-operators.types';
+import { Pagination } from '@core/interfaces/pagination.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -27,10 +29,87 @@ export class BrandService {
   // Signal para controlar cuándo actualizar una marca
   private updateBrandTrigger = signal<{ id: string; data: IBrandData } | null>(null);
 
-  // httpResource para obtener todas las marcas (GET) - más simple que resource genérico
-  public brandsResource = httpResource<IBrandResponse[]>(() =>
-    this.configService.buildApiUrl(this.configService.brandEndpoints.list)
-  );
+  // Signal para controlar búsqueda de marcas
+  private searchBrandTrigger = signal<string | null>(null);
+
+  // Signal para controlar carga completa de marcas (solo para páginas de listado)
+  private loadAllBrandsTrigger = signal<boolean>(false);
+
+  // Resource para cargar todas las marcas (solo cuando se solicite explícitamente)
+  private allBrandsResource = resource({
+    loader: async () => {
+      if (!this.loadAllBrandsTrigger()) {
+        return null;
+      }
+
+      const response = await fetch(
+        this.configService.buildApiUrl(this.configService.brandEndpoints.list),
+        {
+          method: 'GET',
+          headers: this.getAuthHeaders(),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
+        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
+        Object.assign(error, {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+        });
+        throw error;
+      }
+
+      return (await response.json()) as IBrandResponse[];
+    },
+  });
+
+  // Resource para búsqueda de marcas con filtro
+  public searchBrandsResource = resource({
+    loader: async () => {
+      const searchTerm = this.searchBrandTrigger();
+
+      if (searchTerm === null) {
+        return null;
+      }
+
+      // Si el término está vacío, retornar null
+      if (searchTerm.trim() === '') {
+        return null;
+      }
+
+      // Construir filtro usando los helpers
+      const filter = createFilter('name', searchTerm, FilterOperator.LIKE);
+      const params = buildFilterParams([filter]);
+
+      params['page'] = '1';
+      params['pageSize'] = '20';
+
+      const queryString = new URLSearchParams(params).toString();
+      const url = `${this.configService.buildApiUrl(
+        this.configService.brandEndpoints.search
+      )}?${queryString}`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
+        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
+        Object.assign(error, {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+        });
+        throw error;
+      }
+
+      return (await response.json()) as Pagination<IBrandResponse>;
+    },
+  });
 
   // Resource para crear marca (POST) - con trigger para evitar carga inicial
   public createBrandResource = resource({
@@ -134,6 +213,22 @@ export class BrandService {
   }
 
   /**
+   * Obtiene las marcas encontradas en la búsqueda
+   */
+  public get searchedBrands(): IBrandResponse[] {
+    const result = this.searchBrandsResource.value();
+    return result?.data || [];
+  }
+
+  /**
+   * Obtiene el total de marcas en la búsqueda
+   */
+  public get searchedBrandsCount(): number {
+    const result = this.searchBrandsResource.value();
+    return result?.count || 0;
+  }
+
+  /**
    * Obtiene el estado del resource de creación
    */
   public get isCreatingBrand(): boolean {
@@ -193,30 +288,70 @@ export class BrandService {
   }
 
   /**
-   * Obtiene todas las marcas usando httpResource signals
+   * Carga todas las marcas (para páginas de listado)
+   */
+  public loadAllBrands(): void {
+    this.loadAllBrandsTrigger.set(true);
+    this.allBrandsResource.reload();
+  }
+
+  /**
+   * Obtiene todas las marcas
    */
   public get brands(): IBrandResponse[] | null | undefined {
-    return this.brandsResource.hasValue() ? this.brandsResource.value() : null;
+    if (!this.loadAllBrandsTrigger()) {
+      return null;
+    }
+    return this.allBrandsResource.value() as IBrandResponse[] | null | undefined;
   }
 
   /**
-   * Obtiene el estado de carga de las marcas usando httpResource signals
+   * Obtiene el estado de carga de las marcas
    */
   public get isLoadingBrands(): boolean {
-    return this.brandsResource.isLoading();
+    return this.allBrandsResource.status() === 'loading';
   }
 
   /**
-   * Obtiene el error al cargar marcas si existe usando httpResource signals
+   * Obtiene el error al cargar marcas si existe
    */
   public get brandsError(): unknown {
-    return this.brandsResource.error();
+    if (!this.loadAllBrandsTrigger()) {
+      return null;
+    }
+    return this.allBrandsResource.error();
   }
 
   /**
    * Recarga la lista de marcas
    */
   public reloadBrands(): void {
-    this.brandsResource.reload();
+    if (!this.loadAllBrandsTrigger()) {
+      this.loadAllBrandsTrigger.set(true);
+    }
+    this.allBrandsResource.reload();
+  }
+
+  /**
+   * Busca marcas por nombre
+   * @param searchTerm Término de búsqueda
+   */
+  public searchBrands(searchTerm: string): void {
+    this.searchBrandTrigger.set(searchTerm);
+    this.searchBrandsResource.reload();
+  }
+
+  /**
+   * Obtiene el estado de carga de la búsqueda
+   */
+  public get isSearchingBrands(): boolean {
+    return this.searchBrandsResource.status() === 'loading';
+  }
+
+  /**
+   * Resetea el trigger de búsqueda
+   */
+  public resetSearchTrigger(): void {
+    this.searchBrandTrigger.set(null);
   }
 }
