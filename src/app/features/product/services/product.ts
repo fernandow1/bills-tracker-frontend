@@ -248,4 +248,65 @@ export class ProductService {
     }
     return this.searchProductsResource.error();
   }
+
+  /**
+   * Obtiene el producto creado
+   */
+  public get createdProduct(): IProductResponse | null {
+    if (this.createProductTrigger() === null) {
+      return null;
+    }
+    return this.createProductResource.value() ?? null;
+  }
+
+  /**
+   * Obtiene el error de creación si existe
+   */
+  public get createError(): unknown {
+    if (this.createProductTrigger() === null) {
+      return null;
+    }
+    return this.createProductResource.error();
+  }
+
+  /**
+   * Obtiene el estado de carga de creación
+   */
+  public get isCreatingProduct(): boolean {
+    return this.createProductResource.status() === 'loading';
+  }
+
+  /**
+   * Obtiene el producto actualizado
+   */
+  public get updatedProduct(): IProductResponse | null {
+    if (this.updateProductTrigger() === null) {
+      return null;
+    }
+    return this.updateProductResource.value() ?? null;
+  }
+
+  /**
+   * Obtiene el error de actualización si existe
+   */
+  public get updateError(): unknown {
+    if (this.updateProductTrigger() === null) {
+      return null;
+    }
+    return this.updateProductResource.error();
+  }
+
+  /**
+   * Obtiene el estado de carga de actualización
+   */
+  public get isUpdatingProduct(): boolean {
+    return this.updateProductResource.status() === 'loading';
+  }
+
+  /**
+   * Resetea el trigger de actualización
+   */
+  public resetUpdateTrigger(): void {
+    this.updateProductTrigger.set(null);
+  }
 }

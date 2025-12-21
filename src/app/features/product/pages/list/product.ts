@@ -26,6 +26,7 @@ import { BrandService } from '@features/brand/services/brand';
 import { CategoryService, ICategoryResponse } from '@features/category/services/category';
 import { IProductResponse } from '@features/product/interfaces/product-response.interface';
 import { IBrandResponse } from '@features/brand/interfaces/brand-response.interface';
+import { ProductForm } from '@features/product/pages/form/product-form';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
@@ -288,11 +289,32 @@ export class Product implements OnInit {
   }
 
   public openCreateDialog(): void {
-    // TODO: Implementar cuando exista el formulario
+    const dialogRef = this.dialog.open(ProductForm, {
+      width: '600px',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Recargar la lista si se creó un producto
+        this.reload();
+      }
+    });
   }
 
-  public openEditDialog(_product: IProductResponse): void {
-    // TODO: Implementar cuando exista el formulario
+  public openEditDialog(product: IProductResponse): void {
+    const dialogRef = this.dialog.open(ProductForm, {
+      width: '600px',
+      disableClose: true,
+      data: product,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Recargar la lista si se editó un producto
+        this.reload();
+      }
+    });
   }
 
   public deleteProduct(_product: IProductResponse): void {
