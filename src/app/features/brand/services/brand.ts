@@ -1,5 +1,7 @@
-import { Injectable, signal, resource } from '@angular/core';
+import { Injectable, signal, resource, inject } from '@angular/core';
 import { ConfigService } from '@core/services/config.service';
+import { AuthService } from '@features/auth/services/auth.service';
+import { AuthFetchHelper } from '@core/utils/auth-fetch.helper';
 import { IBrandData } from '@features/brand/interfaces/brand-data.interface';
 import { IBrandResponse } from '@features/brand/interfaces/brand-response.interface';
 import { createFilter, buildFilterParams } from '@core/utils/filter-builder.helper';
@@ -11,6 +13,8 @@ import { Pagination } from '@core/interfaces/pagination.interface';
 })
 export class BrandService {
   private readonly configService = new ConfigService();
+  private readonly authService = inject(AuthService);
+  private readonly authFetch = new AuthFetchHelper(this.authService);
 
   /**
    * Obtiene los headers con autenticación para fetch
@@ -42,7 +46,7 @@ export class BrandService {
         return null;
       }
 
-      const response = await fetch(
+      const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(this.configService.brandEndpoints.list),
         {
           method: 'GET',
@@ -91,7 +95,7 @@ export class BrandService {
         this.configService.brandEndpoints.search
       )}?${queryString}`;
 
-      const response = await fetch(url, {
+      const response = await this.authFetch.fetch(url, {
         method: 'GET',
         headers: this.getAuthHeaders(),
       });
@@ -120,7 +124,7 @@ export class BrandService {
         return null;
       }
 
-      const response = await fetch(
+      const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(this.configService.brandEndpoints.create),
         {
           method: 'POST',
@@ -153,7 +157,7 @@ export class BrandService {
         return null;
       }
 
-      const response = await fetch(
+      const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(
           this.configService.brandEndpoints.update.replace(':id', updateData.id)
         ),

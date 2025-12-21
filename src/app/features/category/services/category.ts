@@ -1,5 +1,7 @@
-import { Injectable, signal, resource } from '@angular/core';
+import { Injectable, signal, resource, inject } from '@angular/core';
 import { ConfigService } from '@core/services/config.service';
+import { AuthService } from '@features/auth/services/auth.service';
+import { AuthFetchHelper } from '@core/utils/auth-fetch.helper';
 import { ICategoryData } from '@features/category/interfaces/category-data.interface';
 import { createFilter, buildFilterParams } from '@core/utils/filter-builder.helper';
 import { FilterOperator } from '@core/utils/filter-operators.types';
@@ -16,6 +18,8 @@ export interface ICategoryResponse extends ICategoryData {
 })
 export class CategoryService {
   private readonly configService = new ConfigService();
+  private readonly authService = inject(AuthService);
+  private readonly authFetch = new AuthFetchHelper(this.authService);
 
   /**
    * Obtiene los headers con autenticación para fetch
@@ -47,7 +51,7 @@ export class CategoryService {
         return null;
       }
 
-      const response = await fetch(
+      const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(this.configService.categoryEndpoints.list),
         {
           method: 'GET',
@@ -97,7 +101,7 @@ export class CategoryService {
         this.configService.categoryEndpoints.search
       )}?${queryString}`;
 
-      const response = await fetch(url, {
+      const response = await this.authFetch.fetch(url, {
         method: 'GET',
         headers: this.getAuthHeaders(),
       });
@@ -126,7 +130,7 @@ export class CategoryService {
         return null;
       }
 
-      const response = await fetch(
+      const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(this.configService.categoryEndpoints.create),
         {
           method: 'POST',
@@ -159,7 +163,7 @@ export class CategoryService {
         return null;
       }
 
-      const response = await fetch(
+      const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(
           this.configService.categoryEndpoints.update.replace(':id', updateData.id)
         ),
