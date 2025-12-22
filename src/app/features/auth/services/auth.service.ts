@@ -170,8 +170,16 @@ export class AuthService {
    * Refresca el token (si el backend lo soporta)
    */
   public refreshToken(): Observable<LoginResponse> {
+    const currentToken = this.getToken();
+
+    if (!currentToken) {
+      return throwError(() => new Error('No token available for refresh'));
+    }
+
     return this.http
-      .post<LoginResponse>(this.config.buildApiUrl(this.config.authEndpoints.refresh), {})
+      .post<LoginResponse>(this.config.buildApiUrl(this.config.authEndpoints.refresh), {
+        refreshToken: currentToken,
+      })
       .pipe(
         tap((response) => this.handleLoginSuccess(response)),
         catchError((error): Observable<never> => {
