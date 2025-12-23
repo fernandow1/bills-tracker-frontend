@@ -10,7 +10,8 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
   user: User;
   expiresIn?: number;
 }
@@ -38,11 +39,6 @@ export class AuthService {
   private readonly router = inject(Router);
   private readonly config = inject(ConfigService);
 
-  // Configuración del API usando ConfigService
-  private get apiUrl(): string {
-    return this.config.apiUrl;
-  }
-
   private get tokenKey(): string {
     return this.config.authConfig.tokenKey;
   }
@@ -50,6 +46,8 @@ export class AuthService {
   private get userKey(): string {
     return this.config.authConfig.userKey;
   }
+
+  private readonly refreshTokenKey = 'refreshToken';
 
   // Estado reactivo usando signals
   public readonly isAuthenticated = signal<boolean>(this.hasValidToken());
@@ -170,15 +168,15 @@ export class AuthService {
    * Refresca el token (si el backend lo soporta)
    */
   public refreshToken(): Observable<LoginResponse> {
-    const currentToken = this.getToken();
+    const currentRefreshToken = this.getStoredRefreshToken();
 
-    if (!currentToken) {
-      return throwError(() => new Error('No token available for refresh'));
+    if (!currentRefreshToken) {
+      return throwError(() => new Error('No refresh token available'));
     }
 
     return this.http
       .post<LoginResponse>(this.config.buildApiUrl(this.config.authEndpoints.refresh), {
-        refreshToken: currentToken,
+        refreshToken: currentRefreshToken,
       })
       .pipe(
         tap((response) => this.handleLoginSuccess(response)),
@@ -193,9 +191,10 @@ export class AuthService {
    * Maneja el éxito del login
    */
   private handleLoginSuccess(response: LoginResponse): void {
-    this.storeToken(response.token);
+    this.storeToken(response.accessToken);
+    this.storeRefreshToken(response.refreshToken);
     this.storeUser(response.user);
-    this.updateAuthState(true, response.user, response.token);
+    this.updateAuthState(true, response.user, response.accessToken);
   }
 
   /**
@@ -228,6 +227,29 @@ export class AuthService {
       localStorage.setItem(this.tokenKey, token);
     } catch (error) {
       ConfigService.error('Error storing token:', error);
+    }
+  }
+
+  /**
+   * Almacena el refresh token en localStorage
+   */
+  private storeRefreshToken(refreshToken: string): void {
+    try {
+      localStorage.setItem(this.refreshTokenKey, refreshToken);
+    } catch (error) {
+      ConfigService.error('Error storing refresh token:', error);
+    }
+  }
+
+  /**
+   * Obtiene el refresh token almacenado
+   */
+  private getStoredRefreshToken(): string | null {
+    try {
+      return localStorage.getItem(this.refreshTokenKey);
+    } catch (error) {
+      ConfigService.error('Error getting refresh token:', error);
+      return null;
     }
   }
 
@@ -303,6 +325,7 @@ export class AuthService {
   private clearAuthData(): void {
     try {
       localStorage.removeItem(this.tokenKey);
+      localStorage.removeItem(this.refreshTokenKey);
       localStorage.removeItem(this.userKey);
     } catch (error) {
       ConfigService.error('Error clearing auth data:', error);

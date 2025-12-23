@@ -46,7 +46,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           switchMap((response) => {
             // Reintentar la petición original con el nuevo token
             const retryReq = req.clone({
-              headers: req.headers.set('Authorization', `Bearer ${response.token}`),
+              headers: req.headers.set('Authorization', `Bearer ${response.refreshToken}`),
             });
             return next(retryReq);
           }),
