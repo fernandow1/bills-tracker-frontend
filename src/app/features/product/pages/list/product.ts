@@ -28,7 +28,7 @@ import { IProductResponse } from '@features/product/interfaces/product-response.
 import { IBrandResponse } from '@features/brand/interfaces/brand-response.interface';
 import { ProductForm } from '@features/product/pages/form/product-form';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, map } from 'rxjs/operators';
 
 interface ProductFilters {
   name: string | null;
@@ -112,21 +112,27 @@ export class Product implements OnInit {
 
     // Configurar debounce para búsqueda de marcas (500ms)
     this.brandSearchSubject
-      .pipe(debounceTime(500), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
-      .subscribe((searchTerm) => {
-        if (searchTerm.trim() === '') {
-          return;
-        }
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        map((v: string) => v.trim()),
+        filter((v: string) => v.length > 0),
+        debounceTime(500),
+        distinctUntilChanged()
+      )
+      .subscribe((searchTerm: string) => {
         this.brandService.searchBrands(searchTerm);
       });
 
     // Configurar debounce para búsqueda de categorías (500ms)
     this.categorySearchSubject
-      .pipe(debounceTime(500), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        map((v: string) => v.trim()),
+        filter((v: string) => v.length > 0),
+        debounceTime(500),
+        distinctUntilChanged()
+      )
       .subscribe((searchTerm: string) => {
-        if (searchTerm.trim() === '') {
-          return;
-        }
         this.categoryService.searchCategories(searchTerm);
       });
 

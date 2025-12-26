@@ -1,6 +1,7 @@
 import { Injectable, signal, resource, inject } from '@angular/core';
 import { ConfigService } from '@core/services/config.service';
 import { AuthService } from '@features/auth/services/auth.service';
+import { ErrorHandlerService } from '@core/services/error-handler.service';
 import { AuthFetchHelper } from '@core/utils/auth-fetch.helper';
 import { IBrandData } from '@features/brand/interfaces/brand-data.interface';
 import { IBrandResponse } from '@features/brand/interfaces/brand-response.interface';
@@ -14,7 +15,8 @@ import { Pagination } from '@core/interfaces/pagination.interface';
 export class BrandService {
   private readonly configService = new ConfigService();
   private readonly authService = inject(AuthService);
-  private readonly authFetch = new AuthFetchHelper(this.authService);
+  private readonly errorHandler = inject(ErrorHandlerService);
+  private readonly authFetch = new AuthFetchHelper(this.authService, this.errorHandler);
 
   /**
    * Obtiene los headers con autenticación para fetch

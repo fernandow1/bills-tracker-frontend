@@ -1,6 +1,7 @@
 import { Injectable, signal, resource, inject } from '@angular/core';
 import { ConfigService } from '@core/services/config.service';
 import { AuthService } from '@features/auth/services/auth.service';
+import { ErrorHandlerService } from '@core/services/error-handler.service';
 import { AuthFetchHelper } from '@core/utils/auth-fetch.helper';
 import { IProductData } from '@features/product/interfaces/product-data.interface';
 import { IProductResponse } from '@features/product/interfaces/product-response.interface';
@@ -14,7 +15,8 @@ import { FilterOperator } from '@core/utils/filter-operators.types';
 export class ProductService {
   private readonly configService = new ConfigService();
   private readonly authService = inject(AuthService);
-  private readonly authFetch = new AuthFetchHelper(this.authService);
+  private readonly errorHandler = inject(ErrorHandlerService);
+  private readonly authFetch = new AuthFetchHelper(this.authService, this.errorHandler);
 
   /**
    * Obtiene los headers con autenticación para fetch
