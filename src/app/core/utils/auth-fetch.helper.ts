@@ -1,4 +1,5 @@
 import { AuthService } from '@features/auth/services/auth.service';
+import { ErrorHandlerService } from '@core/services/error-handler.service';
 import { firstValueFrom } from 'rxjs';
 
 /**
@@ -8,10 +9,12 @@ import { firstValueFrom } from 'rxjs';
  */
 export class AuthFetchHelper {
   private authService: AuthService;
+  private errorHandler: ErrorHandlerService;
   private isRefreshing = false;
 
-  constructor(authService: AuthService) {
+  constructor(authService: AuthService, errorHandler: ErrorHandlerService) {
     this.authService = authService;
+    this.errorHandler = errorHandler;
   }
 
   /**
@@ -36,7 +39,7 @@ export class AuthFetchHelper {
           ...options,
           headers: {
             ...options?.headers,
-            Authorization: `Bearer ${refreshResponse.token}`,
+            Authorization: `Bearer ${refreshResponse.accessToken}`,
           },
         };
 
@@ -45,9 +48,31 @@ export class AuthFetchHelper {
         return await fetch(url, newOptions);
       } catch (refreshError) {
         // Si el refresh falla, hacer logout
-        console.error('Token refresh failed, logging out', refreshError);
         this.isRefreshing = false;
+        this.errorHandler.handleError(refreshError, 'Token Refresh');
         this.authService.logout();
+        throw refreshError;
+      }
+    }
+
+    // Si hay error y no es de autenticación, procesarlo
+    if (!response.ok && response.status !== 401 && response.status !== 403) {
+      try {
+        const errorData = await response.clone().json();
+        const context = `${options?.method || 'GET'} ${url}`;
+
+        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
+        Object.assign(error, {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+        });
+
+        // No mostrar snackbar para errores de validación (422, 400)
+        const showSnackbar = response.status !== 422 && response.status !== 400;
+        this.errorHandler.handleError(error, context, showSnackbar);
+      } catch {
+        // Si no se puede parsear el JSON, continuar
       }
     }
 
