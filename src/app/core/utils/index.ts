@@ -25,3 +25,6 @@ export {
   type Filter,
   type FilterInput,
 } from './filter-operators.types';
+
+// Auth helpers
+export { AuthFetchHelper } from './auth-fetch.helper';
