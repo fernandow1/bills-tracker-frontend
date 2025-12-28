@@ -57,6 +57,14 @@ export const environment = {
       delete: '/products/:id',
       byId: '/products/:id',
     },
+    shops: {
+      list: '/shops',
+      search: '/shops/search',
+      create: '/shops',
+      update: '/shops/:id',
+      delete: '/shops/:id',
+      byId: '/shops/:id',
+    },
   },
 
   // Configuraciones de tokens y sesión
