@@ -45,6 +45,12 @@ export const routes: Routes = [
           import('@features/currency/pages/list/list').then((m) => m.CurrencyList),
         title: 'Monedas',
       },
+      {
+        path: 'payment-methods',
+        loadComponent: () =>
+          import('@features/payment-method/pages/list/list').then((m) => m.PaymentMethodList),
+        title: 'Métodos de Pago',
+      },
     ],
   },
   {

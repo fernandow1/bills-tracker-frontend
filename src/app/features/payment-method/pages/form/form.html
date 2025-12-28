@@ -1,0 +1,61 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Editar Método de Pago' : 'Nuevo Método de Pago' }}</h2>
+
+<mat-dialog-content>
+  <form class="payment-method-form">
+    <div class="form-fields">
+      <div>
+        <mat-form-field class="full-width">
+          <mat-label>Nombre</mat-label>
+          <input matInput [field]="paymentMethodForm.name" placeholder="Ej: Tarjeta de Crédito" />
+          <mat-icon matSuffix>payment</mat-icon>
+        </mat-form-field>
+        @if(paymentMethodForm.name().invalid()) { @for (error of paymentMethodForm.name().errors();
+        track error) {
+        <mat-error>{{ error.message }}</mat-error>
+        } }
+      </div>
+
+      <div>
+        <mat-form-field class="full-width">
+          <mat-label>Descripción</mat-label>
+          <textarea
+            matInput
+            [field]="paymentMethodForm.description"
+            placeholder="Descripción del método de pago"
+            rows="4"
+          ></textarea>
+          <mat-icon matSuffix>description</mat-icon>
+        </mat-form-field>
+        @if(paymentMethodForm.description().invalid()) { @for (error of
+        paymentMethodForm.description().errors(); track error) {
+        <mat-error>{{ error.message }}</mat-error>
+        } }
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close type="button">
+    <mat-icon>cancel</mat-icon>
+    Cancelar
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    type="button"
+    [disabled]="paymentMethodForm().invalid() || isSubmitting()"
+    (click)="onSubmit()"
+  >
+    @if (isSubmitting()) {
+    <mat-progress-spinner diameter="20" strokeWidth="3" mode="indeterminate">
+    </mat-progress-spinner>
+    <span>{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
+    } @else {
+    <ng-container>
+      <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+      <span>{{ isEditMode ? 'Actualizar' : 'Crear' }}</span>
+    </ng-container>
+    }
+  </button>
+</mat-dialog-actions>

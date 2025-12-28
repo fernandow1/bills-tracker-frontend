@@ -73,6 +73,14 @@ export const environment = {
       delete: '/currencies/:id',
       byId: '/currencies/:id',
     },
+    paymentMethods: {
+      list: '/payment-methods',
+      search: '/payment-methods/search',
+      create: '/payment-methods',
+      update: '/payment-methods/:id',
+      delete: '/payment-methods/:id',
+      byId: '/payment-methods/:id',
+    },
   },
 
   // Configuraciones de tokens y sesión

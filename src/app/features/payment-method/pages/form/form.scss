@@ -1,0 +1,51 @@
+mat-dialog-content {
+  padding: 24px;
+  min-width: 500px;
+  max-height: 70vh;
+  overflow-y: auto;
+
+  .payment-method-form {
+    .form-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+
+      > div {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        mat-form-field {
+          width: 100%;
+        }
+
+        mat-error {
+          color: #f44336;
+          font-size: 12px;
+          padding: 4px 0;
+        }
+      }
+    }
+  }
+}
+
+mat-dialog-actions {
+  padding: 16px 24px;
+  gap: 12px;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 120px;
+
+    mat-progress-spinner {
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    mat-icon {
+      margin: 0;
+    }
+  }
+}

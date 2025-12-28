@@ -64,6 +64,12 @@ export class NavigationService {
       icon: 'currency_exchange',
     },
     {
+      id: 'payment-methods',
+      label: 'Métodos de Pago',
+      route: '/payment-methods',
+      icon: 'payment',
+    },
+    {
       id: 'settings',
       label: 'Configuración',
       route: '/settings',
