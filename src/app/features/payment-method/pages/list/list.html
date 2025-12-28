@@ -7,13 +7,13 @@
     </button>
   </div>
 
-  @if (isLoading()) {
+  @if (isLoading) {
   <div class="loading-container">
     <mat-spinner></mat-spinner>
   </div>
   } @else {
   <div class="table-container">
-    <table mat-table [dataSource]="paymentMethods()" class="payment-method-table">
+    <table mat-table [dataSource]="paymentMethods" class="payment-method-table">
       <!-- Name Column -->
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>Nombre</th>

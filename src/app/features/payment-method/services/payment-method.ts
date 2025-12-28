@@ -69,19 +69,38 @@ export class PaymentMethodService {
   /**
    * Obtiene la lista completa de métodos de pago desde el resource
    */
-  public getAllPaymentMethods(): IPaymentMethodResponse[] | null {
-    const result = this.allPaymentMethodsResource.value();
-    if (result === undefined) {
+  public get paymentMethods(): IPaymentMethodResponse[] | null | undefined {
+    if (!this.loadAllPaymentMethodsTrigger()) {
       return null;
     }
-    return result;
+    return this.allPaymentMethodsResource.value() as IPaymentMethodResponse[] | null | undefined;
   }
 
   /**
-   * Indica si el resource está cargando datos
+   * Obtiene el estado de carga de los métodos de pago
    */
-  public isLoadingPaymentMethods(): boolean {
-    return this.allPaymentMethodsResource.isLoading();
+  public get isLoadingPaymentMethods(): boolean {
+    return this.allPaymentMethodsResource.status() === 'loading';
+  }
+
+  /**
+   * Obtiene el error al cargar métodos de pago si existe
+   */
+  public get paymentMethodsError(): unknown {
+    if (!this.loadAllPaymentMethodsTrigger()) {
+      return null;
+    }
+    return this.allPaymentMethodsResource.error();
+  }
+
+  /**
+   * Recarga la lista de métodos de pago
+   */
+  public reloadPaymentMethods(): void {
+    if (!this.loadAllPaymentMethodsTrigger()) {
+      this.loadAllPaymentMethodsTrigger.set(true);
+    }
+    this.allPaymentMethodsResource.reload();
   }
 
   /**

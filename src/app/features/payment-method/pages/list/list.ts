@@ -18,56 +18,77 @@ import { IPaymentMethodResponse } from '@features/payment-method/interfaces/paym
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaymentMethodList implements OnInit {
-  #paymentMethodService = inject(PaymentMethodService);
-  #dialog = inject(MatDialog);
+  private readonly service = inject(PaymentMethodService);
+  private readonly dialog = inject(MatDialog);
+  private reloadCooldown = signal<boolean>(false);
+  private readonly COOLDOWN_TIME = 2000; // 2 segundos
 
-  protected readonly displayedColumns: string[] = ['name', 'description', 'createdAt', 'actions'];
-
-  protected paymentMethods = signal<IPaymentMethodResponse[]>([]);
-  protected isLoading = signal(false);
+  public readonly displayedColumns: string[] = ['name', 'description', 'createdAt', 'actions'];
 
   public ngOnInit(): void {
-    this.loadPaymentMethods();
+    // Cargar todos los métodos de pago al iniciar el componente
+    this.service.loadAllPaymentMethods();
   }
 
-  private loadPaymentMethods(): void {
-    this.isLoading.set(true);
-    this.#paymentMethodService.loadAllPaymentMethods();
+  public get paymentMethods(): IPaymentMethodResponse[] {
+    return this.service.paymentMethods || [];
+  }
 
-    // Esperar un momento para que el resource cargue
-    setTimeout(() => {
-      const data = this.#paymentMethodService.getAllPaymentMethods();
-      if (data) {
-        this.paymentMethods.set(data);
-      }
-      this.isLoading.set(this.#paymentMethodService.isLoadingPaymentMethods());
-    }, 100);
+  public get isLoading(): boolean {
+    return this.service.isLoadingPaymentMethods;
+  }
+
+  public get hasError(): boolean {
+    return !!this.service.paymentMethodsError;
+  }
+
+  public get isReloadDisabled(): boolean {
+    return this.reloadCooldown() || this.isLoading;
   }
 
   public openCreateDialog(): void {
-    const dialogRef = this.#dialog.open(PaymentMethodForm, {
-      width: '500px',
+    const dialogRef = this.dialog.open(PaymentMethodForm, {
+      width: '600px',
       disableClose: true,
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.loadPaymentMethods();
+        // Recargar la lista si se creó un método de pago
+        this.service.reloadPaymentMethods();
       }
     });
   }
 
   public openEditDialog(paymentMethod: IPaymentMethodResponse): void {
-    const dialogRef = this.#dialog.open(PaymentMethodForm, {
-      width: '500px',
-      data: paymentMethod,
+    const dialogRef = this.dialog.open(PaymentMethodForm, {
+      width: '600px',
       disableClose: true,
+      data: paymentMethod,
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.loadPaymentMethods();
+        // Recargar la lista si se editó un método de pago
+        this.service.reloadPaymentMethods();
       }
     });
+  }
+
+  public deletePaymentMethod(_paymentMethod: IPaymentMethodResponse): void {
+    // TODO: Implementar lógica de eliminación
+  }
+
+  public reload(): void {
+    if (this.reloadCooldown()) {
+      return;
+    }
+
+    this.service.reloadPaymentMethods();
+    this.reloadCooldown.set(true);
+
+    setTimeout(() => {
+      this.reloadCooldown.set(false);
+    }, this.COOLDOWN_TIME);
   }
 }
