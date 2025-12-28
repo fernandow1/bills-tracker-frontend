@@ -32,24 +32,23 @@
           <mat-label>Buscar por nombre</mat-label>
           <input
             matInput
-            [(ngModel)]="filters.name"
-            name="name"
-            placeholder="Nombre de la tienda"
+            [formControl]="nameControl"
+            placeholder="Nombre de la tienda (búsqueda automática)"
           />
           <mat-icon matPrefix>search</mat-icon>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Buscar por dirección</mat-label>
-          <input matInput [(ngModel)]="filters.address" name="address" placeholder="Dirección" />
-          <mat-icon matPrefix>location_on</mat-icon>
+          <mat-label>Buscar por descripción</mat-label>
+          <input
+            matInput
+            [formControl]="descriptionControl"
+            placeholder="Descripción (búsqueda automática)"
+          />
+          <mat-icon matPrefix>description</mat-icon>
         </mat-form-field>
 
         <div class="filters-actions">
-          <button mat-raised-button color="primary" type="button" (click)="applyFilters()">
-            <mat-icon>check</mat-icon>
-            Aplicar Filtros
-          </button>
           <button mat-raised-button type="button" (click)="clearFilters()">
             <mat-icon>clear</mat-icon>
             Limpiar Filtros
@@ -94,11 +93,11 @@
           <td mat-cell *matCellDef="let shop">{{ shop.name }}</td>
         </ng-container>
 
-        <!-- Columna Dirección -->
-        <ng-container matColumnDef="address">
-          <th mat-header-cell *matHeaderCellDef>Dirección</th>
+        <!-- Columna Descripción -->
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef>Descripción</th>
           <td mat-cell *matCellDef="let shop">
-            <span class="address-cell">{{ shop.address || 'N/A' }}</span>
+            <span class="description-cell">{{ shop.description || 'N/A' }}</span>
           </td>
         </ng-container>
 

@@ -22,6 +22,12 @@ export class NavigationService {
       icon: 'dashboard',
     },
     {
+      id: 'shops',
+      label: 'Tiendas',
+      route: '/shops',
+      icon: 'storefront',
+    },
+    {
       id: 'brands',
       label: 'Marcas',
       route: '/brands',

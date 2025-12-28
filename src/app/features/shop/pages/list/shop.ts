@@ -1,6 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+  OnInit,
+  DestroyRef,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -10,13 +20,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { ShopService } from '@features/shop/services/shop';
 import { IShopResponse } from '@features/shop/interfaces/shop-response.interface';
+import { ShopForm } from '@features/shop/pages/form/form';
 
 interface ShopFilters {
   name: string | null;
-  address: string | null;
+  description: string | null;
 }
 
 @Component({
@@ -24,6 +35,7 @@ interface ShopFilters {
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     MatTableModule,
     MatPaginatorModule,
     MatProgressSpinnerModule,
@@ -40,9 +52,11 @@ interface ShopFilters {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Shop implements OnInit {
-  public readonly displayedColumns: string[] = ['name', 'address', 'createdAt', 'actions'];
+  public readonly displayedColumns: string[] = ['name', 'description', 'createdAt', 'actions'];
 
   private readonly shopService = inject(ShopService);
+  private readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
 
   private reloadCooldown = signal<boolean>(false);
   private readonly COOLDOWN_TIME = 2000; // 2 segundos
@@ -55,25 +69,70 @@ export class Shop implements OnInit {
   // Filtros
   public filters: ShopFilters = {
     name: null,
-    address: null,
+    description: null,
   };
 
   private appliedFilters: ShopFilters = { ...this.filters };
 
+  // Form Controls para búsqueda con debounce
+  public nameControl = new FormControl<string>('');
+  public descriptionControl = new FormControl<string>('');
+
+  // Subjects para debounce de búsqueda
+  private nameSearchSubject = new Subject<string>();
+  private descriptionSearchSubject = new Subject<string>();
+
   public ngOnInit(): void {
     // Cargar datos iniciales con paginación
     this.loadData();
+
+    // Configurar debounce para búsqueda por nombre (500ms)
+    this.nameSearchSubject
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        map((v: string) => v.trim()),
+        debounceTime(500),
+        distinctUntilChanged()
+      )
+      .subscribe((searchTerm: string) => {
+        this.filters.name = searchTerm || null;
+        this.applyFilters();
+      });
+
+    // Configurar debounce para búsqueda por descripción (500ms)
+    this.descriptionSearchSubject
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        map((v: string) => v.trim()),
+        debounceTime(500),
+        distinctUntilChanged()
+      )
+      .subscribe((searchTerm: string) => {
+        this.filters.description = searchTerm || null;
+        this.applyFilters();
+      });
+
+    // Configurar listeners para los FormControls
+    this.nameControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      this.nameSearchSubject.next(value || '');
+    });
+
+    this.descriptionControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        this.descriptionSearchSubject.next(value || '');
+      });
   }
 
   private loadData(): void {
     // Llamar al backend con paginación y filtros
-    const filters: { name?: string; address?: string } = {};
+    const filters: { name?: string; description?: string } = {};
 
     if (this.appliedFilters.name) {
       filters['name'] = this.appliedFilters.name;
     }
-    if (this.appliedFilters.address) {
-      filters['address'] = this.appliedFilters.address;
+    if (this.appliedFilters.description) {
+      filters['description'] = this.appliedFilters.description;
     }
 
     this.shopService.searchShops(
@@ -104,7 +163,7 @@ export class Shop implements OnInit {
   }
 
   public get hasActiveFilters(): boolean {
-    return this.appliedFilters.name !== null || this.appliedFilters.address !== null;
+    return this.appliedFilters.name !== null || this.appliedFilters.description !== null;
   }
 
   public get activeFiltersCount(): number {
@@ -112,7 +171,7 @@ export class Shop implements OnInit {
     if (this.appliedFilters.name) {
       count++;
     }
-    if (this.appliedFilters.address) {
+    if (this.appliedFilters.description) {
       count++;
     }
     return count;
@@ -127,10 +186,14 @@ export class Shop implements OnInit {
   public clearFilters(): void {
     this.filters = {
       name: null,
-      address: null,
+      description: null,
     };
     this.appliedFilters = { ...this.filters };
     this.currentPage = 1;
+
+    // Limpiar FormControls
+    this.nameControl.setValue('', { emitEvent: false });
+    this.descriptionControl.setValue('', { emitEvent: false });
 
     // Recargar sin filtros
     this.loadData();
@@ -143,11 +206,32 @@ export class Shop implements OnInit {
   }
 
   public openCreateDialog(): void {
-    // TODO: Implementar diálogo de creación
+    const dialogRef = this.dialog.open(ShopForm, {
+      width: '600px',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Recargar la lista si se creó una tienda
+        this.reload();
+      }
+    });
   }
 
-  public openEditDialog(_shop: IShopResponse): void {
-    // TODO: Implementar diálogo de edición
+  public openEditDialog(shop: IShopResponse): void {
+    const dialogRef = this.dialog.open(ShopForm, {
+      width: '600px',
+      disableClose: true,
+      data: shop,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Recargar la lista si se editó una tienda
+        this.reload();
+      }
+    });
   }
 
   public deleteShop(_shop: IShopResponse): void {

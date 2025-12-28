@@ -133,7 +133,7 @@ mat-card-title {
       color: rgba(0, 0, 0, 0.87);
     }
 
-    .address-cell {
+    .description-cell {
       display: block;
       max-width: 300px;
       overflow: hidden;
@@ -179,7 +179,7 @@ mat-card-title {
     table {
       font-size: 12px;
 
-      .address-cell {
+      .description-cell {
         max-width: 150px;
       }
     }

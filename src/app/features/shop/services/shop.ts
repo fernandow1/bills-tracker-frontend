@@ -201,7 +201,7 @@ export class ShopService {
   public searchShops(
     page: number,
     pageSize: number,
-    filters?: { name?: string; address?: string }
+    filters?: { name?: string; description?: string }
   ): void {
     this.searchShopsTrigger.set({ page, pageSize, filters });
     this.searchShopsResource.reload();
