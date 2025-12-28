@@ -34,6 +34,11 @@ export const routes: Routes = [
         loadComponent: () => import('@features/brand/pages/list/brand').then((m) => m.Brand),
         title: 'Marcas',
       },
+      {
+        path: 'shops',
+        loadComponent: () => import('@features/shop/pages/list/shop').then((m) => m.Shop),
+        title: 'Tiendas',
+      },
     ],
   },
   {
