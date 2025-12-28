@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { CurrencyService } from '@features/currency/services/currency';
 import { ICurrencyResponse } from '@features/currency/interfaces/currency-response.interface';
+import { CurrencyForm } from '@features/currency/pages/form/form';
 
 @Component({
   selector: 'app-currency-list',
@@ -54,11 +55,32 @@ export class CurrencyList implements OnInit {
   }
 
   public openCreateDialog(): void {
-    // TODO: Implementar diálogo de creación
+    const dialogRef = this.dialog.open(CurrencyForm, {
+      width: '600px',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Recargar la lista si se creó una moneda
+        this.service.reloadCurrencies();
+      }
+    });
   }
 
-  public openEditDialog(_currency: ICurrencyResponse): void {
-    // TODO: Implementar diálogo de edición
+  public openEditDialog(currency: ICurrencyResponse): void {
+    const dialogRef = this.dialog.open(CurrencyForm, {
+      width: '600px',
+      disableClose: true,
+      data: currency,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Recargar la lista si se editó una moneda
+        this.service.reloadCurrencies();
+      }
+    });
   }
 
   public deleteCurrency(_currency: ICurrencyResponse): void {

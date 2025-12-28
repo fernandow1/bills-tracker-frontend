@@ -1,0 +1,71 @@
+// Estilos para el formulario de moneda
+mat-dialog-content {
+  padding: 24px !important;
+  min-height: 200px;
+  overflow: visible !important;
+}
+
+h2[mat-dialog-title] {
+  margin-bottom: 0 !important;
+  padding-bottom: 16px !important;
+}
+
+.currency-form {
+  width: 100%;
+
+  .form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .full-width {
+      width: 100%;
+    }
+
+    mat-form-field {
+      width: 100%;
+    }
+
+    mat-error {
+      color: #f44336;
+      font-size: 12px;
+      margin-top: 4px;
+      display: block;
+    }
+  }
+}
+
+mat-dialog-actions {
+  padding: 16px 24px !important;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 120px;
+
+    mat-progress-spinner {
+      display: inline-block;
+      margin-right: 8px;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 600px) {
+  mat-dialog-content {
+    padding: 16px !important;
+  }
+
+  mat-dialog-actions {
+    padding: 12px 16px !important;
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}
