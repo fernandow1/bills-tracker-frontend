@@ -65,6 +65,14 @@ export const environment = {
       delete: '/shops/:id',
       byId: '/shops/:id',
     },
+    currencies: {
+      list: '/currencies',
+      search: '/currencies/search',
+      create: '/currencies',
+      update: '/currencies/:id',
+      delete: '/currencies/:id',
+      byId: '/currencies/:id',
+    },
   },
 
   // Configuraciones de tokens y sesión

@@ -39,6 +39,12 @@ export const routes: Routes = [
         loadComponent: () => import('@features/shop/pages/list/shop').then((m) => m.Shop),
         title: 'Tiendas',
       },
+      {
+        path: 'currencies',
+        loadComponent: () =>
+          import('@features/currency/pages/list/list').then((m) => m.CurrencyList),
+        title: 'Monedas',
+      },
     ],
   },
   {

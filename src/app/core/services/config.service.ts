@@ -60,6 +60,10 @@ export class ConfigService {
     return environment.endpoints.shops;
   }
 
+  public get currencyEndpoints() {
+    return environment.endpoints.currencies;
+  }
+
   // Auth Configuration
   public get authConfig() {
     return environment.auth;

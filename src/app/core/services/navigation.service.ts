@@ -58,6 +58,12 @@ export class NavigationService {
       icon: 'analytics',
     },
     {
+      id: 'currencies',
+      label: 'Monedas',
+      route: '/currencies',
+      icon: 'currency_exchange',
+    },
+    {
       id: 'settings',
       label: 'Configuración',
       route: '/settings',
