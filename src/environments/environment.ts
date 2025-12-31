@@ -22,7 +22,7 @@ export const environment = {
     },
     bills: {
       base: '/bills',
-      list: '/bills',
+      list: '/bills/search',
       create: '/bills',
       update: '/bills/:id',
       delete: '/bills/:id',

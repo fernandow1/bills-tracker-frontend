@@ -51,6 +51,11 @@ export const routes: Routes = [
           import('@features/payment-method/pages/list/list').then((m) => m.PaymentMethodList),
         title: 'Métodos de Pago',
       },
+      {
+        path: 'bills',
+        loadComponent: () => import('@features/bill/pages/list/bill-list').then((m) => m.BillList),
+        title: 'Facturas',
+      },
     ],
   },
   {
