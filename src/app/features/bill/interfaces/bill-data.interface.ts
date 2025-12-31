@@ -4,6 +4,8 @@ export interface IBillData {
   idShop: number;
   idCurrency: number;
   idPaymentMethod: number;
+  subTotal: number;
+  discount: number;
   total: number;
   billItems: IBillItemData[]; // Array de items para crear/actualizar
 }

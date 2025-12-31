@@ -22,6 +22,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { BillService } from '@features/bill/services/bill';
 import { IBillResponse, IBillSearchFilters } from '@features/bill/interfaces';
+import { BillDetail } from '@features/bill/pages/detail/bill-detail';
 import { CurrencyFormatPipe } from '@shared/pipes';
 import { debounceTime } from 'rxjs/operators';
 import { Subject } from 'rxjs';
@@ -184,8 +185,20 @@ export class BillList implements OnInit {
   }
 
   public openViewDialog(bill: IBillResponse): void {
-    // TODO: Implementar vista detallada de factura
-    void bill;
+    const dialogRef = this.dialog.open(BillDetail, {
+      width: '850px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: bill,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.action === 'edit') {
+        this.openEditDialog(result.bill);
+      } else if (result?.action === 'delete') {
+        void this.deleteBill(result.bill);
+      }
+    });
   }
 
   public async deleteBill(bill: IBillResponse): Promise<void> {
