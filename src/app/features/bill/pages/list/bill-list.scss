@@ -1,0 +1,249 @@
+.bill-list-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h2 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+
+  .filters-panel {
+    margin-bottom: 24px;
+
+    mat-panel-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filters-content {
+      padding: 16px 0;
+
+      .filter-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+        margin-bottom: 16px;
+
+        mat-form-field {
+          width: 100%;
+        }
+      }
+
+      .filter-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 16px;
+
+        button {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+      }
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    gap: 16px;
+
+    p {
+      margin: 0;
+      color: #666;
+      font-size: 16px;
+    }
+  }
+
+  .error-card,
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+
+    mat-card-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+
+      mat-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        color: #ff9800;
+      }
+
+      p {
+        margin: 0;
+        font-size: 18px;
+        color: #666;
+      }
+
+      button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+    }
+  }
+
+  .error-card mat-card-content mat-icon {
+    color: #f44336;
+  }
+
+  .table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+
+    .table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .bill-table {
+      width: 100%;
+      min-width: 800px;
+
+      th {
+        background-color: #f5f5f5;
+        font-weight: 600;
+        font-size: 14px;
+        color: #333;
+      }
+
+      td,
+      th {
+        padding: 16px;
+      }
+
+      tr:hover {
+        background-color: #fafafa;
+        cursor: pointer;
+      }
+
+      .total-cell {
+        font-weight: 600;
+        color: #2e7d32;
+        text-align: right;
+      }
+
+      .actions-cell {
+        display: flex;
+        gap: 4px;
+        justify-content: center;
+        white-space: nowrap;
+
+        button {
+          width: 40px;
+          height: 40px;
+          flex-shrink: 0;
+        }
+      }
+
+      // Hacer sticky la columna de acciones en pantallas grandes
+      @media (min-width: 769px) {
+        th:last-child,
+        td:last-child {
+          position: sticky;
+          right: 0;
+          background-color: inherit;
+          z-index: 1;
+        }
+
+        th:last-child {
+          background-color: #f5f5f5;
+        }
+
+        td:last-child {
+          background-color: white;
+        }
+
+        tr:hover td:last-child {
+          background-color: #fafafa;
+        }
+      }
+    }
+
+    mat-paginator {
+      border-top: 1px solid #e0e0e0;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .bill-list-container {
+    padding: 16px;
+
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+
+      button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    .filters-content .filter-row {
+      grid-template-columns: 1fr;
+    }
+
+    .table-container {
+      .table-wrapper {
+        border-radius: 8px;
+      }
+
+      .bill-table {
+        min-width: 700px;
+
+        td,
+        th {
+          padding: 12px 8px;
+          font-size: 13px;
+
+          &:first-child {
+            padding-left: 16px;
+          }
+
+          &:last-child {
+            padding-right: 16px;
+          }
+        }
+
+        .actions-cell {
+          gap: 4px;
+
+          button {
+            width: 36px;
+            height: 36px;
+          }
+        }
+      }
+    }
+  }
+}
