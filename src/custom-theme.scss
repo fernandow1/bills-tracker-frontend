@@ -55,5 +55,27 @@ body {
   margin: 0;
 
   // Smooth transition between themes
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+// Global transitions for theme changes
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+// Specific transitions for Material components
+mat-card,
+mat-toolbar,
+mat-sidenav,
+mat-table,
+table,
+.mat-mdc-card,
+.mat-mdc-dialog-container,
+.mat-mdc-form-field,
+.mat-mdc-select-panel,
+.mat-mdc-menu-panel,
+.mat-mdc-snack-bar-container {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease,
+    box-shadow 0.3s ease !important;
 }
