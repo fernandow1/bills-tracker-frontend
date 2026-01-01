@@ -11,6 +11,15 @@
     </button>
     <span>Bills Tracker</span>
     <span class="example-spacer"></span>
+    <button
+      matIconButton
+      class="example-icon"
+      aria-label="Cambiar tema"
+      title="Cambiar tema"
+      (click)="themeService.toggleTheme()"
+    >
+      <mat-icon>{{ themeService.isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
     <button matIconButton class="example-icon" aria-label="Perfil de usuario" title="Perfil">
       <mat-icon>account_circle</mat-icon>
     </button>

@@ -13,12 +13,12 @@
     .product-name {
       font-size: 14px;
       font-weight: 500;
-      color: rgba(0, 0, 0, 0.87);
+      color: var(--mat-sys-on-surface);
     }
 
     .product-meta {
       font-size: 12px;
-      color: rgba(0, 0, 0, 0.54);
+      color: var(--mat-sys-on-surface-variant);
       display: flex;
       align-items: center;
       gap: 6px;
@@ -28,7 +28,7 @@
       }
 
       .separator {
-        color: rgba(0, 0, 0, 0.38);
+        color: var(--mat-sys-outline);
       }
 
       .category {
@@ -47,7 +47,7 @@
       margin: 0;
       font-size: 24px;
       font-weight: 500;
-      color: #333;
+      color: var(--mat-sys-on-surface);
     }
 
     button {
@@ -81,13 +81,13 @@
         margin: 0 0 20px 0;
         font-size: 18px;
         font-weight: 600;
-        color: #333;
+        color: var(--mat-sys-on-surface);
         display: flex;
         align-items: center;
         gap: 8px;
 
         mat-icon {
-          color: #666;
+          color: var(--mat-sys-on-surface-variant);
         }
       }
     }
@@ -133,10 +133,10 @@
         min-width: 800px;
 
         th {
-          background-color: #f5f5f5;
+          background-color: var(--mat-sys-surface-container-high);
           font-weight: 600;
           font-size: 14px;
-          color: #333;
+          color: var(--mat-sys-on-surface);
           padding: 16px 8px;
         }
 
@@ -172,13 +172,13 @@
 
         .subtotal-cell {
           font-weight: 600;
-          color: #2e7d32;
+          color: var(--mat-sys-primary);
           padding: 16px 8px;
           white-space: nowrap;
         }
 
         .readonly-field {
-          color: rgba(0, 0, 0, 0.6);
+          color: var(--mat-sys-on-surface-variant);
           font-size: 13px;
           font-style: italic;
           padding: 8px 0;
@@ -190,20 +190,20 @@
         justify-content: space-between;
         align-items: center;
         padding: 20px;
-        background-color: #f5f5f5;
+        background-color: var(--mat-sys-surface-container-high);
         border-radius: 8px;
         margin-top: 20px;
 
         .total-label {
           font-size: 18px;
           font-weight: 600;
-          color: #666;
+          color: var(--mat-sys-on-surface-variant);
         }
 
         .total-value {
           font-size: 32px;
           font-weight: 700;
-          color: #2e7d32;
+          color: var(--mat-sys-primary);
         }
       }
 
@@ -235,7 +235,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px 24px;
-    background-color: #fafafa;
+    background-color: var(--mat-sys-surface-container-low);
 
     button {
       display: flex;

@@ -47,7 +47,7 @@ mat-card-title {
 
   p {
     font-size: 16px;
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--mat-sys-on-surface-variant);
     margin: 0 0 16px 0;
   }
 
@@ -70,23 +70,23 @@ mat-card-title {
 
   table {
     width: 100%;
-    background: white;
+    background: var(--mat-sys-surface);
 
     th {
       font-weight: 600;
       font-size: 14px;
-      color: rgba(0, 0, 0, 0.87);
+      color: var(--mat-sys-on-surface);
     }
 
     td {
       font-size: 14px;
-      color: rgba(0, 0, 0, 0.87);
+      color: var(--mat-sys-on-surface);
     }
 
     .currency-symbol {
       font-size: 18px;
       font-weight: 500;
-      color: #1976d2;
+      color: var(--mat-sys-primary);
     }
 
     button {

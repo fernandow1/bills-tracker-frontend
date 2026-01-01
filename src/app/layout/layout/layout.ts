@@ -9,6 +9,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { AuthService } from '@features/auth/services/auth.service';
 import { ConfigService } from '@core/services/config.service';
 import { NavigationService } from '@core/services/navigation.service';
+import { ThemeService } from '@core/services/theme.service';
 import { NavItemComponent } from '@shared/components/nav-item/nav-item.component';
 @Component({
   selector: 'app-layout',
@@ -33,6 +34,7 @@ export class Layout implements OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly navigationService = inject(NavigationService);
+  protected readonly themeService = inject(ThemeService);
 
   // Exponer los items de navegación al template
   protected get navigationItems() {

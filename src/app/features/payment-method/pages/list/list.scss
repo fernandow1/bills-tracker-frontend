@@ -28,7 +28,7 @@
   }
 
   .table-container {
-    background: white;
+    background: var(--mat-sys-surface-container);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
@@ -37,7 +37,7 @@
       width: 100%;
 
       th {
-        background-color: #f5f5f5;
+        background-color: var(--mat-sys-surface-container-high);
         font-weight: 600;
         font-size: 14px;
       }

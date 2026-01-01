@@ -207,7 +207,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px 24px;
-    background-color: #fafafa;
+    background-color: var(--mat-sys-surface-container-low);
 
     .action-buttons {
       display: flex;
