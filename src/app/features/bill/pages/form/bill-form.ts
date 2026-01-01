@@ -97,6 +97,8 @@ export class BillForm implements OnInit {
   // Model para el formulario
   public billModel = signal<IBillData>({
     idUser: 1, // Asignar un ID de usuario fijo por ahora
+    idUserOwner: 1, // Por defecto, mismo que idUser
+    purchasedAt: this.data?.bill?.purchasedAt || new Date().toISOString().split('T')[0], // Fecha de hoy por defecto
     idShop: Number(this.data?.bill?.shop.id) || 0,
     idCurrency: Number(this.data?.bill?.currency.id) || 0,
     idPaymentMethod: this.data?.bill?.paymentMethod.id || 0,
@@ -117,6 +119,7 @@ export class BillForm implements OnInit {
     required(schemaPath.idShop, { message: 'La tienda es requerida' });
     required(schemaPath.idCurrency, { message: 'La moneda es requerida' });
     required(schemaPath.idPaymentMethod, { message: 'El método de pago es requerido' });
+    required(schemaPath.purchasedAt, { message: 'La fecha de compra es requerida' });
   });
 
   // Items separados para mejor manejo
@@ -307,9 +310,12 @@ export class BillForm implements OnInit {
     const subTotal = this.total();
     const discount = 0; // Por ahora sin descuento
     const currentUser = this.authService.currentUser();
+    const userId = currentUser?.id ? Number(currentUser.id) : 0;
 
     const billData: IBillData = {
-      idUser: currentUser?.id ? Number(currentUser.id) : 0,
+      idUser: userId, // Usuario que carga
+      idUserOwner: userId, // Por defecto, mismo que idUser (dueño = quien carga)
+      purchasedAt: formValue.purchasedAt || new Date().toISOString().split('T')[0],
       idShop: formValue.idShop || 0,
       idCurrency: formValue.idCurrency || 0,
       idPaymentMethod: formValue.idPaymentMethod || 0,
