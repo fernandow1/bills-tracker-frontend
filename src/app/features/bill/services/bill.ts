@@ -112,17 +112,6 @@ export class BillService {
   public createBillResource = resource({
     loader: async () => {
       const billData = this.createBillTrigger();
-      console.log('Resource loader ejecutado, billData:', billData);
-
-      if (!billData) {
-        console.log('No hay billData, retornando null');
-        return null;
-      }
-
-      console.log(
-        'Haciendo POST a:',
-        this.configService.buildApiUrl(this.configService.billsEndpoints.create)
-      );
 
       const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(this.configService.billsEndpoints.create),
@@ -132,8 +121,6 @@ export class BillService {
           body: JSON.stringify(billData),
         }
       );
-
-      console.log('Response status:', response.status);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
@@ -147,7 +134,7 @@ export class BillService {
       }
 
       const result = (await response.json()) as IBillResponse;
-      console.log('POST exitoso, resultado:', result);
+
       return result;
     },
   });
