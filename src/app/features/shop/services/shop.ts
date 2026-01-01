@@ -39,7 +39,7 @@ export class ShopService {
   private searchShopsTrigger = signal<{
     page: number;
     pageSize: number;
-    filters?: { name?: string; description?: string };
+    filters?: { name?: string; description?: string; ids?: number[] };
   } | null>(null);
 
   // Resource para búsqueda de tiendas con paginación y filtros
@@ -66,6 +66,9 @@ export class ShopService {
         filters.push(
           createFilter('description', searchParams.filters.description, FilterOperator.LIKE)
         );
+      }
+      if (searchParams.filters?.ids !== undefined && searchParams.filters.ids.length > 0) {
+        filters.push(createFilter('id', searchParams.filters.ids, FilterOperator.IN));
       }
 
       // Reconstruir params con filtros
@@ -201,7 +204,7 @@ export class ShopService {
   public searchShops(
     page: number,
     pageSize: number,
-    filters?: { name?: string; description?: string }
+    filters?: { name?: string; description?: string; ids?: number[] }
   ): void {
     this.searchShopsTrigger.set({ page, pageSize, filters });
     this.searchShopsResource.reload();

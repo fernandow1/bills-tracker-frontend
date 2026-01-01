@@ -23,6 +23,7 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { BillService } from '@features/bill/services/bill';
 import { IBillResponse, IBillSearchFilters } from '@features/bill/interfaces';
 import { BillDetail } from '@features/bill/pages/detail/bill-detail';
+import { BillForm } from '@features/bill/pages/form/bill-form';
 import { CurrencyFormatPipe } from '@shared/pipes';
 import { debounceTime } from 'rxjs/operators';
 import { Subject } from 'rxjs';
@@ -176,12 +177,33 @@ export class BillList implements OnInit {
   }
 
   public openCreateDialog(): void {
-    // TODO: Implementar formulario de creación de factura
+    const dialogRef = this.dialog.open(BillForm, {
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      disableClose: true,
+      data: { mode: 'create' },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadData();
+      }
+    });
   }
 
   public openEditDialog(bill: IBillResponse): void {
-    // TODO: Implementar formulario de edición de factura
-    void bill;
+    const dialogRef = this.dialog.open(BillForm, {
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      disableClose: true,
+      data: { bill, mode: 'edit' },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadData();
+      }
+    });
   }
 
   public openViewDialog(bill: IBillResponse): void {

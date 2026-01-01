@@ -39,7 +39,13 @@ export class ProductService {
   private searchProductsTrigger = signal<{
     page: number;
     pageSize: number;
-    filters?: { name?: string; description?: string; idBrand?: number; idCategory?: number };
+    filters?: {
+      name?: string;
+      description?: string;
+      idBrand?: number;
+      idCategory?: number;
+      ids?: number[];
+    };
   } | null>(null);
 
   // Resource para búsqueda de productos con paginación y filtros
@@ -74,6 +80,9 @@ export class ProductService {
         filters.push(
           createFilter('idCategory', searchParams.filters.idCategory, FilterOperator.EQUALS)
         );
+      }
+      if (searchParams.filters?.ids !== undefined && searchParams.filters.ids.length > 0) {
+        filters.push(createFilter('id', searchParams.filters.ids, FilterOperator.IN));
       }
 
       // Reconstruir params con filtros
@@ -209,7 +218,13 @@ export class ProductService {
   public searchProducts(
     page: number,
     pageSize: number,
-    filters?: { name?: string; description?: string; idBrand?: number; idCategory?: number }
+    filters?: {
+      name?: string;
+      description?: string;
+      idBrand?: number;
+      idCategory?: number;
+      ids?: number[];
+    }
   ): void {
     this.searchProductsTrigger.set({ page, pageSize, filters });
     this.searchProductsResource.reload();

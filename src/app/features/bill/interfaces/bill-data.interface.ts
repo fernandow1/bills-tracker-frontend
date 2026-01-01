@@ -4,6 +4,7 @@ export interface IBillData {
   idShop: number;
   idCurrency: number;
   idPaymentMethod: number;
+  idUser: number;
   subTotal: number;
   discount: number;
   total: number;
