@@ -84,6 +84,7 @@ export class BillForm implements OnInit {
     'brand',
     'category',
     'quantity',
+    'contentValue',
     'netPrice',
     'netUnit',
     'subtotal',
@@ -109,6 +110,7 @@ export class BillForm implements OnInit {
       this.data?.bill?.billItems?.map((item) => ({
         idProduct: Number(item.product.id),
         quantity: item.quantity,
+        contentValue: item.contentValue || null,
         netPrice: item.netPrice,
         netUnit: item.netUnit,
       })) || [],
@@ -245,6 +247,7 @@ export class BillForm implements OnInit {
     const newItem: IBillItemData = {
       idProduct: 0,
       quantity: 1,
+      contentValue: null,
       netPrice: 0,
       netUnit: NetUnits.UNIT,
     };
@@ -258,13 +261,27 @@ export class BillForm implements OnInit {
   public updateItemField(
     index: number,
     field: keyof IBillItemData,
-    value: number | NetUnits
+    value: number | NetUnits | null
   ): void {
     this.billItems.update((items) => {
       const updated = [...items];
       updated[index] = { ...updated[index], [field]: value };
+
+      // Si cambia netUnit a 'u' (unidad), resetear contentValue porque no aplica
+      if (field === 'netUnit' && value === NetUnits.UNIT) {
+        updated[index].contentValue = null;
+      }
+
       return updated;
     });
+  }
+
+  public isContentValueEnabled(item: IBillItemData): boolean {
+    return item.netUnit !== NetUnits.UNIT;
+  }
+
+  public isContentValueInvalid(item: IBillItemData): boolean {
+    return this.isContentValueEnabled(item) && (!item.contentValue || item.contentValue <= 0);
   }
 
   public getItemSubtotal(item: IBillItemData): number {
@@ -306,6 +323,18 @@ export class BillForm implements OnInit {
       return;
     }
 
+    // Validar que items con peso/volumen tengan contentValue
+    const hasInvalidContentValue = this.billItems().some(
+      (item) => this.isContentValueEnabled(item) && (!item.contentValue || item.contentValue <= 0)
+    );
+
+    if (hasInvalidContentValue) {
+      this.snackBar.open('Todos los items con peso/volumen deben tener contenido', 'Cerrar', {
+        duration: 3000,
+      });
+      return;
+    }
+
     const formValue = this.billForm().value();
     const subTotal = this.total();
     const discount = 0; // Por ahora sin descuento
@@ -325,6 +354,7 @@ export class BillForm implements OnInit {
       billItems: this.billItems().map((item) => ({
         idProduct: item.idProduct,
         quantity: item.quantity,
+        contentValue: item.netUnit !== NetUnits.UNIT ? item.contentValue : null,
         netPrice: item.netPrice,
         netUnit: item.netUnit,
       })),

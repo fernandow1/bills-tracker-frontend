@@ -113,6 +113,10 @@ export class BillService {
     loader: async () => {
       const billData = this.createBillTrigger();
 
+      if (!billData) {
+        return null;
+      }
+
       const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(this.configService.billsEndpoints.create),
         {

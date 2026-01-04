@@ -7,6 +7,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { IBillResponse } from '@features/bill/interfaces';
+import { NetUnits } from '@features/bill/enums/net-units.enum';
 import { CurrencyFormatPipe } from '@shared/pipes';
 
 @Component({
@@ -27,7 +28,14 @@ import { CurrencyFormatPipe } from '@shared/pipes';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BillDetail {
-  public readonly displayedColumns: string[] = ['product', 'quantity', 'unitPrice'];
+  public readonly displayedColumns: string[] = [
+    'product',
+    'quantity',
+    'contentValue',
+    'netUnit',
+    'unitPrice',
+    'subtotal',
+  ];
 
   private readonly dialogRef = inject(MatDialogRef<BillDetail>);
   public readonly bill = inject<IBillResponse>(MAT_DIALOG_DATA);
@@ -44,5 +52,16 @@ export class BillDetail {
     if (confirm(`¿Está seguro de eliminar la factura #${this.bill.id}?`)) {
       this.dialogRef.close({ action: 'delete', bill: this.bill });
     }
+  }
+
+  public getNetUnitLabel(netUnit: NetUnits): string {
+    const labels: Record<NetUnits, string> = {
+      [NetUnits.UNIT]: 'Unidad',
+      [NetUnits.GRAM]: 'Gramo',
+      [NetUnits.KILOGRAM]: 'Kilogramo',
+      [NetUnits.MILLILITER]: 'Mililitro',
+      [NetUnits.LITER]: 'Litro',
+    };
+    return labels[netUnit] || netUnit;
   }
 }

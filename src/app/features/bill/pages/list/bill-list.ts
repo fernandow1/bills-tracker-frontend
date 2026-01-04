@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-  OnInit,
-  DestroyRef,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -52,7 +45,7 @@ import { Subject } from 'rxjs';
   styleUrl: './bill-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BillList implements OnInit {
+export class BillList {
   public readonly displayedColumns: string[] = [
     'id',
     'shop',
@@ -86,7 +79,7 @@ export class BillList implements OnInit {
   // Subject para debounce
   private totalSubject = new Subject<number | null>();
 
-  public ngOnInit(): void {
+  constructor() {
     this.loadData();
 
     // Configurar debounce para total (500ms)

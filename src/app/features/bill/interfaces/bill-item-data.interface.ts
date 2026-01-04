@@ -4,6 +4,7 @@ export interface IBillItemData {
   idBill?: number;
   idProduct: number;
   quantity: number;
+  contentValue?: number | null;
   netPrice: number;
   netUnit: NetUnits;
 }

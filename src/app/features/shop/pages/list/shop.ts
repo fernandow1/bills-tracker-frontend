@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-  OnInit,
-  DestroyRef,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -51,7 +44,7 @@ interface ShopFilters {
   styleUrl: './shop.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Shop implements OnInit {
+export class Shop {
   public readonly displayedColumns: string[] = ['name', 'description', 'createdAt', 'actions'];
 
   private readonly shopService = inject(ShopService);
@@ -82,7 +75,7 @@ export class Shop implements OnInit {
   private nameSearchSubject = new Subject<string>();
   private descriptionSearchSubject = new Subject<string>();
 
-  public ngOnInit(): void {
+  constructor() {
     // Cargar datos iniciales con paginación
     this.loadData();
 

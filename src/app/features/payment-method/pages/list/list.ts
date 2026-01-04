@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,7 +17,7 @@ import { IPaymentMethodResponse } from '@features/payment-method/interfaces/paym
   styleUrl: './list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PaymentMethodList implements OnInit {
+export class PaymentMethodList {
   private readonly service = inject(PaymentMethodService);
   private readonly dialog = inject(MatDialog);
   private reloadCooldown = signal<boolean>(false);
@@ -25,7 +25,7 @@ export class PaymentMethodList implements OnInit {
 
   public readonly displayedColumns: string[] = ['name', 'description', 'createdAt', 'actions'];
 
-  public ngOnInit(): void {
+  constructor() {
     // Cargar todos los métodos de pago al iniciar el componente
     this.service.loadAllPaymentMethods();
   }

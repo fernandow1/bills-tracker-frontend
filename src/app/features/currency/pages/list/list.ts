@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
@@ -25,7 +25,7 @@ import { CurrencyForm } from '@features/currency/pages/form/form';
   styleUrl: './list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CurrencyList implements OnInit {
+export class CurrencyList {
   public readonly displayedColumns: string[] = ['code', 'name', 'symbol', 'createdAt', 'actions'];
 
   private readonly service = inject(CurrencyService);
@@ -33,7 +33,7 @@ export class CurrencyList implements OnInit {
   private reloadCooldown = signal<boolean>(false);
   private readonly COOLDOWN_TIME = 2000; // 2 segundos
 
-  public ngOnInit(): void {
+  constructor() {
     // Cargar todas las monedas al iniciar el componente
     this.service.loadAllCurrencies();
   }

@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-  OnInit,
-  DestroyRef,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -60,7 +53,7 @@ interface ProductFilters {
   styleUrl: './product.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Product implements OnInit {
+export class Product {
   public readonly displayedColumns: string[] = [
     'name',
     'description',
@@ -106,7 +99,7 @@ export class Product implements OnInit {
   private _selectedBrand = signal<IBrandResponse | null>(null);
   private _selectedCategory = signal<ICategoryResponse | null>(null);
 
-  public ngOnInit(): void {
+  constructor() {
     // Cargar datos iniciales con paginación
     this.loadData();
 
