@@ -28,11 +28,6 @@ export const environment = {
       delete: '/bills/:id',
       categories: '/bills/categories',
     },
-    users: {
-      profile: '/users/profile',
-      update: '/users/profile',
-      preferences: '/users/preferences',
-    },
     categories: {
       list: '/categories',
       search: '/categories/search',
@@ -80,6 +75,14 @@ export const environment = {
       update: '/payment-methods/:id',
       delete: '/payment-methods/:id',
       byId: '/payment-methods/:id',
+    },
+    users: {
+      list: '/users',
+      search: '/users/search',
+      create: '/users',
+      update: '/users/:id',
+      delete: '/users/:id',
+      byId: '/users/:id',
     },
   },
 

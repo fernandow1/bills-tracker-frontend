@@ -56,6 +56,11 @@ export const routes: Routes = [
         loadComponent: () => import('@features/bill/pages/list/bill-list').then((m) => m.BillList),
         title: 'Facturas',
       },
+      {
+        path: 'users',
+        loadComponent: () => import('@features/user/pages/list/user-list').then((m) => m.UserList),
+        title: 'Usuarios',
+      },
     ],
   },
   {

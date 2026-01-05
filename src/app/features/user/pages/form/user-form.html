@@ -1,0 +1,80 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Editar Usuario' : 'Nuevo Usuario' }}</h2>
+
+<mat-dialog-content>
+  <form class="user-form">
+    <div class="form-fields">
+      <div>
+        <mat-form-field class="full-width">
+          <mat-label>Nombre</mat-label>
+          <input matInput [field]="userForm.name" />
+          <mat-icon matSuffix>person</mat-icon>
+        </mat-form-field>
+        @if(nameInvalid()) { @for (error of nameErrors(); track error) {
+        <mat-error>{{ error.message }}</mat-error>
+        } }
+      </div>
+
+      <div>
+        <mat-form-field class="full-width">
+          <mat-label>Username</mat-label>
+          <input matInput [field]="userForm.username" />
+          <mat-icon matSuffix>account_circle</mat-icon>
+        </mat-form-field>
+        @if(usernameInvalid()) { @for (error of usernameErrors(); track error) {
+        <mat-error>{{ error.message }}</mat-error>
+        } }
+      </div>
+
+      <div>
+        <mat-form-field class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" [field]="userForm.email" />
+          <mat-icon matSuffix>email</mat-icon>
+        </mat-form-field>
+        @if(emailInvalid()) { @for (error of emailErrors(); track error) {
+        <mat-error>{{ error.message }}</mat-error>
+        } }
+      </div>
+
+      <div>
+        <mat-form-field class="full-width">
+          <mat-label>{{
+            isEditMode ? 'Nueva Contraseña (dejar vacío para no cambiar)' : 'Contraseña'
+          }}</mat-label>
+          @if (userForm.password) {
+          <input matInput type="password" [field]="userForm.password" />
+          }
+          <mat-icon matSuffix>lock</mat-icon>
+        </mat-form-field>
+        @if(showPasswordErrors()) { @for (error of passwordErrors(); track error) {
+        <mat-error>{{ error.message }}</mat-error>
+        } }
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="onCancel()">
+    <mat-icon>cancel</mat-icon>
+    Cancelar
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    type="button"
+    [disabled]="formInvalid() || isLoading"
+    (click)="onSubmit()"
+  >
+    @if (isLoading) {
+    <mat-progress-spinner diameter="20" strokeWidth="3" mode="indeterminate">
+    </mat-progress-spinner>
+    <span>{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
+    } @else {
+    <ng-container>
+      <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+      <span>{{ isEditMode ? 'Actualizar' : 'Crear Usuario' }}</span>
+    </ng-container>
+    }
+  </button>
+</mat-dialog-actions>

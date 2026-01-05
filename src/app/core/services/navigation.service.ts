@@ -70,10 +70,10 @@ export class NavigationService {
       icon: 'payment',
     },
     {
-      id: 'settings',
-      label: 'Configuración',
-      route: '/settings',
-      icon: 'settings',
+      id: 'users',
+      label: 'Usuarios',
+      route: '/users',
+      icon: 'people',
     },
   ]);
 

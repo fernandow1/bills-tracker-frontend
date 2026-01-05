@@ -68,6 +68,10 @@ export class ConfigService {
     return environment.endpoints.paymentMethods;
   }
 
+  public get userEndpoints() {
+    return environment.endpoints.users;
+  }
+
   // Auth Configuration
   public get authConfig() {
     return environment.auth;
