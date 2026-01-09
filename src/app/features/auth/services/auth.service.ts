@@ -3,6 +3,7 @@ import { Injectable, inject, signal, resource } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, tap, catchError, throwError } from 'rxjs';
 import { ConfigService } from '@core/services/config.service';
+import { TokenService } from './token.service';
 
 export interface LoginRequest {
   username: string;
@@ -38,6 +39,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly config = inject(ConfigService);
+  private readonly tokenService = inject(TokenService);
 
   private get tokenKey(): string {
     return this.config.authConfig.tokenKey;
@@ -151,10 +153,24 @@ export class AuthService {
   }
 
   /**
-   * Obtiene el usuario actual
+   * Obtiene el usuario actual solo si el token es válido
    */
   public getUser(): User | null {
+    // Verificar si el token ha expirado
+    if (this.tokenService.isTokenExpired()) {
+      console.warn('Token expirado, limpiando sesión');
+      this.logout();
+      return null;
+    }
     return this.currentUser();
+  }
+
+  /**
+   * Obtiene el ID del usuario actual (seguro contra tokens expirados)
+   */
+  public getUserId(): number {
+    const user = this.getUser();
+    return user ? Number(user.id) : 0;
   }
 
   /**
@@ -290,7 +306,7 @@ export class AuthService {
   }
 
   /**
-   * Verifica si existe un token válido
+   * Verifica si existe un token válido y no ha expirado
    */
   private hasValidToken(): boolean {
     const token = this.getStoredToken();
@@ -298,9 +314,8 @@ export class AuthService {
       return false;
     }
 
-    // Aquí puedes agregar validación adicional del token
-    // Por ejemplo, verificar si ha expirado
-    return true;
+    // Verificar si el token ha expirado
+    return this.tokenService.isValidToken(token);
   }
 
   /**

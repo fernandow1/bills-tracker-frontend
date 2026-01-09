@@ -34,7 +34,7 @@ export class BillService {
   private createBillTrigger = signal<IBillData | null>(null);
 
   // Signal para controlar cuándo actualizar una factura
-  private updateBillTrigger = signal<{ id: string; data: IBillData } | null>(null);
+  private updateBillTrigger = signal<{ id: number; data: IBillData } | null>(null);
 
   // Signal para controlar la búsqueda de facturas con filtros y paginación
   private searchBillsTrigger = signal<{
@@ -154,7 +154,7 @@ export class BillService {
 
       const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(
-          this.configService.billsEndpoints.update.replace(':id', updateData.id)
+          this.configService.billsEndpoints.update.replace(':id', updateData.id.toString())
         ),
         {
           method: 'PUT',
@@ -199,7 +199,7 @@ export class BillService {
    * @param id ID de la factura a actualizar
    * @param billData Datos actualizados de la factura
    */
-  public updateBill(id: string, billData: IBillData): void {
+  public updateBill(id: number, billData: IBillData): void {
     this.updateBillTrigger.set({ id, data: billData });
     this.updateBillResource.reload();
   }
@@ -345,9 +345,9 @@ export class BillService {
   /**
    * Elimina una factura
    */
-  public async deleteBill(id: string): Promise<void> {
+  public async deleteBill(id: number): Promise<void> {
     const url = this.configService.buildApiUrl(
-      this.configService.billsEndpoints.delete.replace(':id', id)
+      this.configService.billsEndpoints.delete.replace(':id', id.toString())
     );
 
     const response = await this.authFetch.fetch(url, {

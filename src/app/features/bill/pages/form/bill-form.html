@@ -102,8 +102,8 @@
                     <input
                       type="text"
                       matInput
-                      [value]="getProductForItem(item)?.name || ''"
-                      (input)="onProductSearch($any($event.target).value)"
+                      [value]="getProductForItem(item, i)?.name || ''"
+                      (input)="onProductSearch(i, $any($event.target).value)"
                       [matAutocomplete]="autoProduct"
                       placeholder="Buscar producto..."
                     />
@@ -113,7 +113,7 @@
                       [displayWith]="displayProduct"
                       (optionSelected)="onProductSelected(i, $event.option.value)"
                     >
-                      @for (product of products(); track product.id) {
+                      @for (product of getProductForRow(i); track product.id) {
                       <mat-option [value]="product">
                         <span>{{ product.name }}</span>
                         <small style="color: rgba(0, 0, 0, 0.6); margin-left: 8px">
@@ -129,16 +129,16 @@
               <!-- Brand Column (Read-only) -->
               <ng-container matColumnDef="brand">
                 <th mat-header-cell *matHeaderCellDef>Marca</th>
-                <td mat-cell *matCellDef="let item">
-                  <span class="readonly-field">{{ getProductBrand(item.idProduct) }}</span>
+                <td mat-cell *matCellDef="let item; let i = index">
+                  <span class="readonly-field">{{ getProductBrand(i, item.idProduct) }}</span>
                 </td>
               </ng-container>
 
               <!-- Category Column (Read-only) -->
               <ng-container matColumnDef="category">
                 <th mat-header-cell *matHeaderCellDef>Categoría</th>
-                <td mat-cell *matCellDef="let item">
-                  <span class="readonly-field">{{ getProductCategory(item.idProduct) }}</span>
+                <td mat-cell *matCellDef="let item; let i = index">
+                  <span class="readonly-field">{{ getProductCategory(i, item.idProduct) }}</span>
                 </td>
               </ng-container>
 

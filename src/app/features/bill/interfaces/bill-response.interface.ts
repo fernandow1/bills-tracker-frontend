@@ -6,7 +6,7 @@ import { IPaymentMethodResponse } from '@features/payment-method/interfaces/paym
 
 export interface IBillResponse
   extends Omit<IBillData, 'billItems' | 'idShop' | 'idCurrency' | 'idPaymentMethod'> {
-  id: string;
+  id: number;
   shop: IShopResponse; // Relación con tienda poblada
   currency: ICurrencyResponse; // Relación con moneda poblada
   paymentMethod: IPaymentMethodResponse; // Relación con método de pago poblado

@@ -68,8 +68,13 @@ export class AuthFetchHelper {
           error: errorData,
         });
 
-        // No mostrar snackbar para errores de validación (422, 400)
-        const showSnackbar = response.status !== 422 && response.status !== 400;
+        // No mostrar snackbar para POST/PUT (manejados por el formulario) ni para errores de validación
+        const method = options?.method?.toUpperCase();
+        const showSnackbar =
+          method !== 'POST' &&
+          method !== 'PUT' &&
+          response.status !== 422 &&
+          response.status !== 400;
         this.errorHandler.handleError(error, context, showSnackbar);
       } catch {
         // Si no se puede parsear el JSON, continuar
