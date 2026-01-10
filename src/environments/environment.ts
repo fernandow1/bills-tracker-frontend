@@ -12,13 +12,13 @@ export const environment = {
   // URLs del API
   endpoints: {
     auth: {
-      login: '/auth/login',
-      logout: '/auth/logout',
-      refresh: '/auth/refresh',
-      register: '/users',
-      forgotPassword: '/auth/forgot-password',
-      resetPassword: '/auth/reset-password',
-      profile: '/auth/profile',
+      login: '/api/auth/login',
+      logout: '/api/auth/logout',
+      refresh: '/api/auth/refresh',
+      register: '/api/users',
+      forgotPassword: '/api/auth/forgot-password',
+      resetPassword: '/api/auth/reset-password',
+      profile: '/api/auth/profile',
     },
     bills: {
       base: '/api/bills',
