@@ -52,7 +52,7 @@ export class BillList {
     'total',
     'currency',
     'paymentMethod',
-    'createdAt',
+    'purchasedAt',
     'actions',
   ];
 
@@ -178,7 +178,7 @@ export class BillList {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
+      if (result?.success) {
         this.loadData();
       }
     });
@@ -193,7 +193,7 @@ export class BillList {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
+      if (result?.success) {
         this.loadData();
       }
     });

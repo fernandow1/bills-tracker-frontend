@@ -10,6 +10,7 @@ export interface IBillResponse
   shop: IShopResponse; // Relación con tienda poblada
   currency: ICurrencyResponse; // Relación con moneda poblada
   paymentMethod: IPaymentMethodResponse; // Relación con método de pago poblado
+  purchasedAt: string; // Fecha real de la compra (ISO string)
   billItems: IBillItemResponse[]; // Items poblados con productos
   createdAt: string;
   updatedAt: string;
