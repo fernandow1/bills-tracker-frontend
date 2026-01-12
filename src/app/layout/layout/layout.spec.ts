@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { By } from '@angular/platform-browser';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 import { Layout } from './layout';
 
@@ -26,7 +28,16 @@ describe('Layout', () => {
 
     await TestBed.configureTestingModule({
       imports: [Layout],
-      providers: [{ provide: MediaMatcher, useValue: mockMediaMatcher }],
+      providers: [
+        { provide: MediaMatcher, useValue: mockMediaMatcher },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            params: of({}),
+            snapshot: { params: {} },
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Layout);

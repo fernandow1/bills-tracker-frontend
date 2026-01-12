@@ -474,7 +474,7 @@ describe('BrandService', () => {
   describe('reloadBrands', () => {
     it('should reload brands resource', () => {
       // Arrange
-      const reloadSpy = vi.spyOn(service.brandsResource, 'reload');
+      const reloadSpy = vi.spyOn(service['allBrandsResource'], 'reload');
 
       // Act
       service.reloadBrands();
