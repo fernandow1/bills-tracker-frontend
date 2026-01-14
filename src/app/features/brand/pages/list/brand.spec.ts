@@ -31,6 +31,7 @@ describe('Brand List Component', () => {
       brands: mockBrands,
       isLoadingBrands: false,
       brandsError: undefined,
+      loadAllBrands: vi.fn(),
       reloadBrands: vi.fn(),
       resetCreateTrigger: vi.fn(),
       resetUpdateTrigger: vi.fn(),
