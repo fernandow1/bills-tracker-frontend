@@ -42,7 +42,7 @@ export class UserService {
         return null;
       }
       const response = await this.authFetch.fetch(
-        this.configService.buildApiUrl(this.configService.userEndpoints.list),
+        this.configService.buildApiUrl(this.configService.usersEndpoints.list),
         {
           method: 'GET',
           headers: this.getAuthHeaders(),
@@ -74,7 +74,7 @@ export class UserService {
       }
 
       const response = await this.authFetch.fetch(
-        this.configService.buildApiUrl(this.configService.userEndpoints.create),
+        this.configService.buildApiUrl(this.configService.usersEndpoints.create),
         {
           method: 'POST',
           headers: this.getAuthHeaders(),
@@ -108,7 +108,7 @@ export class UserService {
 
       const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(
-          this.configService.userEndpoints.update.replace(':id', updateData.id)
+          this.configService.usersEndpoints.update.replace(':id', updateData.id)
         ),
         {
           method: 'PUT',
