@@ -9,9 +9,11 @@
           <input matInput [field]="brandForm.name" />
           <mat-icon matSuffix>branding_watermark</mat-icon>
         </mat-form-field>
-        @if(brandForm.name().invalid()) { @for (error of brandForm.name().errors(); track error) {
-        <mat-error>{{ error.message }}</mat-error>
-        } }
+        @if (brandForm.name().invalid()) {
+          @for (error of brandForm.name().errors(); track error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
       </div>
     </div>
   </form>
@@ -30,14 +32,14 @@
     (click)="onSubmit()"
   >
     @if (isLoading) {
-    <mat-progress-spinner diameter="20" strokeWidth="3" mode="indeterminate">
-    </mat-progress-spinner>
-    <span>{{ isEditMode ? 'Updating...' : 'Creating...' }}</span>
+      <mat-progress-spinner diameter="20" strokeWidth="3" mode="indeterminate">
+      </mat-progress-spinner>
+      <span>{{ isEditMode ? 'Updating...' : 'Creating...' }}</span>
     } @else {
-    <ng-container>
-      <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
-      <span>{{ isEditMode ? 'Update' : 'Create Brand' }}</span>
-    </ng-container>
+      <ng-container>
+        <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+        <span>{{ isEditMode ? 'Update' : 'Create Brand' }}</span>
+      </ng-container>
     }
   </button>
 </mat-dialog-actions>

@@ -74,7 +74,7 @@ export class PaymentMethodForm {
       if (this.isEditMode && this.paymentMethodId) {
         await this.paymentMethodService.updatePaymentMethod(
           this.paymentMethodId,
-          paymentMethodData
+          paymentMethodData,
         );
         this.snackBar.open('Método de pago actualizado exitosamente', 'Cerrar', {
           duration: 3000,

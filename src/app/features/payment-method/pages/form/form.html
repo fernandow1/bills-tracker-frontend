@@ -9,10 +9,11 @@
           <input matInput [field]="paymentMethodForm.name" placeholder="Ej: Tarjeta de Crédito" />
           <mat-icon matSuffix>payment</mat-icon>
         </mat-form-field>
-        @if(paymentMethodForm.name().invalid()) { @for (error of paymentMethodForm.name().errors();
-        track error) {
-        <mat-error>{{ error.message }}</mat-error>
-        } }
+        @if (paymentMethodForm.name().invalid()) {
+          @for (error of paymentMethodForm.name().errors(); track error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
       </div>
 
       <div>
@@ -26,10 +27,11 @@
           ></textarea>
           <mat-icon matSuffix>description</mat-icon>
         </mat-form-field>
-        @if(paymentMethodForm.description().invalid()) { @for (error of
-        paymentMethodForm.description().errors(); track error) {
-        <mat-error>{{ error.message }}</mat-error>
-        } }
+        @if (paymentMethodForm.description().invalid()) {
+          @for (error of paymentMethodForm.description().errors(); track error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
       </div>
     </div>
   </form>
@@ -48,14 +50,14 @@
     (click)="onSubmit()"
   >
     @if (isSubmitting()) {
-    <mat-progress-spinner diameter="20" strokeWidth="3" mode="indeterminate">
-    </mat-progress-spinner>
-    <span>{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
+      <mat-progress-spinner diameter="20" strokeWidth="3" mode="indeterminate">
+      </mat-progress-spinner>
+      <span>{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
     } @else {
-    <ng-container>
-      <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
-      <span>{{ isEditMode ? 'Actualizar' : 'Crear' }}</span>
-    </ng-container>
+      <ng-container>
+        <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+        <span>{{ isEditMode ? 'Actualizar' : 'Crear' }}</span>
+      </ng-container>
     }
   </button>
 </mat-dialog-actions>

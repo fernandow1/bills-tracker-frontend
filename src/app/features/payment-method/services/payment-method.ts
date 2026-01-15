@@ -41,7 +41,7 @@ export class PaymentMethodService {
         {
           method: 'GET',
           headers: this.getAuthHeaders(),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -113,7 +113,7 @@ export class PaymentMethodService {
         method: 'POST',
         headers: this.getAuthHeaders(),
         body: JSON.stringify(data),
-      }
+      },
     );
 
     if (!response.ok) {
@@ -135,7 +135,7 @@ export class PaymentMethodService {
    */
   public async updatePaymentMethod(
     id: number,
-    data: IPaymentMethodData
+    data: IPaymentMethodData,
   ): Promise<IPaymentMethodResponse> {
     const url = this.configService.paymentMethodEndpoints.update.replace(':id', id.toString());
 

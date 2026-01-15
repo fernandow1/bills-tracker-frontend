@@ -251,7 +251,7 @@ export class BillForm {
       // Agregar producto seleccionado primero
       if (currentItem?.idProduct) {
         const selectedProduct = this.getProductForRow(rowIndex)?.find(
-          (p) => +p.id === currentItem.idProduct
+          (p) => +p.id === currentItem.idProduct,
         );
         if (selectedProduct) {
           productMap.set(Number(selectedProduct.id), selectedProduct);
@@ -359,7 +359,7 @@ export class BillForm {
   public updateItemField(
     index: number,
     field: keyof IBillItemData,
-    value: number | NetUnits | null
+    value: number | NetUnits | null,
   ): void {
     this.billItems.update((items) => {
       const updated = [...items];
@@ -416,7 +416,7 @@ export class BillForm {
         {
           duration: 5000,
           panelClass: ['error-snackbar'],
-        }
+        },
       );
       this.dialogRef.close();
       this.authService.logout();
@@ -437,7 +437,7 @@ export class BillForm {
 
     // Validar que todos los items tengan producto
     const hasInvalidItems = this.billItems().some(
-      (item) => !item.idProduct || item.idProduct === 0
+      (item) => !item.idProduct || item.idProduct === 0,
     );
 
     if (hasInvalidItems) {
@@ -449,7 +449,7 @@ export class BillForm {
 
     // Validar que items con peso/volumen tengan contentValue
     const hasInvalidContentValue = this.billItems().some(
-      (item) => this.isContentValueEnabled(item) && (!item.contentValue || item.contentValue <= 0)
+      (item) => this.isContentValueEnabled(item) && (!item.contentValue || item.contentValue <= 0),
     );
 
     if (hasInvalidContentValue) {

@@ -46,7 +46,7 @@ export class UserService {
         {
           method: 'GET',
           headers: this.getAuthHeaders(),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -79,7 +79,7 @@ export class UserService {
           method: 'POST',
           headers: this.getAuthHeaders(),
           body: JSON.stringify(userData),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -108,13 +108,13 @@ export class UserService {
 
       const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(
-          this.configService.usersEndpoints.update.replace(':id', updateData.id)
+          this.configService.usersEndpoints.update.replace(':id', updateData.id),
         ),
         {
           method: 'PUT',
           headers: this.getAuthHeaders(),
           body: JSON.stringify(updateData.data),
-        }
+        },
       );
 
       if (!response.ok) {

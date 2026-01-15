@@ -9,10 +9,11 @@
           <input matInput [field]="productForm.name" />
           <mat-icon matSuffix>inventory</mat-icon>
         </mat-form-field>
-        @if(productForm.name().invalid()) { @for (error of productForm.name().errors(); track error)
-        {
-        <mat-error>{{ error.message }}</mat-error>
-        } }
+        @if (productForm.name().invalid()) {
+          @for (error of productForm.name().errors(); track error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
       </div>
 
       <div>
@@ -26,10 +27,11 @@
           ></textarea>
           <mat-icon matSuffix>description</mat-icon>
         </mat-form-field>
-        @if(productForm.description().invalid()) { @for (error of
-        productForm.description().errors(); track error) {
-        <mat-error>{{ error.message }}</mat-error>
-        } }
+        @if (productForm.description().invalid()) {
+          @for (error of productForm.description().errors(); track error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
       </div>
 
       <div>
@@ -49,18 +51,20 @@
             (optionSelected)="onBrandSelected($event.option.value)"
           >
             @if (filteredBrands.length === 0) {
-            <mat-option disabled>No se encontraron marcas</mat-option>
-            } @for (brand of filteredBrands; track brand.id) {
-            <mat-option [value]="brand">
-              {{ brand.name }}
-            </mat-option>
+              <mat-option disabled>No se encontraron marcas</mat-option>
+            }
+            @for (brand of filteredBrands; track brand.id) {
+              <mat-option [value]="brand">
+                {{ brand.name }}
+              </mat-option>
             }
           </mat-autocomplete>
         </mat-form-field>
-        @if(productForm.idBrand().invalid()) { @for (error of productForm.idBrand().errors(); track
-        error) {
-        <mat-error>{{ error.message }}</mat-error>
-        } }
+        @if (productForm.idBrand().invalid()) {
+          @for (error of productForm.idBrand().errors(); track error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
       </div>
 
       <div>
@@ -80,18 +84,20 @@
             (optionSelected)="onCategorySelected($event.option.value)"
           >
             @if (filteredCategories.length === 0) {
-            <mat-option disabled>No se encontraron categorías</mat-option>
-            } @for (category of filteredCategories; track category.id) {
-            <mat-option [value]="category">
-              {{ category.name }}
-            </mat-option>
+              <mat-option disabled>No se encontraron categorías</mat-option>
+            }
+            @for (category of filteredCategories; track category.id) {
+              <mat-option [value]="category">
+                {{ category.name }}
+              </mat-option>
             }
           </mat-autocomplete>
         </mat-form-field>
-        @if(productForm.idCategory().invalid()) { @for (error of productForm.idCategory().errors();
-        track error) {
-        <mat-error>{{ error.message }}</mat-error>
-        } }
+        @if (productForm.idCategory().invalid()) {
+          @for (error of productForm.idCategory().errors(); track error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
       </div>
     </div>
   </form>
@@ -110,14 +116,14 @@
     (click)="onSubmit()"
   >
     @if (isLoading) {
-    <mat-progress-spinner diameter="20" strokeWidth="3" mode="indeterminate">
-    </mat-progress-spinner>
-    <span>{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
+      <mat-progress-spinner diameter="20" strokeWidth="3" mode="indeterminate">
+      </mat-progress-spinner>
+      <span>{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
     } @else {
-    <ng-container>
-      <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
-      <span>{{ isEditMode ? 'Actualizar' : 'Crear Producto' }}</span>
-    </ng-container>
+      <ng-container>
+        <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+        <span>{{ isEditMode ? 'Actualizar' : 'Crear Producto' }}</span>
+      </ng-container>
     }
   </button>
 </mat-dialog-actions>

@@ -70,7 +70,7 @@ export class ProductService {
       }
       if (searchParams.filters?.description) {
         filters.push(
-          createFilter('description', searchParams.filters.description, FilterOperator.LIKE)
+          createFilter('description', searchParams.filters.description, FilterOperator.LIKE),
         );
       }
       if (searchParams.filters?.idBrand !== undefined) {
@@ -78,7 +78,7 @@ export class ProductService {
       }
       if (searchParams.filters?.idCategory !== undefined) {
         filters.push(
-          createFilter('idCategory', searchParams.filters.idCategory, FilterOperator.EQUALS)
+          createFilter('idCategory', searchParams.filters.idCategory, FilterOperator.EQUALS),
         );
       }
       if (searchParams.filters?.ids !== undefined && searchParams.filters.ids.length > 0) {
@@ -92,7 +92,7 @@ export class ProductService {
 
       const queryString = new URLSearchParams(finalParams).toString();
       const url = `${this.configService.buildApiUrl(
-        this.configService.productEndpoints.search
+        this.configService.productEndpoints.search,
       )}?${queryString}`;
 
       const response = await this.authFetch.fetch(url, {
@@ -130,7 +130,7 @@ export class ProductService {
           method: 'POST',
           headers: this.getAuthHeaders(),
           body: JSON.stringify(productData),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -159,13 +159,13 @@ export class ProductService {
 
       const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(
-          this.configService.productEndpoints.update.replace(':id', updateData.id)
+          this.configService.productEndpoints.update.replace(':id', updateData.id),
         ),
         {
           method: 'PUT',
           headers: this.getAuthHeaders(),
           body: JSON.stringify(updateData.data),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -224,7 +224,7 @@ export class ProductService {
       idBrand?: number;
       idCategory?: number;
       ids?: number[];
-    }
+    },
   ): void {
     this.searchProductsTrigger.set({ page, pageSize, filters });
     this.searchProductsResource.reload();

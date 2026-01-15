@@ -55,12 +55,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             console.error('Token refresh failed, logging out', refreshError);
             authService.logout();
             return throwError(() => refreshError);
-          })
+          }),
         );
       }
 
       return throwError(() => error);
-    })
+    }),
   );
 };
 

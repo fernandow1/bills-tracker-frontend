@@ -102,8 +102,11 @@ describe('ConfigService', () => {
 
   describe('Static logging methods', () => {
     beforeEach(() => {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       vi.spyOn(console, 'log').mockImplementation(() => {});
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       vi.spyOn(console, 'error').mockImplementation(() => {});
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       vi.spyOn(console, 'warn').mockImplementation(() => {});
     });
 
@@ -122,7 +125,7 @@ describe('ConfigService', () => {
       expect(console.error).toHaveBeenCalledWith(
         expect.stringContaining('ERROR'),
         'Error message',
-        error
+        error,
       );
     });
 
@@ -132,7 +135,7 @@ describe('ConfigService', () => {
       expect(console.warn).toHaveBeenCalledWith(
         expect.stringContaining('WARN'),
         'Warning message',
-        'detail'
+        'detail',
       );
     });
 
@@ -142,7 +145,7 @@ describe('ConfigService', () => {
       expect(console.error).toHaveBeenCalledWith(
         expect.stringContaining('ERROR'),
         'Error message',
-        undefined
+        undefined,
       );
     });
 
@@ -159,7 +162,7 @@ describe('ConfigService', () => {
         expect.stringContaining('WARN'),
         'Warning',
         'detail1',
-        'detail2'
+        'detail2',
       );
     });
   });

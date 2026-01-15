@@ -9,6 +9,8 @@
     "test": "ng test --watch=false",
     "test:watch": "ng test --watch=true",
     "test:e2e": "playwright test",
+    "test:e2e:ci": "CI=true playwright test",
+    "test:e2e:ci:win": "$env:CI='true'; npm run test:e2e",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:headed:slow": "playwright test --headed --workers=1",
     "test:e2e:debug": "playwright test --debug",
@@ -55,6 +57,8 @@
     "angular-eslint": "21.0.1",
     "eslint": "^9.39.1",
     "jsdom": "^27.1.0",
+    "prettier": "^3.8.0",
+    "prettier-plugin-organize-imports": "^4.3.0",
     "typescript": "~5.9.2",
     "typescript-eslint": "8.46.4",
     "vitest": "^4.0.8"

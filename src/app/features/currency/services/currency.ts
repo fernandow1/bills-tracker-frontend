@@ -47,7 +47,7 @@ export class CurrencyService {
         {
           method: 'GET',
           headers: this.getAuthHeaders(),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -80,7 +80,7 @@ export class CurrencyService {
           method: 'POST',
           headers: this.getAuthHeaders(),
           body: JSON.stringify(currencyData),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -109,13 +109,13 @@ export class CurrencyService {
 
       const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(
-          this.configService.currencyEndpoints.update.replace(':id', updateData.id)
+          this.configService.currencyEndpoints.update.replace(':id', updateData.id),
         ),
         {
           method: 'PUT',
           headers: this.getAuthHeaders(),
           body: JSON.stringify(updateData.data),
-        }
+        },
       );
 
       if (!response.ok) {

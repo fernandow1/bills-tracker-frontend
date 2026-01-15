@@ -367,7 +367,7 @@ describe('CurrencyForm', () => {
       expect(mockSnackBar.open).toHaveBeenCalledWith(
         'Moneda creada exitosamente',
         'Cerrar',
-        expect.objectContaining({ duration: 3000 })
+        expect.objectContaining({ duration: 3000 }),
       );
     });
 
@@ -426,7 +426,7 @@ describe('CurrencyForm', () => {
       expect(mockSnackBar.open).toHaveBeenCalledWith(
         'Error al crear la moneda',
         'Cerrar',
-        expect.objectContaining({ duration: 5000 })
+        expect.objectContaining({ duration: 5000 }),
       );
     });
   });
@@ -463,7 +463,7 @@ describe('CurrencyForm', () => {
       expect(mockSnackBar.open).toHaveBeenCalledWith(
         'Moneda actualizada exitosamente',
         'Cerrar',
-        expect.objectContaining({ duration: 3000 })
+        expect.objectContaining({ duration: 3000 }),
       );
     });
 
@@ -522,7 +522,7 @@ describe('CurrencyForm', () => {
       expect(mockSnackBar.open).toHaveBeenCalledWith(
         'Error al actualizar la moneda',
         'Cerrar',
-        expect.objectContaining({ duration: 5000 })
+        expect.objectContaining({ duration: 5000 }),
       );
     });
   });

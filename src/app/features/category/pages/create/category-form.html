@@ -9,10 +9,11 @@
           <input matInput [field]="categoryForm.name" />
           <mat-icon matSuffix>category</mat-icon>
         </mat-form-field>
-        @if(categoryForm.name().invalid()) { @for (error of categoryForm.name().errors(); track
-        error) {
-        <mat-error>{{ error.message }}</mat-error>
-        } }
+        @if (categoryForm.name().invalid()) {
+          @for (error of categoryForm.name().errors(); track error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
       </div>
 
       <div>
@@ -26,10 +27,11 @@
           ></textarea>
           <mat-icon matSuffix>description</mat-icon>
         </mat-form-field>
-        @if(categoryForm.description().invalid()) { @for (error of
-        categoryForm.description().errors(); track error) {
-        <mat-error>{{ error.message }}</mat-error>
-        } }
+        @if (categoryForm.description().invalid()) {
+          @for (error of categoryForm.description().errors(); track error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
       </div>
     </div>
   </form>
@@ -48,14 +50,14 @@
     (click)="onSubmit()"
   >
     @if (isLoading) {
-    <mat-progress-spinner diameter="20" strokeWidth="3" mode="indeterminate">
-    </mat-progress-spinner>
-    <span>{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
+      <mat-progress-spinner diameter="20" strokeWidth="3" mode="indeterminate">
+      </mat-progress-spinner>
+      <span>{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
     } @else {
-    <ng-container>
-      <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
-      <span>{{ isEditMode ? 'Actualizar' : 'Crear Categoría' }}</span>
-    </ng-container>
+      <ng-container>
+        <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+        <span>{{ isEditMode ? 'Actualizar' : 'Crear Categoría' }}</span>
+      </ng-container>
     }
   </button>
 </mat-dialog-actions>
