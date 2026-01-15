@@ -178,14 +178,9 @@ test.describe('Category Management', () => {
     });
 
     test('should create a new category successfully', async ({ page }) => {
-      await page.getByRole('button', { name: /nueva categoría/i }).click();
-
-      // Llenar formulario
       const timestamp = Date.now();
-      await page.getByLabel('Nombre de la categoría').fill(`Test ${timestamp}`);
-      await page.getByLabel('Descripción').fill(`Descripción ${timestamp}`);
 
-      // Mockear POST
+      // Mockear POST ANTES de interactuar con el formulario para evitar race conditions
       await page.route('**/api/categories', async (route) => {
         if (route.request().method() === 'POST') {
           const body = route.request().postDataJSON();
@@ -205,15 +200,25 @@ test.describe('Category Management', () => {
         }
       });
 
+      await page.getByRole('button', { name: /nueva categoría/i }).click();
+
+      // Esperar a que el modal esté visible
+      await expect(page.locator('mat-dialog-container')).toBeVisible();
+
+      // Llenar formulario
+      await page.getByLabel('Nombre de la categoría').fill(`Test ${timestamp}`);
+      await page.getByLabel('Descripción').fill(`Descripción ${timestamp}`);
+
       // Enviar
       await page.getByRole('button', { name: /crear categoría/i }).click();
 
       // Verificar que el modal se cierra
       await expect(page.locator('mat-dialog-container')).not.toBeVisible({ timeout: 5000 });
 
-      // Verificar snackbar de éxito
-      const snackbar = page.locator('simple-snack-bar');
-      await expect(snackbar).toBeVisible({ timeout: 5000 });
+      // Verificar snackbar de éxito - esperar específicamente el mensaje correcto
+      await expect(
+        page.locator('simple-snack-bar').filter({ hasText: 'Categoría creada exitosamente' })
+      ).toBeVisible({ timeout: 5000 });
     });
 
     test('should disable submit button when form is invalid', async ({ page }) => {

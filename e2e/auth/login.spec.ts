@@ -163,7 +163,8 @@ test.describe('Authentication', () => {
           status: 200,
           contentType: 'application/json',
           body: JSON.stringify({
-            token: 'test-token-abc123',
+            accessToken: 'test-token-abc123',
+            refreshToken: 'test-refresh-token',
             user: {
               id: 'user-123',
               username: 'testuser',
