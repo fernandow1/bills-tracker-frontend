@@ -61,7 +61,9 @@ describe('AuthService', () => {
     };
 
     vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {});
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {});
 
     TestBed.configureTestingModule({

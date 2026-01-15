@@ -46,8 +46,11 @@ describe('PaymentMethodService', () => {
 
     // Mock localStorage using Storage.prototype spies
     vi.spyOn(Storage.prototype, 'getItem').mockReturnValue('mock-token');
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {});
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {});
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     vi.spyOn(Storage.prototype, 'clear').mockImplementation(() => {});
 
     // Mock successful response for allPaymentMethodsResource

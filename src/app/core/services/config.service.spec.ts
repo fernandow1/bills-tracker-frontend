@@ -102,8 +102,11 @@ describe('ConfigService', () => {
 
   describe('Static logging methods', () => {
     beforeEach(() => {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       vi.spyOn(console, 'log').mockImplementation(() => {});
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       vi.spyOn(console, 'error').mockImplementation(() => {});
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       vi.spyOn(console, 'warn').mockImplementation(() => {});
     });
 
