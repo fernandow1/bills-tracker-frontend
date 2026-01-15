@@ -122,7 +122,7 @@ describe('ConfigService', () => {
       expect(console.error).toHaveBeenCalledWith(
         expect.stringContaining('ERROR'),
         'Error message',
-        error
+        error,
       );
     });
 
@@ -132,7 +132,7 @@ describe('ConfigService', () => {
       expect(console.warn).toHaveBeenCalledWith(
         expect.stringContaining('WARN'),
         'Warning message',
-        'detail'
+        'detail',
       );
     });
 
@@ -142,7 +142,7 @@ describe('ConfigService', () => {
       expect(console.error).toHaveBeenCalledWith(
         expect.stringContaining('ERROR'),
         'Error message',
-        undefined
+        undefined,
       );
     });
 
@@ -159,7 +159,7 @@ describe('ConfigService', () => {
         expect.stringContaining('WARN'),
         'Warning',
         'detail1',
-        'detail2'
+        'detail2',
       );
     });
   });

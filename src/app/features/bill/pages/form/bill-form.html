@@ -22,51 +22,55 @@
               <input matInput type="date" [field]="billForm.purchasedAt" />
               <mat-icon matSuffix>event</mat-icon>
             </mat-form-field>
-            @if(billForm.purchasedAt().invalid()) { @for (error of billForm.purchasedAt().errors();
-            track error) {
-            <mat-error>{{ error.message }}</mat-error>
-            } }
+            @if (billForm.purchasedAt().invalid()) {
+              @for (error of billForm.purchasedAt().errors(); track error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            }
 
             <mat-form-field appearance="outline">
               <mat-label>Tienda</mat-label>
               <mat-select [field]="billForm.idShop">
                 @for (shop of shops(); track shop.id) {
-                <mat-option [value]="shop.id">{{ shop.name }}</mat-option>
+                  <mat-option [value]="shop.id">{{ shop.name }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
-            @if(billForm.idShop().invalid()) { @for (error of billForm.idShop().errors(); track
-            error) {
-            <mat-error>{{ error.message }}</mat-error>
-            } }
+            @if (billForm.idShop().invalid()) {
+              @for (error of billForm.idShop().errors(); track error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            }
 
             <mat-form-field appearance="outline">
               <mat-label>Moneda</mat-label>
               <mat-select [field]="billForm.idCurrency">
                 @for (currency of currencies(); track currency.id) {
-                <mat-option [value]="currency.id">
-                  {{ currency.name }} ({{ currency.code }})
-                </mat-option>
+                  <mat-option [value]="currency.id">
+                    {{ currency.name }} ({{ currency.code }})
+                  </mat-option>
                 }
               </mat-select>
             </mat-form-field>
-            @if(billForm.idCurrency().invalid()) { @for (error of billForm.idCurrency().errors();
-            track error) {
-            <mat-error>{{ error.message }}</mat-error>
-            } }
+            @if (billForm.idCurrency().invalid()) {
+              @for (error of billForm.idCurrency().errors(); track error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            }
 
             <mat-form-field appearance="outline">
               <mat-label>Método de Pago</mat-label>
               <mat-select [field]="billForm.idPaymentMethod">
                 @for (method of paymentMethods(); track method.id) {
-                <mat-option [value]="method.id">{{ method.name }}</mat-option>
+                  <mat-option [value]="method.id">{{ method.name }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
-            @if(billForm.idPaymentMethod().invalid()) { @for (error of
-            billForm.idPaymentMethod().errors(); track error) {
-            <mat-error>{{ error.message }}</mat-error>
-            } }
+            @if (billForm.idPaymentMethod().invalid()) {
+              @for (error of billForm.idPaymentMethod().errors(); track error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            }
           </div>
         </mat-card-content>
       </mat-card>
@@ -92,192 +96,192 @@
           </div>
 
           @if (billItems().length > 0) {
-          <div class="table-wrapper">
-            <table mat-table [dataSource]="billItems()" class="items-table">
-              <!-- Product Column -->
-              <ng-container matColumnDef="product">
-                <th mat-header-cell *matHeaderCellDef>Producto</th>
-                <td mat-cell *matCellDef="let item; let i = index">
-                  <mat-form-field appearance="outline" class="full-width">
-                    <input
-                      type="text"
-                      matInput
-                      [value]="getProductForItem(item, i)?.name || ''"
-                      (input)="onProductSearch(i, $any($event.target).value)"
-                      [matAutocomplete]="autoProduct"
-                      placeholder="Buscar producto..."
-                    />
-                    <mat-icon matSuffix>search</mat-icon>
-                    <mat-autocomplete
-                      #autoProduct="matAutocomplete"
-                      [displayWith]="displayProduct"
-                      (optionSelected)="onProductSelected(i, $event.option.value)"
-                    >
-                      @for (product of getProductForRow(i); track product.id) {
-                      <mat-option [value]="product">
-                        <div class="product-option">
-                          <span class="product-name">{{ product.name }}</span>
-                          <span class="product-meta">
-                            <span class="brand">{{ product.brand.name }}</span>
-                            <span class="separator">-</span>
-                            <span class="category">{{ product.category.name }}</span>
-                          </span>
-                        </div>
-                      </mat-option>
+            <div class="table-wrapper">
+              <table mat-table [dataSource]="billItems()" class="items-table">
+                <!-- Product Column -->
+                <ng-container matColumnDef="product">
+                  <th mat-header-cell *matHeaderCellDef>Producto</th>
+                  <td mat-cell *matCellDef="let item; let i = index">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <input
+                        type="text"
+                        matInput
+                        [value]="getProductForItem(item, i)?.name || ''"
+                        (input)="onProductSearch(i, $any($event.target).value)"
+                        [matAutocomplete]="autoProduct"
+                        placeholder="Buscar producto..."
+                      />
+                      <mat-icon matSuffix>search</mat-icon>
+                      <mat-autocomplete
+                        #autoProduct="matAutocomplete"
+                        [displayWith]="displayProduct"
+                        (optionSelected)="onProductSelected(i, $event.option.value)"
+                      >
+                        @for (product of getProductForRow(i); track product.id) {
+                          <mat-option [value]="product">
+                            <div class="product-option">
+                              <span class="product-name">{{ product.name }}</span>
+                              <span class="product-meta">
+                                <span class="brand">{{ product.brand.name }}</span>
+                                <span class="separator">-</span>
+                                <span class="category">{{ product.category.name }}</span>
+                              </span>
+                            </div>
+                          </mat-option>
+                        }
+                      </mat-autocomplete>
+                    </mat-form-field>
+                  </td>
+                </ng-container>
+
+                <!-- Brand Column (Read-only) -->
+                <ng-container matColumnDef="brand">
+                  <th mat-header-cell *matHeaderCellDef>Marca</th>
+                  <td mat-cell *matCellDef="let item; let i = index">
+                    <span class="readonly-field">{{ getProductBrand(i, item.idProduct) }}</span>
+                  </td>
+                </ng-container>
+
+                <!-- Category Column (Read-only) -->
+                <ng-container matColumnDef="category">
+                  <th mat-header-cell *matHeaderCellDef>Categoría</th>
+                  <td mat-cell *matCellDef="let item; let i = index">
+                    <span class="readonly-field">{{ getProductCategory(i, item.idProduct) }}</span>
+                  </td>
+                </ng-container>
+
+                <!-- Quantity Column -->
+                <ng-container matColumnDef="quantity">
+                  <th mat-header-cell *matHeaderCellDef class="text-center">Cantidad</th>
+                  <td mat-cell *matCellDef="let item; let i = index" class="text-center">
+                    <mat-form-field appearance="outline" class="small-field">
+                      <input
+                        matInput
+                        type="number"
+                        [value]="item.quantity"
+                        (blur)="updateItemField(i, 'quantity', +$any($event.target).value)"
+                        min="1"
+                        step="1"
+                      />
+                      <mat-error>Requerido</mat-error>
+                    </mat-form-field>
+                  </td>
+                </ng-container>
+
+                <!-- Content Value Column -->
+                <ng-container matColumnDef="contentValue">
+                  <th mat-header-cell *matHeaderCellDef>Contenido</th>
+                  <td mat-cell *matCellDef="let item; let i = index">
+                    <mat-form-field appearance="outline" class="medium-field">
+                      <input
+                        matInput
+                        type="number"
+                        [value]="item.contentValue || ''"
+                        (blur)="
+                          updateItemField(
+                            i,
+                            'contentValue',
+                            $any($event.target).value ? +$any($event.target).value : null
+                          )
+                        "
+                        [disabled]="!isContentValueEnabled(item)"
+                        placeholder="Peso/Volumen"
+                        min="0"
+                        step="0.01"
+                      />
+                      @if (isContentValueInvalid(item)) {
+                        <mat-error>Requerido para peso/volumen</mat-error>
                       }
-                    </mat-autocomplete>
-                  </mat-form-field>
-                </td>
-              </ng-container>
+                    </mat-form-field>
+                  </td>
+                </ng-container>
 
-              <!-- Brand Column (Read-only) -->
-              <ng-container matColumnDef="brand">
-                <th mat-header-cell *matHeaderCellDef>Marca</th>
-                <td mat-cell *matCellDef="let item; let i = index">
-                  <span class="readonly-field">{{ getProductBrand(i, item.idProduct) }}</span>
-                </td>
-              </ng-container>
+                <!-- Net Price Column -->
+                <ng-container matColumnDef="netPrice">
+                  <th mat-header-cell *matHeaderCellDef class="text-right">Precio Neto</th>
+                  <td mat-cell *matCellDef="let item; let i = index" class="text-right">
+                    <mat-form-field appearance="outline" class="medium-field">
+                      <mat-icon matPrefix>attach_money</mat-icon>
+                      <input
+                        matInput
+                        type="number"
+                        [value]="item.netPrice"
+                        (blur)="updateItemField(i, 'netPrice', +$any($event.target).value)"
+                        min="0"
+                        step="0.01"
+                      />
+                      <mat-error>Requerido</mat-error>
+                    </mat-form-field>
+                  </td>
+                </ng-container>
 
-              <!-- Category Column (Read-only) -->
-              <ng-container matColumnDef="category">
-                <th mat-header-cell *matHeaderCellDef>Categoría</th>
-                <td mat-cell *matCellDef="let item; let i = index">
-                  <span class="readonly-field">{{ getProductCategory(i, item.idProduct) }}</span>
-                </td>
-              </ng-container>
+                <!-- Net Unit Column -->
+                <ng-container matColumnDef="netUnit">
+                  <th mat-header-cell *matHeaderCellDef>Unidad</th>
+                  <td mat-cell *matCellDef="let item; let i = index">
+                    <mat-form-field appearance="outline" class="small-field">
+                      <mat-select
+                        [value]="item.netUnit"
+                        (selectionChange)="updateItemField(i, 'netUnit', $event.value)"
+                      >
+                        <mat-option [value]="NetUnits.UNIT">Unidad</mat-option>
+                        <mat-option [value]="NetUnits.GRAM">Gramo</mat-option>
+                        <mat-option [value]="NetUnits.KILOGRAM">Kilogramo</mat-option>
+                        <mat-option [value]="NetUnits.MILLILITER">Mililitro</mat-option>
+                        <mat-option [value]="NetUnits.LITER">Litro</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </td>
+                </ng-container>
 
-              <!-- Quantity Column -->
-              <ng-container matColumnDef="quantity">
-                <th mat-header-cell *matHeaderCellDef class="text-center">Cantidad</th>
-                <td mat-cell *matCellDef="let item; let i = index" class="text-center">
-                  <mat-form-field appearance="outline" class="small-field">
-                    <input
-                      matInput
-                      type="number"
-                      [value]="item.quantity"
-                      (blur)="updateItemField(i, 'quantity', +$any($event.target).value)"
-                      min="1"
-                      step="1"
-                    />
-                    <mat-error>Requerido</mat-error>
-                  </mat-form-field>
-                </td>
-              </ng-container>
+                <!-- Subtotal Column -->
+                <ng-container matColumnDef="subtotal">
+                  <th mat-header-cell *matHeaderCellDef class="text-right">Subtotal</th>
+                  <td mat-cell *matCellDef="let item" class="text-right subtotal-cell">
+                    {{ getItemSubtotal(item) | currencyFormat }}
+                  </td>
+                </ng-container>
 
-              <!-- Content Value Column -->
-              <ng-container matColumnDef="contentValue">
-                <th mat-header-cell *matHeaderCellDef>Contenido</th>
-                <td mat-cell *matCellDef="let item; let i = index">
-                  <mat-form-field appearance="outline" class="medium-field">
-                    <input
-                      matInput
-                      type="number"
-                      [value]="item.contentValue || ''"
-                      (blur)="
-                        updateItemField(
-                          i,
-                          'contentValue',
-                          $any($event.target).value ? +$any($event.target).value : null
-                        )
-                      "
-                      [disabled]="!isContentValueEnabled(item)"
-                      placeholder="Peso/Volumen"
-                      min="0"
-                      step="0.01"
-                    />
-                    @if(isContentValueInvalid(item)) {
-                    <mat-error>Requerido para peso/volumen</mat-error>
-                    }
-                  </mat-form-field>
-                </td>
-              </ng-container>
-
-              <!-- Net Price Column -->
-              <ng-container matColumnDef="netPrice">
-                <th mat-header-cell *matHeaderCellDef class="text-right">Precio Neto</th>
-                <td mat-cell *matCellDef="let item; let i = index" class="text-right">
-                  <mat-form-field appearance="outline" class="medium-field">
-                    <mat-icon matPrefix>attach_money</mat-icon>
-                    <input
-                      matInput
-                      type="number"
-                      [value]="item.netPrice"
-                      (blur)="updateItemField(i, 'netPrice', +$any($event.target).value)"
-                      min="0"
-                      step="0.01"
-                    />
-                    <mat-error>Requerido</mat-error>
-                  </mat-form-field>
-                </td>
-              </ng-container>
-
-              <!-- Net Unit Column -->
-              <ng-container matColumnDef="netUnit">
-                <th mat-header-cell *matHeaderCellDef>Unidad</th>
-                <td mat-cell *matCellDef="let item; let i = index">
-                  <mat-form-field appearance="outline" class="small-field">
-                    <mat-select
-                      [value]="item.netUnit"
-                      (selectionChange)="updateItemField(i, 'netUnit', $event.value)"
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef class="text-center">Acciones</th>
+                  <td mat-cell *matCellDef="let item; let i = index" class="text-center">
+                    <button
+                      mat-icon-button
+                      color="warn"
+                      type="button"
+                      (click)="removeBillItem(i)"
+                      [disabled]="isLoading"
                     >
-                      <mat-option [value]="NetUnits.UNIT">Unidad</mat-option>
-                      <mat-option [value]="NetUnits.GRAM">Gramo</mat-option>
-                      <mat-option [value]="NetUnits.KILOGRAM">Kilogramo</mat-option>
-                      <mat-option [value]="NetUnits.MILLILITER">Mililitro</mat-option>
-                      <mat-option [value]="NetUnits.LITER">Litro</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </td>
-              </ng-container>
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </td>
+                </ng-container>
 
-              <!-- Subtotal Column -->
-              <ng-container matColumnDef="subtotal">
-                <th mat-header-cell *matHeaderCellDef class="text-right">Subtotal</th>
-                <td mat-cell *matCellDef="let item" class="text-right subtotal-cell">
-                  {{ getItemSubtotal(item) | currencyFormat }}
-                </td>
-              </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr
+                  mat-row
+                  *matRowDef="
+                    let row;
+                    let i = index;
+                    columns: displayedColumns;
+                    trackBy: trackByIndex
+                  "
+                  [attr.data-index]="i"
+                ></tr>
+              </table>
+            </div>
 
-              <!-- Actions Column -->
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef class="text-center">Acciones</th>
-                <td mat-cell *matCellDef="let item; let i = index" class="text-center">
-                  <button
-                    mat-icon-button
-                    color="warn"
-                    type="button"
-                    (click)="removeBillItem(i)"
-                    [disabled]="isLoading"
-                  >
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr
-                mat-row
-                *matRowDef="
-                  let row;
-                  let i = index;
-                  columns: displayedColumns;
-                  trackBy: trackByIndex
-                "
-                [attr.data-index]="i"
-              ></tr>
-            </table>
-          </div>
-
-          <!-- Total Section -->
-          <div class="total-section">
-            <span class="total-label">Total de la Factura</span>
-            <span class="total-value">{{ total() | currencyFormat }}</span>
-          </div>
+            <!-- Total Section -->
+            <div class="total-section">
+              <span class="total-label">Total de la Factura</span>
+              <span class="total-value">{{ total() | currencyFormat }}</span>
+            </div>
           } @else {
-          <div class="empty-items">
-            <mat-icon>inbox</mat-icon>
-            <p>No hay items. Haga clic en "Agregar Item" para comenzar.</p>
-          </div>
+            <div class="empty-items">
+              <mat-icon>inbox</mat-icon>
+              <p>No hay items. Haga clic en "Agregar Item" para comenzar.</p>
+            </div>
           }
         </mat-card-content>
       </mat-card>

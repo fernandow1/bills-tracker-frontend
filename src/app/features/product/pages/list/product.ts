@@ -110,7 +110,7 @@ export class Product {
         map((v: string) => v.trim()),
         filter((v: string) => v.length > 0),
         debounceTime(500),
-        distinctUntilChanged()
+        distinctUntilChanged(),
       )
       .subscribe((searchTerm: string) => {
         this.brandService.searchBrands(searchTerm);
@@ -123,7 +123,7 @@ export class Product {
         map((v: string) => v.trim()),
         filter((v: string) => v.length > 0),
         debounceTime(500),
-        distinctUntilChanged()
+        distinctUntilChanged(),
       )
       .subscribe((searchTerm: string) => {
         this.categoryService.searchCategories(searchTerm);
@@ -166,7 +166,7 @@ export class Product {
     this.productService.searchProducts(
       this.currentPage,
       this.pageSize,
-      Object.keys(filters).length > 0 ? filters : undefined
+      Object.keys(filters).length > 0 ? filters : undefined,
     );
   }
 

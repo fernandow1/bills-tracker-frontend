@@ -85,7 +85,7 @@ export class Shop {
         takeUntilDestroyed(this.destroyRef),
         map((v: string) => v.trim()),
         debounceTime(500),
-        distinctUntilChanged()
+        distinctUntilChanged(),
       )
       .subscribe((searchTerm: string) => {
         this.filters.name = searchTerm || null;
@@ -98,7 +98,7 @@ export class Shop {
         takeUntilDestroyed(this.destroyRef),
         map((v: string) => v.trim()),
         debounceTime(500),
-        distinctUntilChanged()
+        distinctUntilChanged(),
       )
       .subscribe((searchTerm: string) => {
         this.filters.description = searchTerm || null;
@@ -131,7 +131,7 @@ export class Shop {
     this.shopService.searchShops(
       this.currentPage,
       this.pageSize,
-      Object.keys(filters).length > 0 ? filters : undefined
+      Object.keys(filters).length > 0 ? filters : undefined,
     );
   }
 

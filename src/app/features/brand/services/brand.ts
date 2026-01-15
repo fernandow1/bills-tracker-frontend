@@ -53,7 +53,7 @@ export class BrandService {
         {
           method: 'GET',
           headers: this.getAuthHeaders(),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -94,7 +94,7 @@ export class BrandService {
 
       const queryString = new URLSearchParams(params).toString();
       const url = `${this.configService.buildApiUrl(
-        this.configService.brandEndpoints.search
+        this.configService.brandEndpoints.search,
       )}?${queryString}`;
 
       const response = await this.authFetch.fetch(url, {
@@ -132,7 +132,7 @@ export class BrandService {
           method: 'POST',
           headers: this.getAuthHeaders(),
           body: JSON.stringify(brandData),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -161,13 +161,13 @@ export class BrandService {
 
       const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(
-          this.configService.brandEndpoints.update.replace(':id', updateData.id)
+          this.configService.brandEndpoints.update.replace(':id', updateData.id),
         ),
         {
           method: 'PUT',
           headers: this.getAuthHeaders(),
           body: JSON.stringify(updateData.data),
-        }
+        },
       );
 
       if (!response.ok) {

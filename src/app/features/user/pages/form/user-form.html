@@ -9,9 +9,11 @@
           <input matInput [field]="userForm.name" />
           <mat-icon matSuffix>person</mat-icon>
         </mat-form-field>
-        @if(nameInvalid()) { @for (error of nameErrors(); track error) {
-        <mat-error>{{ error.message }}</mat-error>
-        } }
+        @if (nameInvalid()) {
+          @for (error of nameErrors(); track error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
       </div>
 
       <div>
@@ -20,9 +22,11 @@
           <input matInput [field]="userForm.username" />
           <mat-icon matSuffix>account_circle</mat-icon>
         </mat-form-field>
-        @if(usernameInvalid()) { @for (error of usernameErrors(); track error) {
-        <mat-error>{{ error.message }}</mat-error>
-        } }
+        @if (usernameInvalid()) {
+          @for (error of usernameErrors(); track error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
       </div>
 
       <div>
@@ -31,9 +35,11 @@
           <input matInput type="email" [field]="userForm.email" />
           <mat-icon matSuffix>email</mat-icon>
         </mat-form-field>
-        @if(emailInvalid()) { @for (error of emailErrors(); track error) {
-        <mat-error>{{ error.message }}</mat-error>
-        } }
+        @if (emailInvalid()) {
+          @for (error of emailErrors(); track error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
       </div>
 
       <div>
@@ -42,13 +48,15 @@
             isEditMode ? 'Nueva Contraseña (dejar vacío para no cambiar)' : 'Contraseña'
           }}</mat-label>
           @if (userForm.password) {
-          <input matInput type="password" [field]="userForm.password" />
+            <input matInput type="password" [field]="userForm.password" />
           }
           <mat-icon matSuffix>lock</mat-icon>
         </mat-form-field>
-        @if(showPasswordErrors()) { @for (error of passwordErrors(); track error) {
-        <mat-error>{{ error.message }}</mat-error>
-        } }
+        @if (showPasswordErrors()) {
+          @for (error of passwordErrors(); track error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
       </div>
     </div>
   </form>
@@ -67,14 +75,14 @@
     (click)="onSubmit()"
   >
     @if (isLoading) {
-    <mat-progress-spinner diameter="20" strokeWidth="3" mode="indeterminate">
-    </mat-progress-spinner>
-    <span>{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
+      <mat-progress-spinner diameter="20" strokeWidth="3" mode="indeterminate">
+      </mat-progress-spinner>
+      <span>{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
     } @else {
-    <ng-container>
-      <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
-      <span>{{ isEditMode ? 'Actualizar' : 'Crear Usuario' }}</span>
-    </ng-container>
+      <ng-container>
+        <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+        <span>{{ isEditMode ? 'Actualizar' : 'Crear Usuario' }}</span>
+      </ng-container>
     }
   </button>
 </mat-dialog-actions>

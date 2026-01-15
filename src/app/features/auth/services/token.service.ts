@@ -131,7 +131,7 @@ export class TokenService {
    * Obtiene información del usuario desde el token
    */
   public getUserFromToken(
-    token?: string
+    token?: string,
   ): { id: string; username: string; email?: string; roles?: string[] } | null {
     const payload = this.decodeToken(token);
     if (!payload) {

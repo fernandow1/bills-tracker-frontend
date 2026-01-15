@@ -113,7 +113,7 @@ export class LoginPage implements OnInit {
           takeUntilDestroyed(this.destroyRef),
           catchError((error): Observable<never> => {
             return throwError(() => error);
-          })
+          }),
         )
         .subscribe({
           next: () => {

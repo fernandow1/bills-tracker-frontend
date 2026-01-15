@@ -114,7 +114,7 @@ export class AuthService {
       .post<LoginResponse>(this.config.buildApiUrl(this.config.authEndpoints.login), credentials)
       .pipe(
         tap((response) => this.handleLoginSuccess(response)),
-        catchError((error): Observable<never> => this.handleAuthError(error))
+        catchError((error): Observable<never> => this.handleAuthError(error)),
       );
   }
 
@@ -199,7 +199,7 @@ export class AuthService {
         catchError((error): Observable<never> => {
           this.logout(); // Si falla el refresh, cerrar sesión
           return throwError(() => error);
-        })
+        }),
       );
   }
 

@@ -58,7 +58,7 @@ export class CategoryService {
         {
           method: 'GET',
           headers: this.getAuthHeaders(),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -100,7 +100,7 @@ export class CategoryService {
 
       const queryString = new URLSearchParams(params).toString();
       const url = `${this.configService.buildApiUrl(
-        this.configService.categoryEndpoints.search
+        this.configService.categoryEndpoints.search,
       )}?${queryString}`;
 
       const response = await this.authFetch.fetch(url, {
@@ -138,7 +138,7 @@ export class CategoryService {
           method: 'POST',
           headers: this.getAuthHeaders(),
           body: JSON.stringify(categoryData),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -167,13 +167,13 @@ export class CategoryService {
 
       const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(
-          this.configService.categoryEndpoints.update.replace(':id', updateData.id)
+          this.configService.categoryEndpoints.update.replace(':id', updateData.id),
         ),
         {
           method: 'PUT',
           headers: this.getAuthHeaders(),
           body: JSON.stringify(updateData.data),
-        }
+        },
       );
 
       if (!response.ok) {

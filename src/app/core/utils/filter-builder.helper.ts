@@ -92,7 +92,7 @@ export function buildFilterStrings(filters: Filter[]): string[] {
 export function buildFilterParams(
   filters: Filter[],
   filterKey = 'filter',
-  logicalOperator: 'or' | 'and' = 'and'
+  logicalOperator: 'or' | 'and' = 'and',
 ): Record<string, string> {
   if (filters.length === 0) {
     return {};
@@ -123,7 +123,7 @@ export function buildFilterParams(
 export function createFilter(
   field: string,
   value: Filter['value'],
-  operator: FilterOperator = FilterOperator.EQUALS
+  operator: FilterOperator = FilterOperator.EQUALS,
 ): Filter {
   return { field, operator, value };
 }

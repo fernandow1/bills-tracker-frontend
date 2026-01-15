@@ -65,7 +65,7 @@ export class ProductForm implements OnInit {
   // Form Controls para autocompletes
   public brandControl = new FormControl<string | IBrandResponse>(this.dialogData?.brand || '');
   public categoryControl = new FormControl<string | ICategoryResponse>(
-    this.dialogData?.category || ''
+    this.dialogData?.category || '',
   );
 
   // Subjects para debounce de búsqueda

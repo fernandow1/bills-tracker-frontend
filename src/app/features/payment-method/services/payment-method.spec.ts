@@ -228,7 +228,7 @@ describe('PaymentMethodService', () => {
 
       // Act & Assert
       await expect(service.createPaymentMethod(mockPaymentMethodData)).rejects.toThrow(
-        'Network error'
+        'Network error',
       );
     });
   });
@@ -287,7 +287,7 @@ describe('PaymentMethodService', () => {
 
       // Act & Assert
       await expect(service.updatePaymentMethod(1, mockPaymentMethodData)).rejects.toThrow(
-        'Network error'
+        'Network error',
       );
     });
   });

@@ -232,7 +232,7 @@ describe('AuthService', () => {
       vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
 
       await expect(firstValueFrom(service.refreshToken())).rejects.toThrow(
-        'No refresh token available'
+        'No refresh token available',
       );
     });
 

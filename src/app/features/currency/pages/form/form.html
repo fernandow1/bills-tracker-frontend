@@ -10,10 +10,11 @@
           <mat-icon matSuffix>tag</mat-icon>
           <mat-hint>Código de 3 letras (ISO 4217)</mat-hint>
         </mat-form-field>
-        @if(currencyForm.code().invalid()) { @for (error of currencyForm.code().errors(); track
-        error) {
-        <mat-error>{{ error.message }}</mat-error>
-        } }
+        @if (currencyForm.code().invalid()) {
+          @for (error of currencyForm.code().errors(); track error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
       </div>
 
       <div>
@@ -22,10 +23,11 @@
           <input matInput [field]="currencyForm.name" placeholder="Ej: Dólar estadounidense" />
           <mat-icon matSuffix>account_balance</mat-icon>
         </mat-form-field>
-        @if(currencyForm.name().invalid()) { @for (error of currencyForm.name().errors(); track
-        error) {
-        <mat-error>{{ error.message }}</mat-error>
-        } }
+        @if (currencyForm.name().invalid()) {
+          @for (error of currencyForm.name().errors(); track error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
       </div>
 
       <div>
@@ -34,10 +36,11 @@
           <input matInput [field]="currencyForm.symbol" placeholder="Ej: $" />
           <mat-icon matSuffix>currency_exchange</mat-icon>
         </mat-form-field>
-        @if(currencyForm.symbol().invalid()) { @for (error of currencyForm.symbol().errors(); track
-        error) {
-        <mat-error>{{ error.message }}</mat-error>
-        } }
+        @if (currencyForm.symbol().invalid()) {
+          @for (error of currencyForm.symbol().errors(); track error) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
       </div>
     </div>
   </form>
@@ -56,14 +59,14 @@
     (click)="onSubmit()"
   >
     @if (isLoading) {
-    <mat-progress-spinner diameter="20" strokeWidth="3" mode="indeterminate">
-    </mat-progress-spinner>
-    <span>{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
+      <mat-progress-spinner diameter="20" strokeWidth="3" mode="indeterminate">
+      </mat-progress-spinner>
+      <span>{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
     } @else {
-    <ng-container>
-      <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
-      <span>{{ isEditMode ? 'Actualizar' : 'Crear Moneda' }}</span>
-    </ng-container>
+      <ng-container>
+        <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+        <span>{{ isEditMode ? 'Actualizar' : 'Crear Moneda' }}</span>
+      </ng-container>
     }
   </button>
 </mat-dialog-actions>

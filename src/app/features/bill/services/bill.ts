@@ -57,7 +57,7 @@ export class BillService {
       // Agregar filtros si existen
       if (searchParams.filters?.idShop) {
         filters.push(
-          createFilter('idShop', searchParams.filters.idShop.toString(), FilterOperator.EQUALS)
+          createFilter('idShop', searchParams.filters.idShop.toString(), FilterOperator.EQUALS),
         );
       }
       if (searchParams.filters?.idCurrency) {
@@ -65,8 +65,8 @@ export class BillService {
           createFilter(
             'idCurrency',
             searchParams.filters.idCurrency.toString(),
-            FilterOperator.EQUALS
-          )
+            FilterOperator.EQUALS,
+          ),
         );
       }
       if (searchParams.filters?.idPaymentMethod) {
@@ -74,8 +74,8 @@ export class BillService {
           createFilter(
             'idPaymentMethod',
             searchParams.filters.idPaymentMethod.toString(),
-            FilterOperator.EQUALS
-          )
+            FilterOperator.EQUALS,
+          ),
         );
       }
       // Construir params con filtros
@@ -85,7 +85,7 @@ export class BillService {
 
       const queryString = new URLSearchParams(finalParams).toString();
       const url = `${this.configService.buildApiUrl(
-        this.configService.billsEndpoints.list
+        this.configService.billsEndpoints.list,
       )}?${queryString}`;
 
       const response = await this.authFetch.fetch(url, {
@@ -123,7 +123,7 @@ export class BillService {
           method: 'POST',
           headers: this.getAuthHeaders(),
           body: JSON.stringify(billData),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -154,13 +154,13 @@ export class BillService {
 
       const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(
-          this.configService.billsEndpoints.update.replace(':id', updateData.id.toString())
+          this.configService.billsEndpoints.update.replace(':id', updateData.id.toString()),
         ),
         {
           method: 'PUT',
           headers: this.getAuthHeaders(),
           body: JSON.stringify(updateData.data),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -320,7 +320,7 @@ export class BillService {
    */
   public async getBillById(id: string): Promise<IBillResponse> {
     const url = this.configService.buildApiUrl(
-      this.configService.billsEndpoints.base.replace(':id', id)
+      this.configService.billsEndpoints.base.replace(':id', id),
     );
 
     const response = await this.authFetch.fetch(url, {
@@ -347,7 +347,7 @@ export class BillService {
    */
   public async deleteBill(id: number): Promise<void> {
     const url = this.configService.buildApiUrl(
-      this.configService.billsEndpoints.delete.replace(':id', id.toString())
+      this.configService.billsEndpoints.delete.replace(':id', id.toString()),
     );
 
     const response = await this.authFetch.fetch(url, {

@@ -64,7 +64,7 @@ export class ShopService {
       }
       if (searchParams.filters?.description) {
         filters.push(
-          createFilter('description', searchParams.filters.description, FilterOperator.LIKE)
+          createFilter('description', searchParams.filters.description, FilterOperator.LIKE),
         );
       }
       if (searchParams.filters?.ids !== undefined && searchParams.filters.ids.length > 0) {
@@ -78,7 +78,7 @@ export class ShopService {
 
       const queryString = new URLSearchParams(finalParams).toString();
       const url = `${this.configService.buildApiUrl(
-        this.configService.shopEndpoints.search
+        this.configService.shopEndpoints.search,
       )}?${queryString}`;
 
       const response = await this.authFetch.fetch(url, {
@@ -116,7 +116,7 @@ export class ShopService {
           method: 'POST',
           headers: this.getAuthHeaders(),
           body: JSON.stringify(shopData),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -145,13 +145,13 @@ export class ShopService {
 
       const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(
-          this.configService.shopEndpoints.update.replace(':id', updateData.id)
+          this.configService.shopEndpoints.update.replace(':id', updateData.id),
         ),
         {
           method: 'PUT',
           headers: this.getAuthHeaders(),
           body: JSON.stringify(updateData.data),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -204,7 +204,7 @@ export class ShopService {
   public searchShops(
     page: number,
     pageSize: number,
-    filters?: { name?: string; description?: string; ids?: number[] }
+    filters?: { name?: string; description?: string; ids?: number[] },
   ): void {
     this.searchShopsTrigger.set({ page, pageSize, filters });
     this.searchShopsResource.reload();

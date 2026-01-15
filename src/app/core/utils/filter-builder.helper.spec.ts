@@ -170,7 +170,7 @@ describe('filter-builder.helper', () => {
       const filter = createFilter('name', null);
 
       expect(() => buildFilterString(filter)).toThrow(
-        'Filter value cannot be null or undefined for operator eq'
+        'Filter value cannot be null or undefined for operator eq',
       );
     });
 
@@ -178,7 +178,7 @@ describe('filter-builder.helper', () => {
       const filter = { field: 'name', operator: FilterOperator.EQUALS, value: undefined as any };
 
       expect(() => buildFilterString(filter)).toThrow(
-        'Filter value cannot be null or undefined for operator eq'
+        'Filter value cannot be null or undefined for operator eq',
       );
     });
 
@@ -186,7 +186,7 @@ describe('filter-builder.helper', () => {
       const filter = createFilter('ids', [], FilterOperator.IN);
 
       expect(() => buildFilterString(filter)).toThrow(
-        'Filter value array cannot be empty for operator in'
+        'Filter value array cannot be empty for operator in',
       );
     });
 
