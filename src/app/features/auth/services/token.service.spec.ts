@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { TokenService, TokenPayload } from './token.service';
+import { TokenService } from './token.service';
 
 describe('TokenService', () => {
   let service: TokenService;
-  let localStorageMock: { [key: string]: string };
+  let localStorageMock: Record<string, string>;
   let getItemSpy: ReturnType<typeof vi.spyOn>;
   let setItemSpy: ReturnType<typeof vi.spyOn>;
   let removeItemSpy: ReturnType<typeof vi.spyOn>;
@@ -44,7 +44,7 @@ describe('TokenService', () => {
     });
 
     it('should handle storage errors', () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
       setItemSpy.mockImplementation(() => {
         throw new Error('Storage full');
       });
@@ -74,7 +74,7 @@ describe('TokenService', () => {
     });
 
     it('should handle storage errors', () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
       getItemSpy.mockImplementation(() => {
         throw new Error('Storage unavailable');
       });
@@ -99,7 +99,7 @@ describe('TokenService', () => {
     });
 
     it('should handle removal errors', () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
       removeItemSpy.mockImplementation(() => {
         throw new Error('Cannot remove');
       });
@@ -139,7 +139,7 @@ describe('TokenService', () => {
     });
 
     it('should return null for invalid JWT format', () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
       const invalidToken = 'not.a.valid.jwt.token';
 
       const payload = service.decodeToken(invalidToken);
@@ -157,7 +157,7 @@ describe('TokenService', () => {
     });
 
     it('should handle decode errors', () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
       const malformedToken = 'header.invalid-base64!@#$.signature';
 
       const payload = service.decodeToken(malformedToken);
