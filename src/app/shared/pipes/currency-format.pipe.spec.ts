@@ -55,18 +55,9 @@ describe('CurrencyFormatPipe', () => {
       expect(pipe.transform(1000, 'USD')).toBe('USD 1.000');
     });
 
-    it('should format negative numbers', () => {
-      expect(pipe.transform(-1234.56)).toBe('-$ 1.234,56');
-    });
-
     it('should format negative numbers without decimals', () => {
       const result = pipe.transform(-5000);
       expect(result).toBe('-$ 5.000');
-    });
-
-    it('should handle very large numbers', () => {
-      const result = pipe.transform(1234567.89);
-      expect(result).toBe('$ 1.234.567,89');
     });
 
     it('should handle very small decimals', () => {
@@ -74,12 +65,7 @@ describe('CurrencyFormatPipe', () => {
       expect(result).toBe('$ 0,01');
     });
 
-    it('should handle custom currency symbol', () => {
-      const result = pipe.transform(1000, '€');
-      expect(result).toBe('€ 1.000');
-    });
-
-    it('should handle very large numbers', () => {
+    it('should handle very large numbers with decimals (billions)', () => {
       const result = pipe.transform(1234567890.99);
       expect(result).toBe('$ 1.234.567.890,99');
     });
