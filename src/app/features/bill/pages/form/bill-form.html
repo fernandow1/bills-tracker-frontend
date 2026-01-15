@@ -115,10 +115,14 @@
                     >
                       @for (product of getProductForRow(i); track product.id) {
                       <mat-option [value]="product">
-                        <span>{{ product.name }}</span>
-                        <small style="color: rgba(0, 0, 0, 0.6); margin-left: 8px">
-                          {{ product.brand.name }} - {{ product.category.name }}
-                        </small>
+                        <div class="product-option">
+                          <span class="product-name">{{ product.name }}</span>
+                          <span class="product-meta">
+                            <span class="brand">{{ product.brand.name }}</span>
+                            <span class="separator">-</span>
+                            <span class="category">{{ product.category.name }}</span>
+                          </span>
+                        </div>
                       </mat-option>
                       }
                     </mat-autocomplete>

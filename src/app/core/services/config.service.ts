@@ -6,26 +6,6 @@ import { environment } from '../../../environments/environment';
 })
 export class ConfigService {
   private static _instance: ConfigService | null = null;
-  // Propiedades generales
-  public get isProduction(): boolean {
-    return environment.production;
-  }
-
-  public get appName(): string {
-    return environment.appName;
-  }
-
-  public get version(): string {
-    return environment.version;
-  }
-
-  public get enableLogging(): boolean {
-    return environment.enableLogging;
-  }
-
-  public get enableDebugMode(): boolean {
-    return environment.enableDebugMode;
-  }
 
   // API Configuration
   public get apiUrl(): string {
@@ -68,18 +48,9 @@ export class ConfigService {
     return environment.endpoints.paymentMethods;
   }
 
-  public get userEndpoints() {
-    return environment.endpoints.users;
-  }
-
   // Auth Configuration
   public get authConfig() {
     return environment.auth;
-  }
-
-  // App Configuration
-  public get appConfig() {
-    return environment.app;
   }
 
   // Métodos de utilidad
@@ -89,33 +60,6 @@ export class ConfigService {
    */
   public buildApiUrl(endpoint: string): string {
     return `${this.apiUrl}${endpoint}`;
-  }
-
-  /**
-   * Obtiene una configuración específica con un valor por defecto
-   */
-  public getConfig<T>(path: string, defaultValue: T): T {
-    const value = this.getNestedProperty(environment, path);
-    return value !== undefined ? (value as T) : defaultValue;
-  }
-
-  /**
-   * Verifica si una característica está habilitada
-   */
-  public isFeatureEnabled(feature: string): boolean {
-    return this.getConfig(`features.${feature}`, false);
-  }
-
-  /**
-   * Obtiene el valor de una propiedad anidada usando notación de punto
-   */
-  private getNestedProperty(obj: Record<string, unknown>, path: string): unknown {
-    return path.split('.').reduce((current: unknown, key: string) => {
-      if (current && typeof current === 'object' && key in current) {
-        return (current as Record<string, unknown>)[key];
-      }
-      return undefined;
-    }, obj);
   }
 
   constructor() {
@@ -140,10 +84,9 @@ export class ConfigService {
    * Log condicional basado en la configuración
    */
   public static log(message: string, ...args: unknown[]): void {
-    const instance = ConfigService.getInstance();
-    if (instance.enableLogging) {
+    if (environment.enableLogging) {
       // eslint-disable-next-line no-console
-      console.log(`[${instance.appName}]`, message, ...args);
+      console.log(`[${environment.appName}]`, message, ...args);
     }
   }
 
@@ -151,15 +94,13 @@ export class ConfigService {
    * Error logging (siempre activo)
    */
   public static error(message: string, error?: unknown): void {
-    const instance = ConfigService.getInstance();
-    console.error(`[${instance.appName} ERROR]`, message, error);
+    console.error(`[${environment.appName} ERROR]`, message, error);
   }
 
   /**
    * Warning logging (siempre activo)
    */
   public static warn(message: string, ...args: unknown[]): void {
-    const instance = ConfigService.getInstance();
-    console.warn(`[${instance.appName} WARN]`, message, ...args);
+    console.warn(`[${environment.appName} WARN]`, message, ...args);
   }
 }

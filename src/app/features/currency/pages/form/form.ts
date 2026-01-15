@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
-import { Field, form, maxLength, minLength, required } from '@angular/forms/signals';
+import { Field, form, maxLength, minLength, pattern, required } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -49,6 +49,7 @@ export class CurrencyForm {
     required(schemaPath.code, { message: 'El código de la moneda es obligatorio' });
     minLength(schemaPath.code, 3, { message: 'El código debe tener al menos 3 caracteres' });
     maxLength(schemaPath.code, 3, { message: 'El código debe tener exactamente 3 caracteres' });
+    pattern(schemaPath.code, /^[A-Za-z]+$/, { message: 'El código solo debe contener letras' });
 
     required(schemaPath.name, { message: 'El nombre de la moneda es obligatorio' });
     minLength(schemaPath.name, 3, { message: 'El nombre debe tener al menos 3 caracteres' });
