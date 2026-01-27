@@ -63,26 +63,29 @@ test.describe('Category Management', () => {
 
     test('should display categories in Material table', async ({ page }) => {
       // Mockear categorías
-      await page.route('**/api/categories', async (route) => {
+      await page.route('**/api/categories/search*', async (route) => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify([
-            {
-              id: 'cat-1',
-              name: 'Electrónica',
-              description: 'Productos electrónicos',
-              createdAt: '2025-12-01T10:00:00Z',
-              updatedAt: '2025-12-01T10:00:00Z',
-            },
-            {
-              id: 'cat-2',
-              name: 'Hogar',
-              description: 'Artículos para el hogar',
-              createdAt: '2025-12-02T10:00:00Z',
-              updatedAt: '2025-12-02T10:00:00Z',
-            },
-          ]),
+          body: JSON.stringify({
+            count: 2,
+            data: [
+              {
+                id: 'cat-1',
+                name: 'Electrónica',
+                description: 'Productos electrónicos',
+                createdAt: '2025-12-01T10:00:00Z',
+                updatedAt: '2025-12-01T10:00:00Z',
+              },
+              {
+                id: 'cat-2',
+                name: 'Hogar',
+                description: 'Artículos para el hogar',
+                createdAt: '2025-12-02T10:00:00Z',
+                updatedAt: '2025-12-02T10:00:00Z',
+              },
+            ],
+          }),
         });
       });
 
@@ -105,12 +108,12 @@ test.describe('Category Management', () => {
     });
 
     test('should show loading spinner while fetching categories', async ({ page }) => {
-      await page.route('**/api/categories', async (route) => {
+      await page.route('**/api/categories/search*', async (route) => {
         setTimeout(async () => {
           await route.fulfill({
             status: 200,
             contentType: 'application/json',
-            body: JSON.stringify([]),
+            body: JSON.stringify({ count: 0, data: [] }),
           });
         }, 2000); // Aumentar delay para dar tiempo al spinner
       });
@@ -128,11 +131,11 @@ test.describe('Category Management', () => {
     });
 
     test('should show empty state when no categories exist', async ({ page }) => {
-      await page.route('**/api/categories', async (route) => {
+      await page.route('**/api/categories/search*', async (route) => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify([]),
+          body: JSON.stringify({ count: 0, data: [] }),
         });
       });
 
@@ -144,7 +147,7 @@ test.describe('Category Management', () => {
     });
 
     test('should show error state on network failure', async ({ page }) => {
-      await page.route('**/api/categories', async (route) => {
+      await page.route('**/api/categories/search*', async (route) => {
         await route.abort('failed');
       });
 
@@ -180,7 +183,7 @@ test.describe('Category Management', () => {
     test('should create a new category successfully', async ({ page }) => {
       const timestamp = Date.now();
 
-      // Mockear POST ANTES de interactuar con el formulario para evitar race conditions
+      // Mockear POST para crear categoría
       await page.route('**/api/categories', async (route) => {
         if (route.request().method() === 'POST') {
           const body = route.request().postDataJSON();
@@ -273,7 +276,7 @@ test.describe('Category Management', () => {
       await page.getByLabel('Nombre de la categoría').fill('Loading Test');
       await page.getByLabel('Descripción').fill('Testing');
 
-      // Mockear respuesta lenta
+      // Mockear respuesta lenta para POST
       await page.route('**/api/categories', async (route) => {
         if (route.request().method() === 'POST') {
           // Delay usando setTimeout
@@ -312,20 +315,23 @@ test.describe('Category Management', () => {
   test.describe('Update Category', () => {
     test('should open edit modal with pre-filled data', async ({ page }) => {
       // Mockear categorías
-      await page.route('**/api/categories', async (route) => {
+      await page.route('**/api/categories/search*', async (route) => {
         if (route.request().method() === 'GET') {
           await route.fulfill({
             status: 200,
             contentType: 'application/json',
-            body: JSON.stringify([
-              {
-                id: 'cat-1',
-                name: 'Categoría Existente',
-                description: 'Descripción original',
-                createdAt: '2025-12-01T10:00:00Z',
-                updatedAt: '2025-12-01T10:00:00Z',
-              },
-            ]),
+            body: JSON.stringify({
+              count: 1,
+              data: [
+                {
+                  id: 'cat-1',
+                  name: 'Categoría Existente',
+                  description: 'Descripción original',
+                  createdAt: '2025-12-01T10:00:00Z',
+                  updatedAt: '2025-12-01T10:00:00Z',
+                },
+              ],
+            }),
           });
         } else {
           await route.continue();
@@ -348,20 +354,23 @@ test.describe('Category Management', () => {
 
     test('should update category successfully', async ({ page }) => {
       // Mockear GET
-      await page.route('**/api/categories', async (route) => {
+      await page.route('**/api/categories/search*', async (route) => {
         if (route.request().method() === 'GET') {
           await route.fulfill({
             status: 200,
             contentType: 'application/json',
-            body: JSON.stringify([
-              {
-                id: 'cat-1',
-                name: 'Original',
-                description: 'Desc original',
-                createdAt: '2025-12-01T10:00:00Z',
-                updatedAt: '2025-12-01T10:00:00Z',
-              },
-            ]),
+            body: JSON.stringify({
+              count: 1,
+              data: [
+                {
+                  id: 'cat-1',
+                  name: 'Original',
+                  description: 'Desc original',
+                  createdAt: '2025-12-01T10:00:00Z',
+                  updatedAt: '2025-12-01T10:00:00Z',
+                },
+              ],
+            }),
           });
         } else {
           await route.continue();
@@ -407,20 +416,23 @@ test.describe('Category Management', () => {
     });
 
     test('should show loading state during update', async ({ page }) => {
-      await page.route('**/api/categories', async (route) => {
+      await page.route('**/api/categories/search*', async (route) => {
         if (route.request().method() === 'GET') {
           await route.fulfill({
             status: 200,
             contentType: 'application/json',
-            body: JSON.stringify([
-              {
-                id: 'cat-1',
-                name: 'Test',
-                description: 'Test',
-                createdAt: '2025-12-01T10:00:00Z',
-                updatedAt: '2025-12-01T10:00:00Z',
-              },
-            ]),
+            body: JSON.stringify({
+              count: 1,
+              data: [
+                {
+                  id: 'cat-1',
+                  name: 'Test',
+                  description: 'Test',
+                  createdAt: '2025-12-01T10:00:00Z',
+                  updatedAt: '2025-12-01T10:00:00Z',
+                },
+              ],
+            }),
           });
         } else {
           await route.continue();
@@ -466,20 +478,23 @@ test.describe('Category Management', () => {
     test('should reload categories when clicking refresh button', async ({ page }) => {
       let callCount = 0;
 
-      await page.route('**/api/categories', async (route) => {
+      await page.route('**/api/categories/search*', async (route) => {
         callCount++;
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify([
-            {
-              id: `cat-${callCount}`,
-              name: `Category ${callCount}`,
-              description: 'Test',
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
-          ]),
+          body: JSON.stringify({
+            count: 1,
+            data: [
+              {
+                id: `cat-${callCount}`,
+                name: `Category ${callCount}`,
+                description: 'Test',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              },
+            ],
+          }),
         });
       });
 

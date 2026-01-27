@@ -1,9 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { CategoryService, ICategoryResponse } from '@features/category/services/category';
@@ -18,6 +25,7 @@ import { CategoryForm } from '../create/category-form';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
+    MatPaginatorModule,
   ],
   templateUrl: './category-list.html',
   styleUrls: ['./category-list.scss'],
@@ -28,16 +36,26 @@ export class CategoryList {
 
   private readonly service = inject(CategoryService);
   private readonly dialog = inject(MatDialog);
+  private readonly cdr = inject(ChangeDetectorRef);
   private reloadCooldown = signal<boolean>(false);
   private readonly COOLDOWN_TIME = 2000; // 2 segundos
 
+  // Paginación
+  public currentPage = 1;
+  public pageSize = 10;
+  public readonly pageSizeOptions = [5, 10, 25, 50, 100];
+
   constructor() {
     // Cargar todas las categorías al iniciar el componente
-    this.service.loadAllCategories();
+    this.service.loadCategories(this.currentPage, this.pageSize);
   }
 
   public get categories(): ICategoryResponse[] {
-    return this.service.categories || [];
+    return this.service.categories?.data || [];
+  }
+
+  public get totalCategories(): number {
+    return this.service.searchedCategoriesCount || 0;
   }
 
   public get isLoading(): boolean {
@@ -93,5 +111,11 @@ export class CategoryList {
     setTimeout(() => {
       this.reloadCooldown.set(false);
     }, this.COOLDOWN_TIME);
+  }
+
+  public onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.service.loadCategories(this.currentPage, this.pageSize); // Recargar con la nueva página
   }
 }
