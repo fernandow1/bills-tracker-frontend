@@ -170,11 +170,60 @@ export class ShopService {
   });
 
   /**
+   * Mapea los datos del formulario al formato esperado por el backend
+   * Convierte coordenadas undefined o vacías a null
+   * @param shopData Datos del formulario
+   * @returns Datos mapeados para el backend
+   */
+  private mapShopDataForBackend(shopData: IShopData): IShopData {
+    return {
+      ...shopData,
+      latitude: this.parseCoordinate(shopData.latitude) as any,
+      longitude: this.parseCoordinate(shopData.longitude) as any,
+    };
+  }
+
+  /**
+   * Convierte un valor de coordenada a number o null
+   * @param value Valor de la coordenada (puede ser number, string, undefined)
+   * @returns number si es válido, null si está vacío, undefined, NaN o Infinity
+   */
+  private parseCoordinate(value: number | string | undefined): number | null {
+    // Si es falsy (undefined, null, '', 0 se evalúa después), retornar null
+    // Nota: 0 es falsy pero es una coordenada válida, se maneja después
+    if (!value && value !== 0) {
+      return null;
+    }
+
+    // Si es number
+    if (typeof value === 'number') {
+      // Validar que no sea NaN o Infinity
+      if (!isFinite(value)) {
+        return null;
+      }
+      return value;
+    }
+
+    // Si es string, convertir a number
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      // Validar que no sea NaN o Infinity
+      if (!isFinite(parsed)) {
+        return null;
+      }
+      return parsed;
+    }
+
+    return null;
+  }
+
+  /**
    * Crea una nueva tienda
    * @param shopData Datos de la tienda a crear
    */
   public createShop(shopData: IShopData): void {
-    this.createShopTrigger.set(shopData);
+    const mappedData = this.mapShopDataForBackend(shopData);
+    this.createShopTrigger.set(mappedData);
     this.createShopResource.reload();
   }
 
@@ -191,7 +240,8 @@ export class ShopService {
    * @param shopData Datos actualizados de la tienda
    */
   public updateShop(id: string, shopData: IShopData): void {
-    this.updateShopTrigger.set({ id, data: shopData });
+    const mappedData = this.mapShopDataForBackend(shopData);
+    this.updateShopTrigger.set({ id, data: mappedData });
     this.updateShopResource.reload();
   }
 

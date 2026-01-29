@@ -32,6 +32,22 @@ h2[mat-dialog-title] {
       margin-top: 4px;
       display: block;
     }
+
+    .coordinates-row {
+      display: flex;
+      gap: 16px;
+      width: 100%;
+
+      .coordinate-field {
+        flex: 1;
+        min-width: 0;
+      }
+
+      @media (max-width: 600px) {
+        flex-direction: column;
+        gap: 20px;
+      }
+    }
   }
 }
 

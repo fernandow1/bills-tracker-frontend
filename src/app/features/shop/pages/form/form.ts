@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
-import { Field, form, maxLength, minLength, required } from '@angular/forms/signals';
+import { Field, form, maxLength, min, max, minLength, required } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -42,8 +42,8 @@ export class ShopForm {
   public shopModel = signal<IShopData>({
     name: this.dialogData?.name || '',
     description: this.dialogData?.description || '',
-    latitude: this.dialogData?.latitude || null,
-    longitude: this.dialogData?.longitude || null,
+    latitude: this.dialogData?.latitude,
+    longitude: this.dialogData?.longitude,
   });
 
   public shopForm = form<IShopData>(this.shopModel, (schemaPath) => {
@@ -53,6 +53,18 @@ export class ShopForm {
     maxLength(schemaPath.description, 255, {
       message: 'La descripción no puede exceder 255 caracteres',
     });
+
+    // Validaciones opcionales para latitud (solo si se proporciona un valor)
+    if (schemaPath.latitude) {
+      min(schemaPath.latitude, -90, { message: 'La latitud debe ser mayor o igual a -90' });
+      max(schemaPath.latitude, 90, { message: 'La latitud debe ser menor o igual a 90' });
+    }
+
+    // Validaciones opcionales para longitud (solo si se proporciona un valor)
+    if (schemaPath.longitude) {
+      min(schemaPath.longitude, -180, { message: 'La longitud debe ser mayor o igual a -180' });
+      max(schemaPath.longitude, 180, { message: 'La longitud debe ser menor o igual a 180' });
+    }
   });
 
   constructor() {
@@ -138,8 +150,8 @@ export class ShopForm {
     this.shopModel.set({
       name: '',
       description: '',
-      latitude: null,
-      longitude: null,
+      latitude: undefined,
+      longitude: undefined,
     });
     this.shopForm().reset();
   }
