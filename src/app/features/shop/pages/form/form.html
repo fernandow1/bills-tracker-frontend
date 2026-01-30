@@ -33,6 +33,50 @@
           }
         }
       </div>
+
+      <div class="coordinates-row">
+        @if (shopForm.latitude) {
+          <div class="coordinate-field">
+            <mat-form-field class="full-width">
+              <mat-label>Latitud</mat-label>
+              <input
+                matInput
+                type="number"
+                [field]="shopForm.latitude"
+                placeholder="-90 a 90 (opcional)"
+                step="0.000001"
+              />
+              <mat-icon matSuffix>location_on</mat-icon>
+            </mat-form-field>
+            @if (shopForm.latitude().invalid()) {
+              @for (error of shopForm.latitude().errors(); track error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            }
+          </div>
+        }
+
+        @if (shopForm.longitude) {
+          <div class="coordinate-field">
+            <mat-form-field class="full-width">
+              <mat-label>Longitud</mat-label>
+              <input
+                matInput
+                type="number"
+                [field]="shopForm.longitude"
+                placeholder="-180 a 180 (opcional)"
+                step="0.000001"
+              />
+              <mat-icon matSuffix>location_on</mat-icon>
+            </mat-form-field>
+            @if (shopForm.longitude().invalid()) {
+              @for (error of shopForm.longitude().errors(); track error) {
+                <mat-error>{{ error.message }}</mat-error>
+              }
+            }
+          </div>
+        }
+      </div>
     </div>
   </form>
 </mat-dialog-content>
