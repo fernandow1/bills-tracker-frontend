@@ -48,4 +48,4 @@ test-results/
 playwright/.cache/
 
 # Markdown files in src
-src/**/*.md
+**/*.md
