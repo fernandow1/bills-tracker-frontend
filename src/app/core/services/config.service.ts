@@ -12,7 +12,7 @@ export class ConfigService {
   /**
    * Construye una URL completa del API combinando la base URL con un endpoint
    */
-  buildApiUrl(endpoint: string): string {
+  public buildApiUrl(endpoint: string): string {
     const baseUrl = environment.apiUrl;
     // Eliminar trailing slash de baseUrl y leading slash de endpoint
     const cleanBase = baseUrl.replace(/\/$/, '');
@@ -23,105 +23,105 @@ export class ConfigService {
   /**
    * Obtiene la configuración de autenticación
    */
-  get authConfig() {
+  public get authConfig() {
     return environment.auth;
   }
 
   /**
    * Obtiene los endpoints de autenticación
    */
-  get authEndpoints() {
+  public get authEndpoints() {
     return environment.endpoints.auth;
   }
 
   /**
    * Obtiene los endpoints de bills
    */
-  get billsEndpoints() {
+  public get billsEndpoints() {
     return environment.endpoints.bills;
   }
 
   /**
    * Obtiene los endpoints de categories
    */
-  get categoriesEndpoints() {
+  public get categoriesEndpoints() {
     return environment.endpoints.categories;
   }
 
   /**
    * Obtiene los endpoints de brands
    */
-  get brandsEndpoints() {
+  public get brandsEndpoints() {
     return environment.endpoints.brands;
   }
 
   /**
    * Obtiene los endpoints de products
    */
-  get productsEndpoints() {
+  public get productsEndpoints() {
     return environment.endpoints.products;
   }
 
   /**
    * Obtiene los endpoints de shops
    */
-  get shopEndpoints() {
+  public get shopEndpoints() {
     return environment.endpoints.shops;
   }
 
   /**
    * Obtiene los endpoints de currencies
    */
-  get currenciesEndpoints() {
+  public get currenciesEndpoints() {
     return environment.endpoints.currencies;
   }
 
   /**
    * Obtiene los endpoints de payment methods
    */
-  get paymentMethodsEndpoints() {
+  public get paymentMethodsEndpoints() {
     return environment.endpoints.paymentMethods;
   }
 
   /**
    * Obtiene los endpoints de users
    */
-  get usersEndpoints() {
+  public get usersEndpoints() {
     return environment.endpoints.users;
   }
 
   /**
    * Obtiene la configuración de Mapbox
    */
-  get mapboxConfig() {
+  public get mapboxConfig() {
     return environment.mapbox;
   }
 
   // Aliases para compatibilidad (algunos servicios usan singular)
-  get brandEndpoints() {
+  public get brandEndpoints() {
     return this.brandsEndpoints;
   }
 
-  get categoryEndpoints() {
+  public get categoryEndpoints() {
     return this.categoriesEndpoints;
   }
 
-  get productEndpoints() {
+  public get productEndpoints() {
     return this.productsEndpoints;
   }
 
-  get currencyEndpoints() {
+  public get currencyEndpoints() {
     return this.currenciesEndpoints;
   }
 
-  get paymentMethodEndpoints() {
+  public get paymentMethodEndpoints() {
     return this.paymentMethodsEndpoints;
   }
 
   /**
    * Método estático para logging
    */
-  static log(message: string, ...args: any[]): void {
+  public static log(message: string, ...args: any[]): void {
     if (environment.enableLogging) {
       // eslint-disable-next-line no-console
       console.log(`[${environment.appName}]`, message, ...args);
@@ -131,16 +131,14 @@ export class ConfigService {
   /**
    * Método estático para errores
    */
-  static error(message: string, ...args: any[]): void {
-    // eslint-disable-next-line no-console
+  public static error(message: string, ...args: any[]): void {
     console.error(`[${environment.appName} ERROR]`, message, ...args);
   }
 
   /**
    * Método estático para warnings
    */
-  static warn(message: string, ...args: any[]): void {
-    // eslint-disable-next-line no-console
+  public static warn(message: string, ...args: any[]): void {
     console.warn(`[${environment.appName} WARN]`, message, ...args);
   }
 }
