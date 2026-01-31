@@ -1,0 +1,14 @@
+{
+  "mapbox": {
+    "accessToken": "YOUR_MAPBOX_TOKEN_HERE",
+    "defaultCenter": {
+      "lng": -58.3816,
+      "lat": -34.6037
+    },
+    "defaultZoom": 13,
+    "style": "mapbox://styles/mapbox/streets-v12"
+  },
+  "api": {
+    "baseUrl": "http://localhost:3000"
+  }
+}
