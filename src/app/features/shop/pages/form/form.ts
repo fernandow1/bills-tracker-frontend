@@ -130,11 +130,11 @@ export class ShopForm {
     const numLat = typeof lat === 'string' ? parseFloat(lat) : lat;
     const numLng = typeof lng === 'string' ? parseFloat(lng) : lng;
 
-    if (isNaN(numLat!) || isNaN(numLng!)) {
+    if (numLat === undefined || numLng === undefined || isNaN(numLat) || isNaN(numLng)) {
       return null;
     }
 
-    return [numLng!, numLat!];
+    return [numLng, numLat];
   });
 
   constructor() {
@@ -227,9 +227,9 @@ export class ShopForm {
         const numLat = typeof lat === 'string' ? parseFloat(lat) : lat;
         const numLng = typeof lng === 'string' ? parseFloat(lng) : lng;
 
-        if (!isNaN(numLat!) && !isNaN(numLng!)) {
-          this.markerPosition.set([numLng!, numLat!]);
-          this.mapCenter.set([numLng!, numLat!]);
+        if (numLat !== undefined && numLng !== undefined && !isNaN(numLat) && !isNaN(numLng)) {
+          this.markerPosition.set([numLng, numLat]);
+          this.mapCenter.set([numLng, numLat]);
         }
       } else {
         this.markerPosition.set(null);
