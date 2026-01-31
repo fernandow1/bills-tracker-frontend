@@ -1,7 +1,19 @@
+// Helper para obtener configuración de runtime
+function getAppConfig() {
+  return (window as any).__APP_CONFIG__;
+}
+
 // Environment de producción
 export const environment = {
   production: true,
-  apiUrl: 'https://bills-tracker-backend-production.up.railway.app', // URL de producción
+
+  // API URL dinámica
+  get apiUrl() {
+    return (
+      getAppConfig()?.api?.baseUrl || 'https://bills-tracker-backend-production.up.railway.app'
+    );
+  },
+
   appName: 'Bills Tracker',
   version: '1.0.0',
 
@@ -105,14 +117,17 @@ export const environment = {
     allowedImageTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
   },
 
-  // Configuración de MapBox
-  mapbox: {
-    accessToken: import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '',
-    defaultCenter: [
-      parseFloat(import.meta.env.VITE_MAPBOX_DEFAULT_CENTER_LNG || '-58.3816'),
-      parseFloat(import.meta.env.VITE_MAPBOX_DEFAULT_CENTER_LAT || '-34.6037'),
-    ] as [number, number],
-    defaultZoom: parseInt(import.meta.env.VITE_MAPBOX_DEFAULT_ZOOM || '13', 10),
-    style: import.meta.env.VITE_MAPBOX_STYLE || 'mapbox://styles/mapbox/streets-v12',
+  // Configuración de MapBox (dinámica desde config.json)
+  get mapbox() {
+    const config = getAppConfig();
+    return {
+      accessToken: config?.mapbox?.accessToken || '',
+      defaultCenter: [
+        config?.mapbox?.defaultCenter?.lng || -58.3816,
+        config?.mapbox?.defaultCenter?.lat || -34.6037,
+      ] as [number, number],
+      defaultZoom: config?.mapbox?.defaultZoom || 13,
+      style: config?.mapbox?.style || 'mapbox://styles/mapbox/streets-v12',
+    };
   },
 };

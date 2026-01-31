@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ConfigService } from './config.service';
+import { environment } from '../../../environments/environment';
 
 describe('ConfigService', () => {
   let service: ConfigService;
@@ -15,11 +16,6 @@ describe('ConfigService', () => {
   });
 
   describe('API Configuration', () => {
-    it('should return apiUrl', () => {
-      expect(service.apiUrl).toBeDefined();
-      expect(typeof service.apiUrl).toBe('string');
-    });
-
     it('should return authEndpoints', () => {
       expect(service.authEndpoints).toBeDefined();
       expect(service.authEndpoints).toHaveProperty('login');
@@ -77,6 +73,13 @@ describe('ConfigService', () => {
       expect(service.authConfig).toHaveProperty('tokenKey');
       expect(service.authConfig).toHaveProperty('userKey');
     });
+
+    it('should return mapboxConfig', () => {
+      expect(service.mapboxConfig).toBeDefined();
+      expect(service.mapboxConfig).toHaveProperty('accessToken');
+      expect(service.mapboxConfig).toHaveProperty('defaultCenter');
+      expect(service.mapboxConfig).toHaveProperty('defaultZoom');
+    });
   });
 
   describe('buildApiUrl', () => {
@@ -84,19 +87,21 @@ describe('ConfigService', () => {
       const endpoint = '/test';
       const result = service.buildApiUrl(endpoint);
 
-      expect(result).toContain(service.apiUrl);
-      expect(result).toContain(endpoint);
-      expect(result).toBe(`${service.apiUrl}${endpoint}`);
+      expect(result).toContain(environment.apiUrl);
+      expect(result).toContain('test');
+      expect(result).toBe(`${environment.apiUrl}/test`);
     });
 
     it('should handle endpoints with leading slash', () => {
       const result = service.buildApiUrl('/api/test');
       expect(result).toContain('/api/test');
+      expect(result).toBe(`${environment.apiUrl}/api/test`);
     });
 
     it('should handle endpoints without leading slash', () => {
       const result = service.buildApiUrl('api/test');
       expect(result).toContain('api/test');
+      expect(result).toBe(`${environment.apiUrl}/api/test`);
     });
   });
 
@@ -142,11 +147,7 @@ describe('ConfigService', () => {
     it('should handle error without error object', () => {
       ConfigService.error('Error message');
 
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining('ERROR'),
-        'Error message',
-        undefined,
-      );
+      expect(console.error).toHaveBeenCalledWith(expect.stringContaining('ERROR'), 'Error message');
     });
 
     it('should handle log with multiple arguments', () => {
