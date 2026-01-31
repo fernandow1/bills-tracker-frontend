@@ -281,4 +281,79 @@ describe('ShopService', () => {
       );
     });
   });
+
+  describe('isValidCoordinate', () => {
+    describe('Casos válidos', () => {
+      it('debe retornar true para coordenada numérica válida dentro del rango', () => {
+        expect(service.isValidCoordinate(-34.6037, -90, 90)).toBe(true);
+        expect(service.isValidCoordinate(-58.3816, -180, 180)).toBe(true);
+      });
+
+      it('debe retornar true para coordenada string válida dentro del rango', () => {
+        expect(service.isValidCoordinate('-34.6037', -90, 90)).toBe(true);
+        expect(service.isValidCoordinate('-58.3816', -180, 180)).toBe(true);
+      });
+
+      it('debe retornar true para coordenadas en los límites exactos', () => {
+        expect(service.isValidCoordinate(-90, -90, 90)).toBe(true);
+        expect(service.isValidCoordinate(90, -90, 90)).toBe(true);
+        expect(service.isValidCoordinate(-180, -180, 180)).toBe(true);
+        expect(service.isValidCoordinate(180, -180, 180)).toBe(true);
+      });
+
+      it('debe retornar true para coordenada cero', () => {
+        expect(service.isValidCoordinate(0, -90, 90)).toBe(true);
+        expect(service.isValidCoordinate('0', -180, 180)).toBe(true);
+      });
+
+      it('debe retornar true para coordenadas decimales con muchos dígitos', () => {
+        expect(service.isValidCoordinate(45.123456, -90, 90)).toBe(true);
+        expect(service.isValidCoordinate('-73.987654', -180, 180)).toBe(true);
+      });
+
+      it('debe retornar true para coordenadas negativas válidas', () => {
+        expect(service.isValidCoordinate(-45.5, -90, 90)).toBe(true);
+        expect(service.isValidCoordinate('-73.6', -180, 180)).toBe(true);
+      });
+    });
+
+    describe('Casos inválidos', () => {
+      it('debe retornar false para valores undefined', () => {
+        expect(service.isValidCoordinate(undefined, -90, 90)).toBe(false);
+      });
+
+      it('debe retornar false para valores null', () => {
+        expect(service.isValidCoordinate(null as any, -90, 90)).toBe(false);
+      });
+
+      it('debe retornar false para string vacío', () => {
+        expect(service.isValidCoordinate('', -90, 90)).toBe(false);
+      });
+
+      it('debe retornar false para coordenadas que exceden el máximo', () => {
+        expect(service.isValidCoordinate(91, -90, 90)).toBe(false);
+        expect(service.isValidCoordinate(181, -180, 180)).toBe(false);
+      });
+
+      it('debe retornar false para coordenadas que exceden el mínimo', () => {
+        expect(service.isValidCoordinate(-91, -90, 90)).toBe(false);
+        expect(service.isValidCoordinate(-181, -180, 180)).toBe(false);
+      });
+
+      it('debe retornar false para valores NaN', () => {
+        expect(service.isValidCoordinate(NaN, -90, 90)).toBe(false);
+      });
+
+      it('debe retornar false para strings no numéricos', () => {
+        expect(service.isValidCoordinate('abc', -90, 90)).toBe(false);
+        expect(service.isValidCoordinate('invalid', -180, 180)).toBe(false);
+        expect(service.isValidCoordinate('not-a-number', -90, 90)).toBe(false);
+      });
+
+      it('debe retornar false para valores Infinity', () => {
+        expect(service.isValidCoordinate(Infinity, -90, 90)).toBe(false);
+        expect(service.isValidCoordinate(-Infinity, -90, 90)).toBe(false);
+      });
+    });
+  });
 });

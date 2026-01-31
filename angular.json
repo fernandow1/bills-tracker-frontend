@@ -31,7 +31,11 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/custom-theme.scss", "src/styles.scss"]
+            "styles": [
+              "node_modules/mapbox-gl/dist/mapbox-gl.css",
+              "src/custom-theme.scss",
+              "src/styles.scss"
+            ]
           },
           "configurations": {
             "production": {
