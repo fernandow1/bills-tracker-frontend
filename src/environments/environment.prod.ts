@@ -104,4 +104,15 @@ export const environment = {
     maxFileUploadSize: 10 * 1024 * 1024, // 10MB en producción
     allowedImageTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
   },
+
+  // Configuración de MapBox
+  mapbox: {
+    accessToken: import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '',
+    defaultCenter: [
+      parseFloat(import.meta.env.VITE_MAPBOX_DEFAULT_CENTER_LNG || '-58.3816'),
+      parseFloat(import.meta.env.VITE_MAPBOX_DEFAULT_CENTER_LAT || '-34.6037'),
+    ] as [number, number],
+    defaultZoom: parseInt(import.meta.env.VITE_MAPBOX_DEFAULT_ZOOM || '13', 10),
+    style: import.meta.env.VITE_MAPBOX_STYLE || 'mapbox://styles/mapbox/streets-v12',
+  },
 };

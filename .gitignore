@@ -1,5 +1,12 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
 # Compiled output
 /dist
 /tmp
@@ -48,4 +55,4 @@ test-results/
 playwright/.cache/
 
 # Markdown files in src
-src/**/*.md
+**/*.md
