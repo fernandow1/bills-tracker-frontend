@@ -1,89 +1,127 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 
+/**
+ * Servicio de configuración que proporciona acceso a la configuración de la aplicación.
+ * Lee la configuración desde window.__APP_CONFIG__ que se carga en main.ts
+ */
 @Injectable({
   providedIn: 'root',
 })
 export class ConfigService {
-  private static _instance: ConfigService | null = null;
-
-  // API Configuration
-  public get apiUrl(): string {
-    return environment.apiUrl;
+  /**
+   * Construye una URL completa del API combinando la base URL con un endpoint
+   */
+  buildApiUrl(endpoint: string): string {
+    const baseUrl = environment.apiUrl;
+    // Eliminar trailing slash de baseUrl y leading slash de endpoint
+    const cleanBase = baseUrl.replace(/\/$/, '');
+    const cleanEndpoint = endpoint.replace(/^\//, '');
+    return `${cleanBase}/${cleanEndpoint}`;
   }
 
-  public get authEndpoints() {
-    return environment.endpoints.auth;
-  }
-
-  public get billsEndpoints() {
-    return environment.endpoints.bills;
-  }
-
-  public get usersEndpoints() {
-    return environment.endpoints.users;
-  }
-
-  public get categoryEndpoints() {
-    return environment.endpoints.categories;
-  }
-
-  public get brandEndpoints() {
-    return environment.endpoints.brands;
-  }
-
-  public get productEndpoints() {
-    return environment.endpoints.products;
-  }
-
-  public get shopEndpoints() {
-    return environment.endpoints.shops;
-  }
-
-  public get currencyEndpoints() {
-    return environment.endpoints.currencies;
-  }
-
-  public get paymentMethodEndpoints() {
-    return environment.endpoints.paymentMethods;
-  }
-
-  // Auth Configuration
-  public get authConfig() {
+  /**
+   * Obtiene la configuración de autenticación
+   */
+  get authConfig() {
     return environment.auth;
   }
 
-  // Métodos de utilidad
-
   /**
-   * Construye una URL completa del API
+   * Obtiene los endpoints de autenticación
    */
-  public buildApiUrl(endpoint: string): string {
-    return `${this.apiUrl}${endpoint}`;
-  }
-
-  constructor() {
-    // Auto-registrar como singleton (Angular DI garantiza una sola instancia)
-    if (!ConfigService._instance) {
-      ConfigService._instance = this;
-    }
+  get authEndpoints() {
+    return environment.endpoints.auth;
   }
 
   /**
-   * Obtiene la instancia singleton (siempre controlada por Angular DI)
+   * Obtiene los endpoints de bills
    */
-  private static getInstance(): ConfigService {
-    if (!ConfigService._instance) {
-      // Crear una instancia temporal si no existe (para casos edge)
-      ConfigService._instance = new ConfigService();
-    }
-    return ConfigService._instance;
+  get billsEndpoints() {
+    return environment.endpoints.bills;
   }
 
   /**
-   * Log condicional basado en la configuración
+   * Obtiene los endpoints de categories
    */
-  public static log(message: string, ...args: unknown[]): void {
+  get categoriesEndpoints() {
+    return environment.endpoints.categories;
+  }
+
+  /**
+   * Obtiene los endpoints de brands
+   */
+  get brandsEndpoints() {
+    return environment.endpoints.brands;
+  }
+
+  /**
+   * Obtiene los endpoints de products
+   */
+  get productsEndpoints() {
+    return environment.endpoints.products;
+  }
+
+  /**
+   * Obtiene los endpoints de shops
+   */
+  get shopEndpoints() {
+    return environment.endpoints.shops;
+  }
+
+  /**
+   * Obtiene los endpoints de currencies
+   */
+  get currenciesEndpoints() {
+    return environment.endpoints.currencies;
+  }
+
+  /**
+   * Obtiene los endpoints de payment methods
+   */
+  get paymentMethodsEndpoints() {
+    return environment.endpoints.paymentMethods;
+  }
+
+  /**
+   * Obtiene los endpoints de users
+   */
+  get usersEndpoints() {
+    return environment.endpoints.users;
+  }
+
+  /**
+   * Obtiene la configuración de Mapbox
+   */
+  get mapboxConfig() {
+    return environment.mapbox;
+  }
+
+  // Aliases para compatibilidad (algunos servicios usan singular)
+  get brandEndpoints() {
+    return this.brandsEndpoints;
+  }
+
+  get categoryEndpoints() {
+    return this.categoriesEndpoints;
+  }
+
+  get productEndpoints() {
+    return this.productsEndpoints;
+  }
+
+  get currencyEndpoints() {
+    return this.currenciesEndpoints;
+  }
+
+  get paymentMethodEndpoints() {
+    return this.paymentMethodsEndpoints;
+  }
+
+  /**
+   * Método estático para logging
+   */
+  static log(message: string, ...args: any[]): void {
     if (environment.enableLogging) {
       // eslint-disable-next-line no-console
       console.log(`[${environment.appName}]`, message, ...args);
@@ -91,16 +129,18 @@ export class ConfigService {
   }
 
   /**
-   * Error logging (siempre activo)
+   * Método estático para errores
    */
-  public static error(message: string, error?: unknown): void {
-    console.error(`[${environment.appName} ERROR]`, message, error);
+  static error(message: string, ...args: any[]): void {
+    // eslint-disable-next-line no-console
+    console.error(`[${environment.appName} ERROR]`, message, ...args);
   }
 
   /**
-   * Warning logging (siempre activo)
+   * Método estático para warnings
    */
-  public static warn(message: string, ...args: unknown[]): void {
+  static warn(message: string, ...args: any[]): void {
+    // eslint-disable-next-line no-console
     console.warn(`[${environment.appName} WARN]`, message, ...args);
   }
 }
