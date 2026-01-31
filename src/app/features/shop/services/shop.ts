@@ -218,6 +218,27 @@ export class ShopService {
   }
 
   /**
+   * Valida si una coordenada está dentro del rango permitido
+   * @param value Valor de la coordenada (puede ser number, string, undefined)
+   * @param min Valor mínimo permitido
+   * @param max Valor máximo permitido
+   * @returns true si la coordenada es válida, false en caso contrario
+   */
+  public isValidCoordinate(value: number | string | undefined, min: number, max: number): boolean {
+    if (value === undefined || value === null || value === '') {
+      return false;
+    }
+
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+
+    if (isNaN(numValue) || !isFinite(numValue)) {
+      return false;
+    }
+
+    return numValue >= min && numValue <= max;
+  }
+
+  /**
    * Crea una nueva tienda
    * @param shopData Datos de la tienda a crear
    */

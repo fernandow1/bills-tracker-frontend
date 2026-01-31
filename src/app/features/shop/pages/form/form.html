@@ -77,6 +77,32 @@
           </div>
         }
       </div>
+
+      <!-- Sección del Mapa -->
+      <div class="map-container">
+        <h3 class="map-title">
+          <mat-icon>map</mat-icon>
+          Ubicación en el Mapa
+        </h3>
+        <p class="map-hint">Haz click en el mapa para seleccionar la ubicación de la tienda</p>
+
+        <mgl-map
+          [style]="mapStyle"
+          [zoom]="mapZoom()"
+          [center]="mapCenter()"
+          [accessToken]="mapAccessToken"
+          (mapClick)="onMapClick($event)"
+          class="map"
+        >
+          @if (hasValidCoordinates()) {
+            <mgl-marker [lngLat]="markerLngLat()!">
+              <div class="custom-marker">
+                <mat-icon color="primary">location_on</mat-icon>
+              </div>
+            </mgl-marker>
+          }
+        </mgl-map>
+      </div>
     </div>
   </form>
 </mat-dialog-content>
