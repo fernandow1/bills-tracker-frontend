@@ -21,8 +21,8 @@ describe('ShopService', () => {
       const shopData: IShopData = {
         name: 'Test Shop',
         description: 'Test Description',
-        latitude: undefined,
-        longitude: undefined,
+        latitude: NaN,
+        longitude: NaN,
       };
 
       // Spy on the private trigger to verify the mapped data
@@ -203,7 +203,7 @@ describe('ShopService', () => {
         name: 'Test Shop',
         description: 'Test Description',
         latitude: 45.5,
-        longitude: undefined,
+        longitude: NaN,
       };
 
       const triggerSpy = vi.spyOn(service['createShopTrigger'], 'set');
@@ -228,11 +228,11 @@ describe('ShopService', () => {
 
       const triggerSpy = vi.spyOn(service['updateShopTrigger'], 'set');
 
-      service.updateShop('shop-id-123', shopData);
+      service.updateShop(123, shopData);
 
       expect(triggerSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          id: 'shop-id-123',
+          id: 123,
           data: expect.objectContaining({
             latitude: 40.7,
             longitude: null,

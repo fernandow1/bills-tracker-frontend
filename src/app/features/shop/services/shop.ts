@@ -33,7 +33,7 @@ export class ShopService {
   private createShopTrigger = signal<IShopData | null>(null);
 
   // Signal para controlar cuándo actualizar una tienda
-  private updateShopTrigger = signal<{ id: string; data: IShopData } | null>(null);
+  private updateShopTrigger = signal<{ id: number; data: IShopData } | null>(null);
 
   // Signal para controlar la búsqueda de tiendas con filtros y paginación
   private searchShopsTrigger = signal<{
@@ -145,7 +145,7 @@ export class ShopService {
 
       const response = await this.authFetch.fetch(
         this.configService.buildApiUrl(
-          this.configService.shopEndpoints.update.replace(':id', updateData.id),
+          this.configService.shopEndpoints.update.replace(':id', String(updateData.id)),
         ),
         {
           method: 'PUT',
@@ -260,7 +260,7 @@ export class ShopService {
    * @param id ID de la tienda a actualizar
    * @param shopData Datos actualizados de la tienda
    */
-  public updateShop(id: string, shopData: IShopData): void {
+  public updateShop(id: number, shopData: IShopData): void {
     const mappedData = this.mapShopDataForBackend(shopData);
     this.updateShopTrigger.set({ id, data: mappedData });
     this.updateShopResource.reload();
