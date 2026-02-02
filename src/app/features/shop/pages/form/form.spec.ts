@@ -319,20 +319,21 @@ describe('ShopForm - MapBox Integration', () => {
         expect(component.shopForm.longitude?.().value()).toBe(-58.3816);
       });
 
-      it('debe permitir coordenadas vacías (undefined) en modo creación', () => {
+      it('debe inicializar coordenadas con NaN en modo creación', () => {
         // Arrange: Componente sin datos
         const fixture = TestBed.createComponent(ShopForm);
         const component = fixture.componentInstance;
         fixture.detectChanges();
 
-        // Assert: Los campos existen pero pueden estar vacíos
+        // Assert: Los campos existen y tienen NaN como valor inicial
         expect(component.shopForm.latitude).toBeDefined();
         expect(component.shopForm.longitude).toBeDefined();
-        // Los valores pueden ser undefined si no se proporcionaron
-        const latValue = component.shopForm.latitude?.().value();
-        const lngValue = component.shopForm.longitude?.().value();
-        expect(latValue === undefined || typeof latValue === 'number').toBe(true);
-        expect(lngValue === undefined || typeof lngValue === 'number').toBe(true);
+
+        // Los valores deben ser NaN cuando no se proporcionaron coordenadas
+        const latValue = component.shopForm.latitude().value();
+        const lngValue = component.shopForm.longitude().value();
+        expect(Number.isNaN(latValue)).toBe(true);
+        expect(Number.isNaN(lngValue)).toBe(true);
       });
     });
   });
