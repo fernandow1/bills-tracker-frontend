@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,6 +16,7 @@ import { BrandForm } from '@src/app/features/brand/pages/create/brand-form';
   imports: [
     CommonModule,
     MatTableModule,
+    MatPaginatorModule,
     MatProgressSpinnerModule,
     MatCardModule,
     MatButtonModule,
@@ -33,21 +35,34 @@ export class Brand {
   private reloadCooldown = signal<boolean>(false);
   private readonly COOLDOWN_TIME = 2000; // 2 segundos
 
+  // Paginación
+  public currentPage = 1;
+  public pageSize = 10;
+  public readonly pageSizeOptions = [5, 10, 25, 50];
+
   constructor() {
-    // Cargar todas las marcas al iniciar el componente
-    this.service.loadAllBrands();
+    // Cargar marcas con paginación
+    this.loadData();
+  }
+
+  private loadData(): void {
+    this.service.searchBrands(this.currentPage, this.pageSize);
   }
 
   public get brands(): IBrandResponse[] {
-    return this.service.brands || [];
+    return this.service.searchedBrands;
+  }
+
+  public get totalItems(): number {
+    return this.service.searchedBrandsCount;
   }
 
   public get isLoading(): boolean {
-    return this.service.isLoadingBrands;
+    return this.service.isSearchingBrands;
   }
 
   public get hasError(): boolean {
-    return !!this.service.brandsError;
+    return !!this.service.searchError;
   }
 
   public get isReloadDisabled(): boolean {
@@ -64,7 +79,7 @@ export class Brand {
     dialogRef.afterClosed().subscribe((result): void => {
       if (result) {
         // Si se creó una marca, recargar la lista
-        this.service.reloadBrands();
+        this.loadData();
       }
     });
   }
@@ -79,9 +94,15 @@ export class Brand {
     dialogRef.afterClosed().subscribe((result): void => {
       if (result) {
         // Si se editó una marca, recargar la lista
-        this.service.reloadBrands();
+        this.loadData();
       }
     });
+  }
+
+  public onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.loadData();
   }
 
   public reload(): void {
@@ -89,7 +110,7 @@ export class Brand {
       return;
     }
 
-    this.service.reloadBrands();
+    this.loadData();
     this.reloadCooldown.set(true);
 
     setTimeout(() => {

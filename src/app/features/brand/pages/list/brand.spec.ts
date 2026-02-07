@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
+import { PageEvent } from '@angular/material/paginator';
 import { of } from 'rxjs';
 import { Brand } from './brand';
 import { BrandService } from '@features/brand/services/brand';
@@ -28,11 +29,11 @@ describe('Brand List Component', () => {
 
   beforeEach(async () => {
     mockBrandService = {
-      brands: mockBrands,
-      isLoadingBrands: false,
-      brandsError: undefined,
-      loadAllBrands: vi.fn(),
-      reloadBrands: vi.fn(),
+      searchedBrands: mockBrands,
+      searchedBrandsCount: 50,
+      isSearchingBrands: false,
+      searchError: undefined,
+      searchBrands: vi.fn(),
       resetCreateTrigger: vi.fn(),
       resetUpdateTrigger: vi.fn(),
     };
@@ -55,8 +56,8 @@ describe('Brand List Component', () => {
   describe('Rendering States', () => {
     it('should display loading spinner when isLoading is true', async () => {
       // Create new test module with loading state
-      mockBrandService.isLoadingBrands = true;
-      mockBrandService.brands = [];
+      mockBrandService.isSearchingBrands = true;
+      mockBrandService.searchedBrands = [];
 
       const testFixture = TestBed.createComponent(Brand);
       testFixture.detectChanges();
@@ -71,9 +72,9 @@ describe('Brand List Component', () => {
     });
 
     it('should display error message when hasError is true', async () => {
-      mockBrandService.brandsError = 'Error loading brands';
-      mockBrandService.isLoadingBrands = false;
-      mockBrandService.brands = [];
+      mockBrandService.searchError = 'Error loading brands';
+      mockBrandService.isSearchingBrands = false;
+      mockBrandService.searchedBrands = [];
 
       const testFixture = TestBed.createComponent(Brand);
       testFixture.detectChanges();
@@ -90,9 +91,9 @@ describe('Brand List Component', () => {
     });
 
     it('should display empty state when brands array is empty', async () => {
-      mockBrandService.brands = [];
-      mockBrandService.isLoadingBrands = false;
-      mockBrandService.brandsError = undefined;
+      mockBrandService.searchedBrands = [];
+      mockBrandService.isSearchingBrands = false;
+      mockBrandService.searchError = undefined;
 
       const testFixture = TestBed.createComponent(Brand);
       testFixture.detectChanges();
@@ -109,9 +110,9 @@ describe('Brand List Component', () => {
     });
 
     it('should display table with brands when data is available', async () => {
-      mockBrandService.brands = mockBrands;
-      mockBrandService.isLoadingBrands = false;
-      mockBrandService.brandsError = undefined;
+      mockBrandService.searchedBrands = mockBrands;
+      mockBrandService.isSearchingBrands = false;
+      mockBrandService.searchError = undefined;
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -124,7 +125,7 @@ describe('Brand List Component', () => {
     });
 
     it('should display brand data correctly in table', async () => {
-      mockBrandService.brands = mockBrands;
+      mockBrandService.searchedBrands = mockBrands;
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -135,7 +136,7 @@ describe('Brand List Component', () => {
     });
 
     it('should display all table columns', async () => {
-      mockBrandService.brands = mockBrands;
+      mockBrandService.searchedBrands = mockBrands;
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -163,7 +164,7 @@ describe('Brand List Component', () => {
     });
 
     it('should disable reload button when loading', async () => {
-      mockBrandService.isLoadingBrands = true;
+      mockBrandService.isSearchingBrands = true;
 
       const testFixture = TestBed.createComponent(Brand);
       testFixture.detectChanges();
@@ -176,7 +177,7 @@ describe('Brand List Component', () => {
     });
 
     it('should display edit and delete buttons for each brand', async () => {
-      mockBrandService.brands = mockBrands;
+      mockBrandService.searchedBrands = mockBrands;
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -188,7 +189,7 @@ describe('Brand List Component', () => {
     });
 
     it('should have edit button with correct icon', async () => {
-      mockBrandService.brands = mockBrands;
+      mockBrandService.searchedBrands = mockBrands;
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -200,7 +201,7 @@ describe('Brand List Component', () => {
     });
 
     it('should have delete button with correct icon', async () => {
-      mockBrandService.brands = mockBrands;
+      mockBrandService.searchedBrands = mockBrands;
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -218,15 +219,15 @@ describe('Brand List Component', () => {
     });
 
     it('should return isLoading from service', () => {
-      mockBrandService.isLoadingBrands = true;
+      mockBrandService.isSearchingBrands = true;
       expect(component.isLoading).toBe(true);
     });
 
     it('should return hasError from service', () => {
-      mockBrandService.brandsError = 'Error';
+      mockBrandService.searchError = 'Error';
       expect(component.hasError).toBe(true);
 
-      mockBrandService.brandsError = undefined;
+      mockBrandService.searchError = undefined;
       expect(component.hasError).toBe(false);
     });
 
@@ -236,7 +237,7 @@ describe('Brand List Component', () => {
     });
 
     it('should disable reload when loading', () => {
-      mockBrandService.isLoadingBrands = true;
+      mockBrandService.isSearchingBrands = true;
       expect(component.isReloadDisabled).toBe(true);
     });
   });
@@ -261,10 +262,10 @@ describe('Brand List Component', () => {
   });
 
   describe('Reload Functionality', () => {
-    it('should call service reloadBrands when reload is triggered', () => {
+    it('should call service searchBrands when reload is triggered', () => {
       component.reload();
 
-      expect(mockBrandService.reloadBrands).toHaveBeenCalled();
+      expect(mockBrandService.searchBrands).toHaveBeenCalledWith(1, 10);
     });
 
     it('should activate cooldown after reload', () => {
@@ -284,11 +285,11 @@ describe('Brand List Component', () => {
 
     it('should not reload if cooldown is active', () => {
       component['reloadCooldown'].set(true);
-      mockBrandService.reloadBrands.mockClear();
+      mockBrandService.searchBrands.mockClear();
 
       component.reload();
 
-      expect(mockBrandService.reloadBrands).not.toHaveBeenCalled();
+      expect(mockBrandService.searchBrands).not.toHaveBeenCalled();
     });
   });
 
@@ -298,8 +299,40 @@ describe('Brand List Component', () => {
     });
 
     it('should return empty array if service brands is undefined', () => {
-      mockBrandService.brands = null;
+      mockBrandService.searchedBrands = [];
       expect(component.brands).toEqual([]);
+    });
+
+    it('should have default pagination values', () => {
+      expect(component.currentPage).toBe(1);
+      expect(component.pageSize).toBe(10);
+      expect(component.pageSizeOptions).toEqual([5, 10, 25, 50]);
+    });
+  });
+
+  describe('Pagination', () => {
+    it('should call searchBrands on page change', () => {
+      const event: PageEvent = { pageIndex: 1, pageSize: 10, length: 100 };
+      mockBrandService.searchBrands.mockClear();
+
+      component.onPageChange(event);
+
+      expect(component.currentPage).toBe(2);
+      expect(mockBrandService.searchBrands).toHaveBeenCalledWith(2, 10);
+    });
+
+    it('should update pageSize on page change', () => {
+      const event: PageEvent = { pageIndex: 0, pageSize: 25, length: 100 };
+      mockBrandService.searchBrands.mockClear();
+
+      component.onPageChange(event);
+
+      expect(component.pageSize).toBe(25);
+      expect(mockBrandService.searchBrands).toHaveBeenCalledWith(1, 25);
+    });
+
+    it('should return totalItems from service', () => {
+      expect(component.totalItems).toBe(50);
     });
   });
 });

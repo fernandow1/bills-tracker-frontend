@@ -7,7 +7,7 @@ import { IBrandData } from '@features/brand/interfaces/brand-data.interface';
 import { IBrandResponse } from '@features/brand/interfaces/brand-response.interface';
 import { createFilter, buildFilterParams } from '@core/utils/filter-builder.helper';
 import { FilterOperator } from '@core/utils/filter-operators.types';
-import { Pagination } from '@core/interfaces/pagination.interface';
+import { Pagination, SearchParams } from '@core/interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -35,64 +35,31 @@ export class BrandService {
   // Signal para controlar cuándo actualizar una marca
   private updateBrandTrigger = signal<{ id: string; data: IBrandData } | null>(null);
 
-  // Signal para controlar búsqueda de marcas
-  private searchBrandTrigger = signal<string | null>(null);
+  // Signal para controlar búsqueda de marcas con paginación
+  private searchBrandTrigger = signal<SearchParams<{ name?: string }> | null>(null);
 
-  // Signal para controlar carga completa de marcas (solo para páginas de listado)
-  private loadAllBrandsTrigger = signal<boolean>(false);
-
-  // Resource para cargar todas las marcas (solo cuando se solicite explícitamente)
-  private allBrandsResource = resource({
-    loader: async () => {
-      if (!this.loadAllBrandsTrigger()) {
-        return null;
-      }
-
-      const response = await this.authFetch.fetch(
-        this.configService.buildApiUrl(this.configService.brandEndpoints.list),
-        {
-          method: 'GET',
-          headers: this.getAuthHeaders(),
-        },
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      return (await response.json()) as IBrandResponse[];
-    },
-  });
-
-  // Resource para búsqueda de marcas con filtro
+  // Resource para búsqueda de marcas con paginación y filtro
   public searchBrandsResource = resource({
     loader: async () => {
-      const searchTerm = this.searchBrandTrigger();
+      const searchParams = this.searchBrandTrigger();
 
-      if (searchTerm === null) {
+      if (!searchParams) {
         return null;
       }
 
-      // Si el término está vacío, retornar null
-      if (searchTerm.trim() === '') {
-        return null;
+      const filters = [];
+
+      // Agregar filtro de nombre si existe
+      if (searchParams.filters?.name) {
+        filters.push(createFilter('name', searchParams.filters.name, FilterOperator.LIKE));
       }
 
-      // Construir filtro usando los helpers
-      const filter = createFilter('name', searchTerm, FilterOperator.LIKE);
-      const params = buildFilterParams([filter]);
+      // Construir params con filtros
+      const finalParams = buildFilterParams(filters);
+      finalParams['page'] = searchParams.page.toString();
+      finalParams['pageSize'] = searchParams.pageSize.toString();
 
-      params['page'] = '1';
-      params['pageSize'] = '20';
-
-      const queryString = new URLSearchParams(params).toString();
+      const queryString = new URLSearchParams(finalParams).toString();
       const url = `${this.configService.buildApiUrl(
         this.configService.brandEndpoints.search,
       )}?${queryString}`;
@@ -294,56 +261,17 @@ export class BrandService {
   }
 
   /**
-   * Carga todas las marcas (para páginas de listado)
+   * Busca marcas con paginación y filtro opcional por nombre
+   * @param page Número de página
+   * @param pageSize Tamaño de página
+   * @param name Filtro opcional por nombre
    */
-  public loadAllBrands(): void {
-    this.loadAllBrandsTrigger.set(true);
-    this.allBrandsResource.reload();
-  }
-
-  /**
-   * Obtiene todas las marcas
-   */
-  public get brands(): IBrandResponse[] | null | undefined {
-    if (!this.loadAllBrandsTrigger()) {
-      return null;
-    }
-    return this.allBrandsResource.value() as IBrandResponse[] | null | undefined;
-  }
-
-  /**
-   * Obtiene el estado de carga de las marcas
-   */
-  public get isLoadingBrands(): boolean {
-    return this.allBrandsResource.status() === 'loading';
-  }
-
-  /**
-   * Obtiene el error al cargar marcas si existe
-   */
-  public get brandsError(): unknown {
-    if (!this.loadAllBrandsTrigger()) {
-      return null;
-    }
-    return this.allBrandsResource.error();
-  }
-
-  /**
-   * Recarga la lista de marcas
-   */
-  public reloadBrands(): void {
-    if (!this.loadAllBrandsTrigger()) {
-      this.loadAllBrandsTrigger.set(true);
-    }
-    this.allBrandsResource.reload();
-  }
-
-  /**
-   * Busca marcas por nombre
-   * @param searchTerm Término de búsqueda
-   */
-  public searchBrands(searchTerm: string): void {
-    this.searchBrandTrigger.set(searchTerm);
+  public searchBrands(page: number, pageSize: number, name?: string): void {
+    this.searchBrandTrigger.set({
+      page,
+      pageSize,
+      filters: name ? { name } : undefined,
+    });
     this.searchBrandsResource.reload();
   }
 
@@ -352,6 +280,16 @@ export class BrandService {
    */
   public get isSearchingBrands(): boolean {
     return this.searchBrandsResource.status() === 'loading';
+  }
+
+  /**
+   * Obtiene el error de búsqueda si existe
+   */
+  public get searchError(): unknown {
+    if (this.searchBrandTrigger() === null) {
+      return null;
+    }
+    return this.searchBrandsResource.error();
   }
 
   /**
