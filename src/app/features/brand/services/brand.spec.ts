@@ -4,6 +4,7 @@ import { BrandService } from './brand';
 import { ConfigService } from '@core/services/config.service';
 import { IBrandData } from '@features/brand/interfaces/brand-data.interface';
 import { IBrandResponse } from '@features/brand/interfaces/brand-response.interface';
+import { Pagination } from '@core/interfaces/pagination.interface';
 
 // Mock del fetch global
 const mockFetch = vi.fn();
@@ -211,6 +212,91 @@ describe('BrandService', () => {
 
       service.resetUpdateTrigger();
       expect(service.updatedBrand).toBeNull();
+    });
+  });
+
+  describe('searchBrands', () => {
+    const mockPaginatedResponse: Pagination<IBrandResponse> = {
+      count: 100,
+      data: [mockBrandResponse],
+    };
+
+    it('should call API with pagination parameters', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue(mockPaginatedResponse),
+      });
+
+      service.searchBrands(1, 10);
+
+      await vi.waitFor(() => {
+        expect(mockFetch).toHaveBeenCalled();
+      });
+
+      const callArgs = mockFetch.mock.calls[0];
+      const url = callArgs[0] as string;
+      expect(url).toContain('page=1');
+      expect(url).toContain('pageSize=10');
+    });
+
+    it('should return paginated brands', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue(mockPaginatedResponse),
+      });
+
+      service.searchBrands(1, 10);
+
+      await vi.waitFor(() => {
+        expect(service.searchedBrands).toEqual(mockPaginatedResponse.data);
+        expect(service.searchedBrandsCount).toBe(100);
+      });
+    });
+
+    it('should include name filter when provided', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue(mockPaginatedResponse),
+      });
+
+      service.searchBrands(1, 10, 'test');
+
+      await vi.waitFor(() => {
+        expect(mockFetch).toHaveBeenCalled();
+      });
+
+      const callArgs = mockFetch.mock.calls[0];
+      const url = callArgs[0] as string;
+      expect(url).toContain('filter=name.like.test');
+      expect(url).toContain('page=1');
+      expect(url).toContain('pageSize=10');
+    });
+
+    it('should set loading state when searching', () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue(mockPaginatedResponse),
+      });
+
+      service.searchBrands(1, 10);
+
+      expect(service.isSearchingBrands).toBe(true);
+    });
+
+    it('should handle search errors', async () => {
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 500,
+        json: vi.fn().mockResolvedValue({ message: 'Server error' }),
+      });
+
+      service.searchBrands(1, 10);
+
+      await vi.waitFor(() => {
+        expect(service.searchError).toBeTruthy();
+      });
+
+      expect(service.isSearchingBrands).toBe(false);
     });
   });
 });
