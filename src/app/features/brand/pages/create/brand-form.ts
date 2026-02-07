@@ -56,7 +56,7 @@ export class BrandForm {
 
     effect((): void => {
       const createdBrand = this.brandService.createdBrand;
-      const createError = this.brandService.brandsError;
+      const createError = this.brandService.createError;
 
       if (createdBrand) {
         this.snackBar.open('Marca creada exitosamente', 'Cerrar', {
@@ -82,7 +82,7 @@ export class BrandForm {
 
     effect((): void => {
       const updatedBrand = this.brandService.updatedBrand;
-      const updateError = this.brandService.brandsError;
+      const updateError = this.brandService.updateError;
 
       if (updatedBrand) {
         this.snackBar.open('Marca actualizada exitosamente', 'Cerrar', {

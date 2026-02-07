@@ -131,7 +131,7 @@ describe('ShopForm - MapBox Integration', () => {
         vi.spyOn(shopService, 'isValidCoordinate').mockReturnValue(true);
 
         const dialogData: IShopResponse = {
-          id: '1',
+          id: 1,
           name: 'Test Shop',
           description: 'Test Description',
           latitude: -34.6037,
@@ -162,7 +162,7 @@ describe('ShopForm - MapBox Integration', () => {
         vi.spyOn(shopService, 'isValidCoordinate').mockReturnValue(false);
 
         const dialogData: IShopResponse = {
-          id: '1',
+          id: 1,
           name: 'Test Shop',
           description: 'Test Description',
           latitude: 100,
@@ -187,11 +187,11 @@ describe('ShopForm - MapBox Integration', () => {
 
       it('debe usar el centro por defecto con coordenadas incompletas', () => {
         const dialogData: IShopResponse = {
-          id: '1',
+          id: 1,
           name: 'Test Shop',
           description: 'Test Description',
           latitude: -34.6037,
-          longitude: undefined,
+          longitude: NaN,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
@@ -216,7 +216,7 @@ describe('ShopForm - MapBox Integration', () => {
         vi.spyOn(shopService, 'isValidCoordinate').mockReturnValue(true);
 
         const dialogData: IShopResponse = {
-          id: '1',
+          id: 1,
           name: 'Test Shop',
           description: 'Test Description',
           latitude: -34.6037,
@@ -242,6 +242,98 @@ describe('ShopForm - MapBox Integration', () => {
 
       it('markerPosition debe ser null sin coordenadas válidas', () => {
         expect(component.markerLngLat()).toBeNull();
+      });
+    });
+
+    describe('Visibilidad de Inputs de Coordenadas', () => {
+      it('debe tener campos de latitud y longitud siempre definidos en modo creación', () => {
+        // Arrange: Componente sin datos (modo creación)
+        const fixture = TestBed.createComponent(ShopForm);
+        const component = fixture.componentInstance;
+        fixture.detectChanges();
+
+        // Assert: Los campos deben existir
+        expect(component.shopForm.latitude).toBeDefined();
+        expect(component.shopForm.longitude).toBeDefined();
+      });
+
+      it('debe mostrar inputs de coordenadas en el DOM en modo creación', () => {
+        // Arrange: Componente sin datos
+        const fixture = TestBed.createComponent(ShopForm);
+        fixture.detectChanges();
+
+        // Act: Buscar inputs en el DOM
+        const compiled = fixture.nativeElement;
+        const latitudeInput = compiled.querySelector('input[placeholder*="-90 a 90"]');
+        const longitudeInput = compiled.querySelector('input[placeholder*="-180 a 180"]');
+
+        // Assert: Los inputs deben existir en el DOM
+        expect(latitudeInput).toBeTruthy();
+        expect(longitudeInput).toBeTruthy();
+      });
+
+      it('debe cargar coordenadas desde el backend en modo edición', () => {
+        // Arrange: Datos con coordenadas
+        const shopData: IShopResponse = {
+          id: 1,
+          name: 'Tienda Test',
+          description: 'Descripción',
+          latitude: -34.6037,
+          longitude: -58.3816,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+
+        TestBed.resetTestingModule();
+        TestBed.configureTestingModule({
+          providers: [
+            { provide: MAT_DIALOG_DATA, useValue: shopData },
+            { provide: MatDialogRef, useValue: mockDialogRef },
+          ],
+        });
+
+        const fixture = TestBed.createComponent(ShopForm);
+        const component = fixture.componentInstance;
+        fixture.detectChanges();
+
+        // Assert: Los valores deben estar cargados
+        expect(component.shopForm.latitude?.().value()).toBe(-34.6037);
+        expect(component.shopForm.longitude?.().value()).toBe(-58.3816);
+      });
+
+      it('debe permitir entrada manual de coordenadas en modo creación', () => {
+        // Arrange: Componente sin datos
+        const fixture = TestBed.createComponent(ShopForm);
+        const component = fixture.componentInstance;
+        fixture.detectChanges();
+
+        // Act: Simular entrada de coordenadas
+        component.shopModel.update((model) => ({
+          ...model,
+          latitude: -34.6037,
+          longitude: -58.3816,
+        }));
+
+        // Assert: Los valores deben actualizarse
+        expect(component.shopForm.latitude?.().value()).toBe(-34.6037);
+        expect(component.shopForm.longitude?.().value()).toBe(-58.3816);
+      });
+
+      it('debe inicializar coordenadas con NaN en modo creación', () => {
+        // Arrange: Componente sin datos
+        const fixture = TestBed.createComponent(ShopForm);
+        const component = fixture.componentInstance;
+        fixture.detectChanges();
+
+        // Assert: Los campos existen y tienen NaN como valor inicial
+        expect(component.shopForm.latitude).toBeDefined();
+        expect(component.shopForm.longitude).toBeDefined();
+
+        // Los valores deben ser NaN cuando no se proporcionaron coordenadas
+        const latValue = component.shopForm.latitude().value();
+        const lngValue = component.shopForm.longitude().value();
+        expect(Number.isNaN(latValue)).toBe(true);
+        expect(Number.isNaN(lngValue)).toBe(true);
       });
     });
   });

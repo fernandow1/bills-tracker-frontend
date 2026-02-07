@@ -113,7 +113,7 @@ export class Product {
         distinctUntilChanged(),
       )
       .subscribe((searchTerm: string) => {
-        this.brandService.searchBrands(searchTerm);
+        this.brandService.searchBrands(1, 20, searchTerm);
       });
 
     // Configurar debounce para búsqueda de categorías (500ms)

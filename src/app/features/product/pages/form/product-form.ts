@@ -163,7 +163,7 @@ export class ProductForm implements OnInit {
         if (searchTerm.trim() === '') {
           return;
         }
-        this.brandService.searchBrands(searchTerm);
+        this.brandService.searchBrands(1, 20, searchTerm);
       });
 
     // Configurar debounce para búsqueda de categorías (500ms)

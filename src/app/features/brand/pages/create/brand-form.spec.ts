@@ -14,7 +14,6 @@ const mockBrandService = {
   updateError: null as Error | null,
   isCreatingBrand: false,
   isUpdatingBrand: false,
-  brandsError: null as Error | null,
   createBrand: vi.fn(),
   updateBrand: vi.fn(),
   resetCreateTrigger: vi.fn(),
@@ -39,7 +38,6 @@ describe('BrandForm', () => {
     mockBrandService.createError = null;
     mockBrandService.updatedBrand = null;
     mockBrandService.updateError = null;
-    mockBrandService.brandsError = null;
     mockBrandService.isCreatingBrand = false;
     mockBrandService.isUpdatingBrand = false;
 
