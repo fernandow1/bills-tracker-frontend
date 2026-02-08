@@ -3,7 +3,8 @@ import { Injectable, inject, signal, resource } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, tap, catchError, throwError } from 'rxjs';
 import { ConfigService } from '@core/services/config.service';
-import { TokenService } from './token.service';
+import { TokenService } from '@features/auth/services/token.service';
+import { Role } from '@features/auth/enums/role.enum';
 
 export interface LoginRequest {
   username: string;
@@ -23,6 +24,7 @@ export interface User {
   email?: string;
   firstName?: string;
   lastName?: string;
+  role?: Role;
   roles?: string[];
 }
 

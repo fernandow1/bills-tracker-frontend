@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { TokenService } from './token.service';
+import { Role } from '../enums/role.enum';
 
 describe('TokenService', () => {
   let service: TokenService;
@@ -114,9 +115,9 @@ describe('TokenService', () => {
 
   describe('decodeToken', () => {
     it('should decode a valid JWT token', () => {
-      // JWT con payload: {"sub":"123","username":"testuser","email":"test@example.com","roles":["user"],"iat":1234567890,"exp":9999999999}
+      // JWT con payload: {"sub":"123","username":"testuser","email":"test@example.com","role":"user","roles":["user"],"iat":1234567890,"exp":9999999999}
       const validToken =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJ1c2VybmFtZSI6InRlc3R1c2VyIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwicm9sZXMiOlsidXNlciJdLCJpYXQiOjEyMzQ1Njc4OTAsImV4cCI6OTk5OTk5OTk5OX0.fakesignature';
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJ1c2VybmFtZSI6InRlc3R1c2VyIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwicm9sZSI6InVzZXIiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTIzNDU2Nzg5MCwiZXhwIjo5OTk5OTk5OTk5fQ.fakesignature';
 
       const payload = service.decodeToken(validToken);
 
@@ -124,6 +125,7 @@ describe('TokenService', () => {
       expect(payload?.sub).toBe('123');
       expect(payload?.username).toBe('testuser');
       expect(payload?.email).toBe('test@example.com');
+      expect(payload?.role).toBe(Role.User);
       expect(payload?.roles).toEqual(['user']);
     });
 
@@ -319,7 +321,7 @@ describe('TokenService', () => {
   describe('getUserFromToken', () => {
     it('should extract user info from token', () => {
       const token =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJ1c2VybmFtZSI6InRlc3R1c2VyIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwicm9sZXMiOlsidXNlciIsImFkbWluIl0sImlhdCI6MTIzNDU2Nzg5MCwiZXhwIjo5OTk5OTk5OTk5fQ.sig';
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJ1c2VybmFtZSI6InRlc3R1c2VyIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwicm9sZSI6ImFkbWluIiwicm9sZXMiOlsidXNlciIsImFkbWluIl0sImlhdCI6MTIzNDU2Nzg5MCwiZXhwIjo5OTk5OTk5OTk5fQ.sig';
 
       const user = service.getUserFromToken(token);
 
@@ -327,6 +329,7 @@ describe('TokenService', () => {
       expect(user?.id).toBe('123');
       expect(user?.username).toBe('testuser');
       expect(user?.email).toBe('test@example.com');
+      expect(user?.role).toBe(Role.Admin);
       expect(user?.roles).toEqual(['user', 'admin']);
     });
 
@@ -348,7 +351,7 @@ describe('TokenService', () => {
     });
 
     it('should handle token without optional fields', () => {
-      // Token sin email y roles
+      // Token sin email, role y roles
       const token =
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJ1c2VybmFtZSI6InRlc3R1c2VyIiwiaWF0IjoxMjM0NTY3ODkwLCJleHAiOjk5OTk5OTk5OTl9.sig';
 
@@ -358,6 +361,7 @@ describe('TokenService', () => {
       expect(user?.id).toBe('123');
       expect(user?.username).toBe('testuser');
       expect(user?.email).toBeUndefined();
+      expect(user?.role).toBeUndefined();
       expect(user?.roles).toBeUndefined();
     });
   });
