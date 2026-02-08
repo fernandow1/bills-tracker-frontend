@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { environment } from '@env/environment';
+import { Role } from '@features/auth/enums/role.enum';
 
 export interface TokenPayload {
   sub: string; // Subject (user ID)
   username: string;
   email?: string;
+  role?: Role;
   roles?: string[];
   iat: number; // Issued at
   exp: number; // Expiration time
@@ -132,7 +134,7 @@ export class TokenService {
    */
   public getUserFromToken(
     token?: string,
-  ): { id: string; username: string; email?: string; roles?: string[] } | null {
+  ): { id: string; username: string; email?: string; role?: Role; roles?: string[] } | null {
     const payload = this.decodeToken(token);
     if (!payload) {
       return null;
@@ -142,6 +144,7 @@ export class TokenService {
       id: payload.sub,
       username: payload.username,
       email: payload.email,
+      role: payload.role,
       roles: payload.roles,
     };
   }
