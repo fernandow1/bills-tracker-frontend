@@ -14,10 +14,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { IUserResponse } from '@features/user/interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { IUserData } from '@features/user/interfaces/user-data.interface';
 import { UserService } from '@features/user/services/user.service';
+import { Role } from '@features/auth/enums/role.enum';
 
 @Component({
   selector: 'app-user-form',
@@ -30,6 +32,7 @@ import { UserService } from '@features/user/services/user.service';
     MatCardModule,
     MatProgressSpinnerModule,
     MatDialogModule,
+    MatSelectModule,
     Field,
   ],
   templateUrl: './user-form.html',
@@ -47,11 +50,18 @@ export class UserForm {
   public readonly isEditMode = !!this.dialogData;
   public userId = this.dialogData?.id;
 
+  public readonly roleOptions = [
+    { value: Role.Admin, label: 'Administrador' },
+    { value: Role.User, label: 'Usuario' },
+    { value: Role.Guest, label: 'Invitado' },
+  ];
+
   public userModel = signal<IUserData>({
     name: this.dialogData?.name || '',
     email: this.dialogData?.email || '',
     username: this.dialogData?.username || '',
     password: '',
+    role: this.dialogData?.role || Role.Guest,
   });
 
   public userForm = form<IUserData>(this.userModel, (schemaPath) => {
@@ -67,6 +77,8 @@ export class UserForm {
     pattern(schemaPath.email, /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
       message: 'Email inválido',
     });
+
+    required(schemaPath.role, { message: 'El rol es obligatorio' });
 
     // Password solo es requerido en modo creación
     if (!this.isEditMode && schemaPath.password) {
@@ -87,6 +99,9 @@ export class UserForm {
 
   public emailInvalid = computed(() => this.userForm.email().invalid());
   public emailErrors = computed(() => this.userForm.email().errors());
+
+  public roleInvalid = computed(() => this.userForm.role().invalid());
+  public roleErrors = computed(() => this.userForm.role().errors());
 
   // Password solo muestra errores cuando es dirty o touched (opcional)
   public showPasswordErrors = computed(() => {
@@ -185,6 +200,7 @@ export class UserForm {
       email: '',
       username: '',
       password: '',
+      role: Role.Guest,
     });
     this.userForm().reset();
   }
