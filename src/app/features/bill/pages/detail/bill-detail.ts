@@ -64,4 +64,16 @@ export class BillDetail {
     };
     return labels[netUnit] || netUnit;
   }
+
+  public getItemSubtotal(item: {
+    quantity: number;
+    contentValue?: number | null;
+    netPrice: number;
+    netUnit: NetUnits;
+  }): number {
+    if (item.netUnit !== NetUnits.UNIT && item.contentValue) {
+      return item.quantity * item.contentValue * item.netPrice;
+    }
+    return item.quantity * item.netPrice;
+  }
 }
