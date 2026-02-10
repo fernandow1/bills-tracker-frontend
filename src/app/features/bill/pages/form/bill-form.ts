@@ -139,6 +139,9 @@ export class BillForm {
 
   public readonly total = computed(() => {
     return this.billItems().reduce((sum, item) => {
+      if (item.netUnit !== NetUnits.UNIT && item.contentValue) {
+        return sum + item.quantity * item.contentValue * item.netPrice;
+      }
       return sum + item.quantity * item.netPrice;
     }, 0);
   });
@@ -383,6 +386,9 @@ export class BillForm {
   }
 
   public getItemSubtotal(item: IBillItemData): number {
+    if (item.netUnit !== NetUnits.UNIT && item.contentValue) {
+      return item.quantity * item.contentValue * item.netPrice;
+    }
     return item.quantity * item.netPrice;
   }
 
