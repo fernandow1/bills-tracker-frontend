@@ -15,7 +15,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { IProductData } from '@features/product/interfaces/product-data.interface';
@@ -28,6 +27,8 @@ import { CategoryService, ICategoryResponse } from '@features/category/services/
 import { IBrandResponse } from '@features/brand/interfaces/brand-response.interface';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { NotificationService } from '@core/services/notification.service';
+import { ErrorHandlerService } from '@core/services/error-handler.service';
 
 @Component({
   selector: 'app-product-form',
@@ -52,7 +53,8 @@ export class ProductForm implements OnInit {
   private readonly productService = inject(ProductService);
   private readonly brandService = inject(BrandService);
   private readonly categoryService = inject(CategoryService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationService = inject(NotificationService);
+  private readonly errorHandler = inject(ErrorHandlerService);
   private readonly dialogRef = inject(MatDialogRef<ProductForm>, { optional: true });
   private readonly dialogData = inject<IProductResponse | null>(MAT_DIALOG_DATA, {
     optional: true,
@@ -105,10 +107,7 @@ export class ProductForm implements OnInit {
       const createError = this.productService.createError;
 
       if (createdProduct) {
-        this.snackBar.open('Producto creado exitosamente', 'Cerrar', {
-          duration: 3000,
-          panelClass: 'success-snackbar',
-        });
+        this.notificationService.success('Producto creado exitosamente');
         this.resetForm();
         this.productService.resetCreateTrigger();
 
@@ -119,10 +118,8 @@ export class ProductForm implements OnInit {
       }
 
       if (createError) {
-        this.snackBar.open('Error al crear el producto', 'Cerrar', {
-          duration: 5000,
-          panelClass: 'error-snackbar',
-        });
+        const formattedError = this.errorHandler.formatErrorResponse(createError);
+        this.notificationService.showError(formattedError);
         this.productService.resetCreateTrigger();
       }
     });
@@ -133,10 +130,7 @@ export class ProductForm implements OnInit {
       const updateError = this.productService.updateError;
 
       if (updatedProduct) {
-        this.snackBar.open('Producto actualizado exitosamente', 'Cerrar', {
-          duration: 3000,
-          panelClass: 'success-snackbar',
-        });
+        this.notificationService.success('Producto actualizado exitosamente');
         this.productService.resetUpdateTrigger();
 
         // Cerrar el modal si existe
@@ -146,10 +140,8 @@ export class ProductForm implements OnInit {
       }
 
       if (updateError) {
-        this.snackBar.open('Error al actualizar el producto', 'Cerrar', {
-          duration: 5000,
-          panelClass: 'error-snackbar',
-        });
+        const formattedError = this.errorHandler.formatErrorResponse(updateError);
+        this.notificationService.showError(formattedError);
         this.productService.resetUpdateTrigger();
       }
     });

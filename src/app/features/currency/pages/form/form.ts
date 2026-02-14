@@ -7,10 +7,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { ICurrencyData } from '@features/currency/interfaces/currency-data.interface';
 import { ICurrencyResponse } from '@features/currency/interfaces/currency-response.interface';
 import { CurrencyService } from '@features/currency/services/currency';
+import { NotificationService } from '@core/services/notification.service';
+import { ErrorHandlerService } from '@core/services/error-handler.service';
 
 @Component({
   selector: 'app-currency-form',
@@ -30,7 +31,8 @@ import { CurrencyService } from '@features/currency/services/currency';
 })
 export class CurrencyForm {
   private readonly currencyService = inject(CurrencyService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationService = inject(NotificationService);
+  private readonly errorHandler = inject(ErrorHandlerService);
   private readonly dialogRef = inject(MatDialogRef<CurrencyForm>, { optional: true });
   private readonly dialogData = inject<ICurrencyResponse | null>(MAT_DIALOG_DATA, {
     optional: true,
@@ -71,10 +73,7 @@ export class CurrencyForm {
       const createError = this.currencyService.createError;
 
       if (createdCurrency) {
-        this.snackBar.open('Moneda creada exitosamente', 'Cerrar', {
-          duration: 3000,
-          panelClass: 'success-snackbar',
-        });
+        this.notificationService.success('Moneda creada exitosamente');
         this.resetForm();
         this.currencyService.resetCreateTrigger();
 
@@ -84,10 +83,8 @@ export class CurrencyForm {
       }
 
       if (createError) {
-        this.snackBar.open('Error al crear la moneda', 'Cerrar', {
-          duration: 5000,
-          panelClass: 'error-snackbar',
-        });
+        const formattedError = this.errorHandler.formatErrorResponse(createError);
+        this.notificationService.showError(formattedError);
         this.currencyService.resetCreateTrigger();
       }
     });
@@ -98,10 +95,7 @@ export class CurrencyForm {
       const updateError = this.currencyService.updateError;
 
       if (updatedCurrency) {
-        this.snackBar.open('Moneda actualizada exitosamente', 'Cerrar', {
-          duration: 3000,
-          panelClass: 'success-snackbar',
-        });
+        this.notificationService.success('Moneda actualizada exitosamente');
         this.resetForm();
         this.currencyService.resetUpdateTrigger();
 
@@ -111,10 +105,8 @@ export class CurrencyForm {
       }
 
       if (updateError) {
-        this.snackBar.open('Error al actualizar la moneda', 'Cerrar', {
-          duration: 5000,
-          panelClass: 'error-snackbar',
-        });
+        const formattedError = this.errorHandler.formatErrorResponse(updateError);
+        this.notificationService.showError(formattedError);
         this.currencyService.resetUpdateTrigger();
       }
     });
