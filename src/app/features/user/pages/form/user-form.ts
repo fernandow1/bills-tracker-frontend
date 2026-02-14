@@ -16,10 +16,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { IUserResponse } from '@features/user/interfaces';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { IUserData } from '@features/user/interfaces/user-data.interface';
 import { UserService } from '@features/user/services/user.service';
 import { Role } from '@features/auth/enums/role.enum';
+import { NotificationService } from '@core/services/notification.service';
+import { ErrorHandlerService } from '@core/services/error-handler.service';
 
 @Component({
   selector: 'app-user-form',
@@ -41,7 +42,8 @@ import { Role } from '@features/auth/enums/role.enum';
 })
 export class UserForm {
   private readonly userService = inject(UserService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationService = inject(NotificationService);
+  private readonly errorHandler = inject(ErrorHandlerService);
   private readonly dialogRef = inject(MatDialogRef<UserForm>, { optional: true });
   private readonly dialogData = inject<IUserResponse | null>(MAT_DIALOG_DATA, {
     optional: true,
@@ -122,10 +124,7 @@ export class UserForm {
       const createError = this.userService.createError;
 
       if (createdUser) {
-        this.snackBar.open('Usuario creado exitosamente', 'Cerrar', {
-          duration: 3000,
-          panelClass: 'success-snackbar',
-        });
+        this.notificationService.success('Usuario creado exitosamente');
         this.resetForm();
         this.userService.resetCreateTrigger();
 
@@ -135,10 +134,8 @@ export class UserForm {
       }
 
       if (createError) {
-        this.snackBar.open(`Error al crear el usuario: ${createError}`, 'Cerrar', {
-          duration: 5000,
-          panelClass: 'error-snackbar',
-        });
+        const formattedError = this.errorHandler.formatErrorResponse(createError);
+        this.notificationService.showError(formattedError);
         this.userService.resetCreateTrigger();
       }
     });
@@ -148,10 +145,7 @@ export class UserForm {
       const updateError = this.userService.updateError;
 
       if (updatedUser) {
-        this.snackBar.open('Usuario actualizado exitosamente', 'Cerrar', {
-          duration: 3000,
-          panelClass: 'success-snackbar',
-        });
+        this.notificationService.success('Usuario actualizado exitosamente');
         this.resetForm();
         this.userService.resetUpdateTrigger();
 
@@ -161,10 +155,8 @@ export class UserForm {
       }
 
       if (updateError) {
-        this.snackBar.open(`Error al actualizar el usuario: ${updateError}`, 'Cerrar', {
-          duration: 5000,
-          panelClass: 'error-snackbar',
-        });
+        const formattedError = this.errorHandler.formatErrorResponse(updateError);
+        this.notificationService.showError(formattedError);
         this.userService.resetUpdateTrigger();
       }
     });

@@ -8,9 +8,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IBrandResponse } from '@features/brand/interfaces/brand-response.interface';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { IBrandData } from '@features/brand/interfaces/brand-data.interface';
 import { BrandService } from '@features/brand/services/brand';
+import { NotificationService } from '@core/services/notification.service';
+import { ErrorHandlerService } from '@core/services/error-handler.service';
 
 @Component({
   selector: 'app-brand-form',
@@ -30,7 +31,8 @@ import { BrandService } from '@features/brand/services/brand';
 })
 export class BrandForm {
   private readonly brandService = inject(BrandService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationService = inject(NotificationService);
+  private readonly errorHandler = inject(ErrorHandlerService);
   private readonly dialogRef = inject(MatDialogRef<BrandForm>, { optional: true });
   private readonly dialogData = inject<IBrandResponse | null>(MAT_DIALOG_DATA, {
     optional: true,
@@ -59,10 +61,7 @@ export class BrandForm {
       const createError = this.brandService.createError;
 
       if (createdBrand) {
-        this.snackBar.open('Marca creada exitosamente', 'Cerrar', {
-          duration: 3000,
-          panelClass: 'success-snackbar',
-        });
+        this.notificationService.success('Marca creada exitosamente');
         this.resetForm();
         this.brandService.resetCreateTrigger();
 
@@ -72,10 +71,8 @@ export class BrandForm {
       }
 
       if (createError) {
-        this.snackBar.open(`Error al crear la marca: ${createError}`, 'Cerrar', {
-          duration: 5000,
-          panelClass: 'error-snackbar',
-        });
+        const formattedError = this.errorHandler.formatErrorResponse(createError);
+        this.notificationService.showError(formattedError);
         this.brandService.resetCreateTrigger();
       }
     });
@@ -85,10 +82,7 @@ export class BrandForm {
       const updateError = this.brandService.updateError;
 
       if (updatedBrand) {
-        this.snackBar.open('Marca actualizada exitosamente', 'Cerrar', {
-          duration: 3000,
-          panelClass: 'success-snackbar',
-        });
+        this.notificationService.success('Marca actualizada exitosamente');
         this.resetForm();
         this.brandService.resetUpdateTrigger();
 
@@ -98,10 +92,8 @@ export class BrandForm {
       }
 
       if (updateError) {
-        this.snackBar.open(`Error al actualizar la marca: ${updateError}`, 'Cerrar', {
-          duration: 5000,
-          panelClass: 'error-snackbar',
-        });
+        const formattedError = this.errorHandler.formatErrorResponse(updateError);
+        this.notificationService.showError(formattedError);
         this.brandService.resetUpdateTrigger();
       }
     });

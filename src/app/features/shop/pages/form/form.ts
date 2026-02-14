@@ -14,13 +14,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MapComponent, MarkerComponent } from 'ngx-mapbox-gl';
 import type { MapMouseEvent } from 'mapbox-gl';
-import { environment } from '../../../../../environments/environment';
+import { environment } from '@env/environment';
 import { IShopData } from '@features/shop/interfaces/shop-data.interface';
 import { IShopResponse } from '@features/shop/interfaces/shop-response.interface';
 import { ShopService } from '@features/shop/services/shop';
+import { NotificationService } from '@core/services/notification.service';
+import { ErrorHandlerService } from '@core/services/error-handler.service';
 
 @Component({
   selector: 'app-shop-form',
@@ -42,7 +43,8 @@ import { ShopService } from '@features/shop/services/shop';
 })
 export class ShopForm {
   private readonly shopService = inject(ShopService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationService = inject(NotificationService);
+  private readonly errorHandler = inject(ErrorHandlerService);
   private readonly dialogRef = inject(MatDialogRef<ShopForm>, { optional: true });
   private readonly dialogData = inject<IShopResponse | null>(MAT_DIALOG_DATA, {
     optional: true,
@@ -163,10 +165,7 @@ export class ShopForm {
       const createError = this.shopService.createError;
 
       if (createdShop) {
-        this.snackBar.open('Tienda creada exitosamente', 'Cerrar', {
-          duration: 3000,
-          panelClass: 'success-snackbar',
-        });
+        this.notificationService.success('Tienda creada exitosamente');
         this.resetForm();
         this.shopService.resetCreateTrigger();
 
@@ -176,10 +175,8 @@ export class ShopForm {
       }
 
       if (createError) {
-        this.snackBar.open('Error al crear la tienda', 'Cerrar', {
-          duration: 5000,
-          panelClass: 'error-snackbar',
-        });
+        const formattedError = this.errorHandler.formatErrorResponse(createError);
+        this.notificationService.showError(formattedError);
         this.shopService.resetCreateTrigger();
       }
     });
@@ -190,10 +187,7 @@ export class ShopForm {
       const updateError = this.shopService.updateError;
 
       if (updatedShop) {
-        this.snackBar.open('Tienda actualizada exitosamente', 'Cerrar', {
-          duration: 3000,
-          panelClass: 'success-snackbar',
-        });
+        this.notificationService.success('Tienda actualizada exitosamente');
         this.resetForm();
         this.shopService.resetUpdateTrigger();
 
@@ -203,10 +197,8 @@ export class ShopForm {
       }
 
       if (updateError) {
-        this.snackBar.open('Error al actualizar la tienda', 'Cerrar', {
-          duration: 5000,
-          panelClass: 'error-snackbar',
-        });
+        const formattedError = this.errorHandler.formatErrorResponse(updateError);
+        this.notificationService.showError(formattedError);
         this.shopService.resetUpdateTrigger();
       }
     });

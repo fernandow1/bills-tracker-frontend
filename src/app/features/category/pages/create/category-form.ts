@@ -5,12 +5,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ICategoryData } from '@features/category/interfaces/category-data.interface';
 import { form, Field, required, maxLength, minLength } from '@angular/forms/signals';
 import { MatCardModule } from '@angular/material/card';
 import { CategoryService, ICategoryResponse } from '@features/category/services/category';
+import { NotificationService } from '@core/services/notification.service';
+import { ErrorHandlerService } from '@core/services/error-handler.service';
 
 @Component({
   selector: 'app-category-form',
@@ -31,7 +32,8 @@ import { CategoryService, ICategoryResponse } from '@features/category/services/
 })
 export class CategoryForm {
   private readonly categoryService = inject(CategoryService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationService = inject(NotificationService);
+  private readonly errorHandler = inject(ErrorHandlerService);
   private readonly dialogRef = inject(MatDialogRef<CategoryForm>, { optional: true });
   private readonly dialogData = inject<ICategoryResponse | null>(MAT_DIALOG_DATA, {
     optional: true,
@@ -65,10 +67,7 @@ export class CategoryForm {
       const createError = this.categoryService.createError;
 
       if (createdCategory) {
-        this.snackBar.open('Categoría creada exitosamente', 'Cerrar', {
-          duration: 3000,
-          panelClass: 'success-snackbar',
-        });
+        this.notificationService.success('Categoría creada exitosamente');
         this.resetForm();
         this.categoryService.resetCreateTrigger();
 
@@ -79,10 +78,8 @@ export class CategoryForm {
       }
 
       if (createError) {
-        this.snackBar.open('Error al crear la categoría', 'Cerrar', {
-          duration: 5000,
-          panelClass: 'error-snackbar',
-        });
+        const formattedError = this.errorHandler.formatErrorResponse(createError);
+        this.notificationService.showError(formattedError);
         this.categoryService.resetCreateTrigger();
       }
     });
@@ -93,10 +90,7 @@ export class CategoryForm {
       const updateError = this.categoryService.updateError;
 
       if (updatedCategory) {
-        this.snackBar.open('Categoría actualizada exitosamente', 'Cerrar', {
-          duration: 3000,
-          panelClass: 'success-snackbar',
-        });
+        this.notificationService.success('Categoría actualizada exitosamente');
         this.categoryService.resetUpdateTrigger();
 
         // Cerrar el modal si existe
@@ -106,10 +100,8 @@ export class CategoryForm {
       }
 
       if (updateError) {
-        this.snackBar.open('Error al actualizar la categoría', 'Cerrar', {
-          duration: 5000,
-          panelClass: 'error-snackbar',
-        });
+        const formattedError = this.errorHandler.formatErrorResponse(updateError);
+        this.notificationService.showError(formattedError);
         this.categoryService.resetUpdateTrigger();
       }
     });

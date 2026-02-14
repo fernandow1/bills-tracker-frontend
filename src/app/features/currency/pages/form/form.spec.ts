@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
+import { ErrorHandlerService } from '@core/services/error-handler.service';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { CurrencyService } from '@features/currency/services/currency';
 import { ICurrencyResponse } from '@features/currency/interfaces/currency-response.interface';
@@ -13,7 +14,8 @@ describe('CurrencyForm', () => {
   let fixture: ComponentFixture<CurrencyForm>;
   let mockCurrencyService: any;
   let mockDialogRef: any;
-  let mockSnackBar: any;
+  let mockNotificationService: any;
+  let mockErrorHandlerService: any;
 
   beforeEach(async () => {
     // Mock del servicio con todos los getters y métodos necesarios
@@ -34,8 +36,17 @@ describe('CurrencyForm', () => {
       close: vi.fn(),
     };
 
-    mockSnackBar = {
-      open: vi.fn(),
+    mockNotificationService = {
+      success: vi.fn(),
+      error: vi.fn(),
+      showError: vi.fn(),
+      info: vi.fn(),
+      warning: vi.fn(),
+    };
+
+    mockErrorHandlerService = {
+      formatErrorResponse: vi.fn(),
+      handleError: vi.fn(),
     };
 
     await TestBed.configureTestingModule({
@@ -44,7 +55,8 @@ describe('CurrencyForm', () => {
         provideNoopAnimations(),
         { provide: CurrencyService, useValue: mockCurrencyService },
         { provide: MatDialogRef, useValue: mockDialogRef },
-        { provide: MatSnackBar, useValue: mockSnackBar },
+        { provide: NotificationService, useValue: mockNotificationService },
+        { provide: ErrorHandlerService, useValue: mockErrorHandlerService },
         { provide: MAT_DIALOG_DATA, useValue: null },
       ],
     }).compileComponents();
@@ -270,7 +282,8 @@ describe('CurrencyForm', () => {
           provideNoopAnimations(),
           { provide: CurrencyService, useValue: mockCurrencyService },
           { provide: MatDialogRef, useValue: mockDialogRef },
-          { provide: MatSnackBar, useValue: mockSnackBar },
+          { provide: NotificationService, useValue: mockNotificationService },
+          { provide: ErrorHandlerService, useValue: mockErrorHandlerService },
           { provide: MAT_DIALOG_DATA, useValue: mockDialogData },
         ],
       }).compileComponents();
@@ -355,7 +368,8 @@ describe('CurrencyForm', () => {
           provideNoopAnimations(),
           { provide: CurrencyService, useValue: mockCurrencyService },
           { provide: MatDialogRef, useValue: mockDialogRef },
-          { provide: MatSnackBar, useValue: mockSnackBar },
+          { provide: NotificationService, useValue: mockNotificationService },
+          { provide: ErrorHandlerService, useValue: mockErrorHandlerService },
           { provide: MAT_DIALOG_DATA, useValue: null },
         ],
       }).compileComponents();
@@ -364,11 +378,7 @@ describe('CurrencyForm', () => {
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      expect(mockSnackBar.open).toHaveBeenCalledWith(
-        'Moneda creada exitosamente',
-        'Cerrar',
-        expect.objectContaining({ duration: 3000 }),
-      );
+      expect(mockNotificationService.success).toHaveBeenCalledWith('Moneda creada exitosamente');
     });
 
     it('should close dialog when currency is created', async () => {
@@ -390,7 +400,8 @@ describe('CurrencyForm', () => {
           provideNoopAnimations(),
           { provide: CurrencyService, useValue: mockCurrencyService },
           { provide: MatDialogRef, useValue: mockDialogRef },
-          { provide: MatSnackBar, useValue: mockSnackBar },
+          { provide: NotificationService, useValue: mockNotificationService },
+          { provide: ErrorHandlerService, useValue: mockErrorHandlerService },
           { provide: MAT_DIALOG_DATA, useValue: null },
         ],
       }).compileComponents();
@@ -414,7 +425,8 @@ describe('CurrencyForm', () => {
           provideNoopAnimations(),
           { provide: CurrencyService, useValue: mockCurrencyService },
           { provide: MatDialogRef, useValue: mockDialogRef },
-          { provide: MatSnackBar, useValue: mockSnackBar },
+          { provide: NotificationService, useValue: mockNotificationService },
+          { provide: ErrorHandlerService, useValue: mockErrorHandlerService },
           { provide: MAT_DIALOG_DATA, useValue: null },
         ],
       }).compileComponents();
@@ -423,11 +435,7 @@ describe('CurrencyForm', () => {
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      expect(mockSnackBar.open).toHaveBeenCalledWith(
-        'Error al crear la moneda',
-        'Cerrar',
-        expect.objectContaining({ duration: 5000 }),
-      );
+      expect(mockNotificationService.showError).toHaveBeenCalled();
     });
   });
 
@@ -451,7 +459,8 @@ describe('CurrencyForm', () => {
           provideNoopAnimations(),
           { provide: CurrencyService, useValue: mockCurrencyService },
           { provide: MatDialogRef, useValue: mockDialogRef },
-          { provide: MatSnackBar, useValue: mockSnackBar },
+          { provide: NotificationService, useValue: mockNotificationService },
+          { provide: ErrorHandlerService, useValue: mockErrorHandlerService },
           { provide: MAT_DIALOG_DATA, useValue: null },
         ],
       }).compileComponents();
@@ -460,10 +469,8 @@ describe('CurrencyForm', () => {
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      expect(mockSnackBar.open).toHaveBeenCalledWith(
+      expect(mockNotificationService.success).toHaveBeenCalledWith(
         'Moneda actualizada exitosamente',
-        'Cerrar',
-        expect.objectContaining({ duration: 3000 }),
       );
     });
 
@@ -486,7 +493,8 @@ describe('CurrencyForm', () => {
           provideNoopAnimations(),
           { provide: CurrencyService, useValue: mockCurrencyService },
           { provide: MatDialogRef, useValue: mockDialogRef },
-          { provide: MatSnackBar, useValue: mockSnackBar },
+          { provide: NotificationService, useValue: mockNotificationService },
+          { provide: ErrorHandlerService, useValue: mockErrorHandlerService },
           { provide: MAT_DIALOG_DATA, useValue: null },
         ],
       }).compileComponents();
@@ -510,7 +518,8 @@ describe('CurrencyForm', () => {
           provideNoopAnimations(),
           { provide: CurrencyService, useValue: mockCurrencyService },
           { provide: MatDialogRef, useValue: mockDialogRef },
-          { provide: MatSnackBar, useValue: mockSnackBar },
+          { provide: NotificationService, useValue: mockNotificationService },
+          { provide: ErrorHandlerService, useValue: mockErrorHandlerService },
           { provide: MAT_DIALOG_DATA, useValue: null },
         ],
       }).compileComponents();
@@ -519,11 +528,7 @@ describe('CurrencyForm', () => {
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      expect(mockSnackBar.open).toHaveBeenCalledWith(
-        'Error al actualizar la moneda',
-        'Cerrar',
-        expect.objectContaining({ duration: 5000 }),
-      );
+      expect(mockNotificationService.showError).toHaveBeenCalled();
     });
   });
 });

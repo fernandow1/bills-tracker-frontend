@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
+import { ErrorHandlerService } from '@core/services/error-handler.service';
 
 import { CategoryForm } from './category-form';
 import { CategoryService, ICategoryResponse } from '@features/category/services/category';
@@ -19,9 +20,19 @@ const mockCategoryService = {
   resetUpdateTrigger: vi.fn(),
 };
 
-// Mock del MatSnackBar
-const mockSnackBar = {
-  open: vi.fn(),
+// Mock del NotificationService
+const mockNotificationService = {
+  success: vi.fn(),
+  error: vi.fn(),
+  showError: vi.fn(),
+  info: vi.fn(),
+  warning: vi.fn(),
+};
+
+// Mock del ErrorHandlerService
+const mockErrorHandlerService = {
+  formatErrorResponse: vi.fn(),
+  handleError: vi.fn(),
 };
 
 describe('CategoryForm', () => {
@@ -44,7 +55,8 @@ describe('CategoryForm', () => {
       imports: [CategoryForm],
       providers: [
         { provide: CategoryService, useValue: mockCategoryService },
-        { provide: MatSnackBar, useValue: mockSnackBar },
+        { provide: NotificationService, useValue: mockNotificationService },
+        { provide: ErrorHandlerService, useValue: mockErrorHandlerService },
       ],
     }).compileComponents();
 
@@ -71,8 +83,12 @@ describe('CategoryForm', () => {
       expect(component['categoryService']).toBeDefined();
     });
 
-    it('should inject MatSnackBar', () => {
-      expect(component['snackBar']).toBeDefined();
+    it('should inject NotificationService', () => {
+      expect(component['notificationService']).toBeDefined();
+    });
+
+    it('should inject ErrorHandlerService', () => {
+      expect(component['errorHandler']).toBeDefined();
     });
   });
 
@@ -234,9 +250,10 @@ describe('CategoryForm', () => {
       expect(typeof component['categoryService'].resetCreateTrigger).toBe('function');
     });
 
-    it('should have access to MatSnackBar methods', () => {
-      expect(component['snackBar']).toBeDefined();
-      expect(typeof component['snackBar'].open).toBe('function');
+    it('should have access to NotificationService methods', () => {
+      expect(component['notificationService']).toBeDefined();
+      expect(typeof component['notificationService'].success).toBe('function');
+      expect(typeof component['notificationService'].showError).toBe('function');
     });
 
     it('should use CategoryService properties for loading state', () => {

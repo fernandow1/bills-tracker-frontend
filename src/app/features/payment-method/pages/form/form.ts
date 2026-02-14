@@ -7,10 +7,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { IPaymentMethodData } from '@features/payment-method/interfaces/payment-method-data.interface';
 import { IPaymentMethodResponse } from '@features/payment-method/interfaces/payment-method-response.interface';
 import { PaymentMethodService } from '@features/payment-method/services/payment-method';
+import { NotificationService } from '@core/services/notification.service';
+import { ErrorHandlerService } from '@core/services/error-handler.service';
 
 @Component({
   selector: 'app-payment-method-form',
@@ -31,7 +32,8 @@ import { PaymentMethodService } from '@features/payment-method/services/payment-
 })
 export class PaymentMethodForm {
   private readonly paymentMethodService = inject(PaymentMethodService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationService = inject(NotificationService);
+  private readonly errorHandler = inject(ErrorHandlerService);
   private readonly dialogRef = inject(MatDialogRef<PaymentMethodForm>, { optional: true });
   private readonly dialogData = inject<IPaymentMethodResponse | null>(MAT_DIALOG_DATA, {
     optional: true,
@@ -60,9 +62,7 @@ export class PaymentMethodForm {
   public async onSubmit(): Promise<void> {
     if (this.paymentMethodForm().invalid()) {
       this.paymentMethodForm().markAsTouched();
-      this.snackBar.open('Por favor, complete todos los campos requeridos', 'Cerrar', {
-        duration: 3000,
-      });
+      this.notificationService.warning('Por favor, complete todos los campos requeridos');
       return;
     }
 
@@ -76,14 +76,10 @@ export class PaymentMethodForm {
           this.paymentMethodId,
           paymentMethodData,
         );
-        this.snackBar.open('Método de pago actualizado exitosamente', 'Cerrar', {
-          duration: 3000,
-        });
+        this.notificationService.success('Método de pago actualizado exitosamente');
       } else {
         await this.paymentMethodService.createPaymentMethod(paymentMethodData);
-        this.snackBar.open('Método de pago creado exitosamente', 'Cerrar', {
-          duration: 3000,
-        });
+        this.notificationService.success('Método de pago creado exitosamente');
       }
 
       if (this.dialogRef) {
@@ -91,9 +87,8 @@ export class PaymentMethodForm {
       }
     } catch (error) {
       console.error('Error al guardar método de pago:', error);
-      this.snackBar.open('Error al guardar el método de pago', 'Cerrar', {
-        duration: 3000,
-      });
+      const formattedError = this.errorHandler.formatErrorResponse(error);
+      this.notificationService.showError(formattedError);
     } finally {
       this.isSubmitting.set(false);
     }
