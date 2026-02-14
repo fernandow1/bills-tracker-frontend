@@ -16,8 +16,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService, LoginRequest } from '@features/auth/services/auth.service';
+import { NotificationService } from '@core/services/notification.service';
+import { ErrorHandlerService } from '@core/services/error-handler.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, Observable, throwError } from 'rxjs';
 
@@ -46,7 +47,8 @@ export class LoginPage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationService = inject(NotificationService);
+  private readonly errorHandler = inject(ErrorHandlerService);
 
   constructor() {
     // Effect para monitorear el estado del loginResource
@@ -151,10 +153,7 @@ export class LoginPage implements OnInit {
    */
   private handleLoginSuccess(): void {
     // Mostrar mensaje de éxito
-    this.snackBar.open('¡Bienvenido!', 'Cerrar', {
-      duration: 3000,
-      panelClass: ['success-snackbar'],
-    });
+    this.notificationService.success('¡Bienvenido!');
 
     // Redirigir a la URL original o al dashboard
     const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
@@ -167,23 +166,15 @@ export class LoginPage implements OnInit {
   private handleLoginError(error: unknown): void {
     const credentials: LoginRequest = this.form?.value || { username: 'unknown', password: '' };
 
-    // Type guard para error HTTP
-    const httpError = error as { error?: { message?: string }; status?: number };
-
-    // Log del error para debugging
+    // Formatear y loguear error
+    const formattedError = this.errorHandler.formatErrorResponse(error);
     console.error('Error en autenticación:', {
       username: credentials.username,
-      error: httpError.error,
-      status: httpError.status,
+      error: formattedError,
       timestamp: new Date().toISOString(),
     });
 
-    // Mostrar mensaje de error
-    const errorMessage =
-      httpError.error?.message || 'Credenciales incorrectas. Inténtalo de nuevo.';
-    this.snackBar.open(errorMessage, 'Cerrar', {
-      duration: 5000,
-      panelClass: ['error-snackbar'],
-    });
+    // Mostrar mensaje de error usando NotificationService
+    this.notificationService.showError(formattedError);
   }
 }

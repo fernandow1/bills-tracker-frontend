@@ -20,7 +20,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTableModule } from '@angular/material/table';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { BillService } from '@features/bill/services/bill';
 import { IBillResponse, IBillData, IBillItemData } from '@features/bill/interfaces';
 import { NetUnits } from '@features/bill/enums/net-units.enum';
@@ -32,6 +31,8 @@ import { ProductService } from '@features/product/services/product';
 import { AuthService } from '@features/auth/services/auth.service';
 import { IProductResponse } from '@features/product/interfaces/product-response.interface';
 import { Subject } from 'rxjs';
+import { NotificationService } from '@core/services/notification.service';
+import { ErrorHandlerService } from '@core/services/error-handler.service';
 
 interface BillFormData {
   bill?: IBillResponse;
@@ -64,7 +65,8 @@ interface BillFormData {
 export class BillForm {
   private readonly dialogRef = inject(MatDialogRef<BillForm>);
   private readonly billService = inject(BillService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationService = inject(NotificationService);
+  private readonly errorHandler = inject(ErrorHandlerService);
   private readonly currencyService = inject(CurrencyService);
   private readonly paymentMethodService = inject(PaymentMethodService);
   private readonly shopService = inject(ShopService);
@@ -180,20 +182,14 @@ export class BillForm {
       const createError = this.billService.createError;
 
       if (createdBill) {
-        this.snackBar.open('Factura creada exitosamente', 'Cerrar', {
-          duration: 3000,
-        });
+        this.notificationService.success('Factura creada exitosamente');
         this.billService.resetCreateTrigger();
         this.dialogRef.close({ success: true, bill: createdBill });
       }
 
       if (createError) {
-        const errorMessage = this.extractErrorMessage(createError);
-        this.snackBar.open(errorMessage, 'Cerrar', {
-          duration: 5000,
-          panelClass: ['error-snackbar'],
-          verticalPosition: 'top',
-        });
+        const formattedError = this.errorHandler.formatErrorResponse(createError);
+        this.notificationService.showError(formattedError);
         this.billService.resetCreateTrigger();
       }
     });
@@ -204,20 +200,14 @@ export class BillForm {
       const updateError = this.billService.updateError;
 
       if (updatedBill) {
-        this.snackBar.open('Factura actualizada exitosamente', 'Cerrar', {
-          duration: 3000,
-        });
+        this.notificationService.success('Factura actualizada exitosamente');
         this.billService.resetUpdateTrigger();
         this.dialogRef.close({ success: true, bill: updatedBill });
       }
 
       if (updateError) {
-        const errorMessage = this.extractErrorMessage(updateError);
-        this.snackBar.open(errorMessage, 'Cerrar', {
-          duration: 5000,
-          panelClass: ['error-snackbar'],
-          verticalPosition: 'top',
-        });
+        const formattedError = this.errorHandler.formatErrorResponse(updateError);
+        this.notificationService.showError(formattedError);
         this.billService.resetUpdateTrigger();
       }
     });
@@ -405,10 +395,7 @@ export class BillForm {
   public onSubmit(): void {
     // Verificar autenticación antes de continuar
     if (!this.authService.isLoggedIn()) {
-      this.snackBar.open('Su sesión ha expirado. Por favor, inicie sesión nuevamente.', 'Cerrar', {
-        duration: 5000,
-        panelClass: ['error-snackbar'],
-      });
+      this.notificationService.error('Su sesión ha expirado. Por favor, inicie sesión nuevamente.');
       this.dialogRef.close();
       this.authService.logout();
       return;
@@ -416,13 +403,8 @@ export class BillForm {
 
     const userId = this.authService.getUserId();
     if (!userId) {
-      this.snackBar.open(
+      this.notificationService.error(
         'No se pudo obtener el usuario. Por favor, inicie sesión nuevamente.',
-        'Cerrar',
-        {
-          duration: 5000,
-          panelClass: ['error-snackbar'],
-        },
       );
       this.dialogRef.close();
       this.authService.logout();
@@ -435,9 +417,7 @@ export class BillForm {
     }
 
     if (this.billItems().length === 0) {
-      this.snackBar.open('Debe agregar al menos un item a la factura', 'Cerrar', {
-        duration: 3000,
-      });
+      this.notificationService.warning('Debe agregar al menos un item a la factura');
       return;
     }
 
@@ -447,9 +427,7 @@ export class BillForm {
     );
 
     if (hasInvalidItems) {
-      this.snackBar.open('Todos los items deben tener un producto seleccionado', 'Cerrar', {
-        duration: 3000,
-      });
+      this.notificationService.warning('Todos los items deben tener un producto seleccionado');
       return;
     }
 
@@ -459,9 +437,7 @@ export class BillForm {
     );
 
     if (hasInvalidContentValue) {
-      this.snackBar.open('Todos los items con peso/volumen deben tener contenido', 'Cerrar', {
-        duration: 3000,
-      });
+      this.notificationService.warning('Todos los items con peso/volumen deben tener contenido');
       return;
     }
 
@@ -507,31 +483,6 @@ export class BillForm {
     const products = this.getProductForRow(rowIndex);
     const product = products.find((p) => +p.id === productId);
     return product?.category?.name || '-';
-  }
-
-  /**
-   * Extrae el mensaje de error del backend
-   */
-  private extractErrorMessage(error: unknown): string {
-    if (error instanceof Error && 'error' in error) {
-      const httpError = error as Error & { error?: { message?: string | string[] } };
-      const apiError = httpError.error;
-
-      if (apiError?.message) {
-        if (Array.isArray(apiError.message)) {
-          return apiError.message.join(', ');
-        }
-        return apiError.message;
-      }
-
-      return httpError.message || 'Error al procesar la solicitud';
-    }
-
-    if (error instanceof Error) {
-      return error.message;
-    }
-
-    return 'Error desconocido al procesar la factura';
   }
 
   public trackByIndex(index: number): number {
