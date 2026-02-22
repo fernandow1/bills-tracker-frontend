@@ -8,6 +8,7 @@ import {
   effect,
   DestroyRef,
 } from '@angular/core';
+import { roundAmount } from '@core/utils';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Field, form, required } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
@@ -442,7 +443,7 @@ export class BillForm {
     }
 
     const formValue = this.billForm().value();
-    const subTotal = this.total();
+    const subTotal = roundAmount(this.total());
     const discount = 0; // Por ahora sin descuento
 
     const billData: IBillData = {
@@ -455,7 +456,7 @@ export class BillForm {
       idPaymentMethod: formValue.idPaymentMethod || 0,
       subTotal: subTotal,
       discount: discount,
-      total: subTotal - discount,
+      total: roundAmount(subTotal - discount),
       billItems: this.billItems().map((item) => ({
         ...(item.id && { id: item.id }), // Incluir ID del item si existe (modo edición)
         idProduct: item.idProduct,
