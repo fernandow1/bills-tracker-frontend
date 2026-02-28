@@ -28,3 +28,6 @@ export {
 
 // Auth helpers
 export { AuthFetchHelper } from './auth-fetch.helper';
+
+// Math helpers
+export { roundAmount } from './round-amount.helper';
