@@ -161,6 +161,17 @@ test.describe('Category Management', () => {
   });
 
   test.describe('Create Category', () => {
+    test.beforeEach(async ({ page }) => {
+      // Mockear listado inicial para evitar peticiones reales fallidas que disparen snackbars de error
+      await page.route('**/api/categories/search*', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ count: 0, data: [] }),
+        });
+      });
+    });
+
     test('should open create modal with correct form fields', async ({ page }) => {
       await page.getByRole('button', { name: /nueva categoría/i }).click();
 
@@ -220,7 +231,7 @@ test.describe('Category Management', () => {
 
       // Verificar snackbar de éxito - esperar específicamente el mensaje correcto
       await expect(
-        page.locator('simple-snack-bar').filter({ hasText: 'Categoría creada exitosamente' })
+        page.locator('simple-snack-bar').filter({ hasText: 'Categoría creada exitosamente' }),
       ).toBeVisible({ timeout: 5000 });
     });
 

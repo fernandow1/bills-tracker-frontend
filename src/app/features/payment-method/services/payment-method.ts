@@ -134,10 +134,10 @@ export class PaymentMethodService {
    * Actualiza un método de pago existente
    */
   public async updatePaymentMethod(
-    id: number,
+    uuid: string,
     data: IPaymentMethodData,
   ): Promise<IPaymentMethodResponse> {
-    const url = this.configService.paymentMethodEndpoints.update.replace(':id', id.toString());
+    const url = this.configService.paymentMethodEndpoints.update.replace(':id', uuid);
 
     const response = await this.authFetch.fetch(this.configService.buildApiUrl(url), {
       method: 'PATCH',

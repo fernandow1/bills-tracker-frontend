@@ -35,6 +35,7 @@ describe('PaymentMethodService', () => {
 
   const mockPaymentMethodResponse: IPaymentMethodResponse = {
     id: 1,
+    uuid: 'some-uuid',
     name: 'Credit Card',
     description: 'Visa/Mastercard',
     createdAt: '2025-12-14T00:00:00Z',
@@ -256,18 +257,21 @@ describe('PaymentMethodService', () => {
       });
 
       // Act
-      const result = await service.updatePaymentMethod(1, updatedData);
+      const result = await service.updatePaymentMethod('some-uuid', updatedData);
 
       // Assert
       expect(result).toEqual(updatedResponse);
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:3000/api/payment-methods/1', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer mock-token',
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:3000/api/payment-methods/some-uuid',
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer mock-token',
+          },
+          body: JSON.stringify(updatedData),
         },
-        body: JSON.stringify(updatedData),
-      });
+      );
     });
 
     it('should throw error when update fails', async () => {
@@ -281,7 +285,9 @@ describe('PaymentMethodService', () => {
       });
 
       // Act & Assert
-      await expect(service.updatePaymentMethod(1, mockPaymentMethodData)).rejects.toThrow();
+      await expect(
+        service.updatePaymentMethod('some-uuid', mockPaymentMethodData),
+      ).rejects.toThrow();
     });
 
     it('should handle network errors during update', async () => {
@@ -289,7 +295,7 @@ describe('PaymentMethodService', () => {
       mockFetch.mockRejectedValue(new Error('Network error'));
 
       // Act & Assert
-      await expect(service.updatePaymentMethod(1, mockPaymentMethodData)).rejects.toThrow(
+      await expect(service.updatePaymentMethod('some-uuid', mockPaymentMethodData)).rejects.toThrow(
         'Network error',
       );
     });
