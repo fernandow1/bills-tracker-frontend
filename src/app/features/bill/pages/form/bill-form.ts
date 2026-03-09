@@ -103,7 +103,7 @@ export class BillForm {
     purchasedAt: this.data?.bill?.purchasedAt || new Date().toISOString().split('T')[0], // Fecha de hoy por defecto
     idShop: Number(this.data?.bill?.shop.id) || 0,
     idCurrency: Number(this.data?.bill?.currency.id) || 0,
-    idPaymentMethod: this.data?.bill?.paymentMethod.id || 0,
+    uuidPaymentMethod: this.data?.bill?.paymentMethod.uuid || '',
     subTotal: this.data?.bill?.subTotal || 0,
     discount: this.data?.bill?.discount || 0,
     total: this.data?.bill?.total || 0,
@@ -122,7 +122,7 @@ export class BillForm {
   public billForm = form<IBillData>(this.billModel, (schemaPath) => {
     required(schemaPath.idShop, { message: 'La tienda es requerida' });
     required(schemaPath.idCurrency, { message: 'La moneda es requerida' });
-    required(schemaPath.idPaymentMethod, { message: 'El método de pago es requerido' });
+    required(schemaPath.uuidPaymentMethod, { message: 'El método de pago es requerido' });
     required(schemaPath.purchasedAt, { message: 'La fecha de compra es requerida' });
   });
 
@@ -453,7 +453,7 @@ export class BillForm {
       purchasedAt: formValue.purchasedAt || new Date().toISOString().split('T')[0],
       idShop: formValue.idShop || 0,
       idCurrency: formValue.idCurrency || 0,
-      idPaymentMethod: formValue.idPaymentMethod || 0,
+      uuidPaymentMethod: formValue.uuidPaymentMethod || '',
       subTotal: subTotal,
       discount: discount,
       total: roundAmount(subTotal - discount),

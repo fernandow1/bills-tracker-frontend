@@ -60,14 +60,14 @@
 
             <mat-form-field appearance="outline">
               <mat-label>Método de Pago</mat-label>
-              <mat-select [field]="billForm.idPaymentMethod">
-                @for (method of paymentMethods(); track method.id) {
-                  <mat-option [value]="method.id">{{ method.name }}</mat-option>
+              <mat-select [field]="billForm.uuidPaymentMethod">
+                @for (method of paymentMethods(); track method.uuid) {
+                  <mat-option [value]="method.uuid">{{ method.name }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
-            @if (billForm.idPaymentMethod().invalid()) {
-              @for (error of billForm.idPaymentMethod().errors(); track error) {
+            @if (billForm.uuidPaymentMethod().invalid()) {
+              @for (error of billForm.uuidPaymentMethod().errors(); track error) {
                 <mat-error>{{ error.message }}</mat-error>
               }
             }

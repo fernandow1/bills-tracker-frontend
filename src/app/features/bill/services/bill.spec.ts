@@ -13,7 +13,7 @@ describe('BillService', () => {
   const mockBillData: IBillData = {
     idShop: 1,
     idCurrency: 1,
-    idPaymentMethod: 1,
+    uuidPaymentMethod: 'payment-method-uuid',
     idUser: 1,
     idUserOwner: 1,
     purchasedAt: new Date().toISOString(),

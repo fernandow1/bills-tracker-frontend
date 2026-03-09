@@ -2,6 +2,7 @@ import { IPaymentMethodData } from '@features/payment-method/interfaces/payment-
 
 export interface IPaymentMethodResponse extends IPaymentMethodData {
   id: number;
+  uuid: string;
   createdAt: string;
   updatedAt: string;
 }

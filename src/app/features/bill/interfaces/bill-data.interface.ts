@@ -3,7 +3,7 @@ import { IBillItemData } from '@features/bill/interfaces/bill-item-data.interfac
 export interface IBillData {
   idShop: number;
   idCurrency: number;
-  idPaymentMethod: number;
+  uuidPaymentMethod: string;
   idUser: number; // Usuario que carga la factura
   idUserOwner: number; // Dueño/propietario de la factura (puede ser diferente)
   purchasedAt: string; // Fecha real de la compra (ISO string)
