@@ -40,7 +40,7 @@ export class PaymentMethodForm {
   });
 
   public readonly isEditMode = !!this.dialogData;
-  public paymentMethodId = this.dialogData?.id;
+  public paymentMethodUuid = this.dialogData?.uuid;
 
   protected isSubmitting = signal(false);
 
@@ -71,9 +71,12 @@ export class PaymentMethodForm {
     try {
       const paymentMethodData: IPaymentMethodData = this.paymentMethodForm().value();
 
-      if (this.isEditMode && this.paymentMethodId) {
+      if (this.isEditMode) {
+        if (!this.paymentMethodUuid) {
+          throw new Error('Comportamiento errado: El UUID del método de pago no está presente');
+        }
         await this.paymentMethodService.updatePaymentMethod(
-          this.paymentMethodId,
+          this.paymentMethodUuid,
           paymentMethodData,
         );
         this.notificationService.success('Método de pago actualizado exitosamente');
