@@ -37,6 +37,7 @@ export const environment = {
       update: '/api/bills/:id',
       delete: '/api/bills/:id',
       categories: '/api/bills/categories',
+      upload: '/api/bills/extract-image',
     },
     categories: {
       list: '/api/categories',
