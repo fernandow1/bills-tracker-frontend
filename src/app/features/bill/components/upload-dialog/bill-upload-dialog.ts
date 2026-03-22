@@ -105,7 +105,9 @@ export class BillUploadDialog {
 
   public async upload(): Promise<void> {
     const file = this.selectedFile();
-    if (!file) {return;}
+    if (!file) {
+      return;
+    }
 
     this.isUploading.set(true);
     this.errorMessage.set(null);
