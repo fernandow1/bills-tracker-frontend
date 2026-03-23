@@ -17,6 +17,7 @@ import { BillService } from '@features/bill/services/bill';
 import { IBillResponse, IBillSearchFilters } from '@features/bill/interfaces';
 import { BillDetail } from '@features/bill/pages/detail/bill-detail';
 import { BillForm } from '@features/bill/pages/form/bill-form';
+import { BillUploadDialog } from '@features/bill/components/upload-dialog/bill-upload-dialog';
 import { CurrencyFormatPipe } from '@shared/pipes';
 import { debounceTime } from 'rxjs/operators';
 import { Subject } from 'rxjs';
@@ -179,6 +180,21 @@ export class BillList {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.success) {
+        this.loadData();
+      }
+    });
+  }
+
+  public openUploadDialog(): void {
+    const dialogRef = this.dialog.open(BillUploadDialog, {
+      width: '500px',
+      maxWidth: '95vw',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.success) {
+        // Recargar la lista de facturas u otra acción si es necesario
         this.loadData();
       }
     });

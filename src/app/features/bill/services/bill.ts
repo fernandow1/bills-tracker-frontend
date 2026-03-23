@@ -366,4 +366,47 @@ export class BillService {
       throw error;
     }
   }
+
+  /**
+   * Sube una imagen de factura
+   * @param file Archivo de imagen de la factura
+   * @param metadata Metadatos opcionales (notas, tags, etc.)
+   */
+  public async uploadBillImage(file: File, metadata?: Record<string, any>): Promise<any> {
+    const url = this.configService.buildApiUrl(
+      (this.configService.billsEndpoints as any).upload || '/api/bills/extract-image',
+    );
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    if (metadata) {
+      // Dependiendo de cómo el backend espere los metadatos.
+      // Aquí los enviamos como string JSON o campos separados.
+      formData.append('metadata', JSON.stringify(metadata));
+    }
+
+    const headers = this.getAuthHeaders() as Record<string, string>;
+    // El navegador establecerá el Content-Type correcto con el boundary para multipart/form-data
+    delete headers['Content-Type'];
+
+    const response = await this.authFetch.fetch(url, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
+      const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
+      Object.assign(error, {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData,
+      });
+      throw error;
+    }
+
+    return await response.json().catch(() => ({ success: true }));
+  }
 }

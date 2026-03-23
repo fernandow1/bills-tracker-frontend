@@ -1,0 +1,115 @@
+<h2 mat-dialog-title>Subir Factura</h2>
+<mat-dialog-content>
+  <div
+    class="upload-zone"
+    [class.has-file]="selectedFile()"
+    (drop)="onDrop($event)"
+    (dragover)="onDragOver($event)"
+  >
+    @if (!selectedFile()) {
+      <div class="upload-placeholder">
+        <mat-icon class="upload-icon">cloud_upload</mat-icon>
+        <p>Arrastre y suelte una imagen aquí</p>
+        <p class="separator">o</p>
+        <button mat-stroked-button color="primary" (click)="fileInput.click()">
+          Seleccionar Archivo
+        </button>
+        <input
+          #fileInput
+          type="file"
+          accept="image/*"
+          style="display: none"
+          (change)="onFileSelected($event)"
+        />
+      </div>
+    } @else {
+      <div class="preview-container">
+        @if (previewUrl()) {
+          <img [src]="previewUrl()" alt="Vista previa de factura" class="image-preview" />
+        }
+        <button
+          mat-icon-button
+          color="warn"
+          class="remove-btn"
+          (click)="removeFile()"
+          [disabled]="isUploading()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (errorMessage()) {
+    <div class="error-message">
+      <mat-icon>error</mat-icon>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <form [formGroup]="metadataForm" class="metadata-form">
+    <div class="form-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Fecha de Compra</mat-label>
+        <input matInput type="date" formControlName="purchasedAt" />
+        <mat-icon matSuffix>event</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Tienda</mat-label>
+        <mat-select formControlName="idShop">
+          @for (shop of shops(); track shop.id) {
+            <mat-option [value]="shop.id">{{ shop.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Moneda</mat-label>
+        <mat-select formControlName="idCurrency">
+          @for (currency of currencies(); track currency.id) {
+            <mat-option [value]="currency.id">
+              {{ currency.name }} ({{ currency.code }})
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Método de Pago</mat-label>
+        <mat-select formControlName="uuidPaymentMethod">
+          @for (method of paymentMethods(); track method.uuid) {
+            <mat-option [value]="method.uuid">{{ method.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="w-100 mt-3">
+      <mat-label>Notas adicionales (opcional)</mat-label>
+      <textarea
+        matInput
+        formControlName="aiInstructions"
+        rows="3"
+        placeholder="Ej. Factura de la cena de equipo"
+      ></textarea>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" [disabled]="isUploading()">Cancelar</button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="upload()"
+    [disabled]="!selectedFile() || isUploading()"
+  >
+    @if (isUploading()) {
+      <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+    } @else {
+      <mat-icon>check</mat-icon>
+    }
+    <span>{{ isUploading() ? 'Subiendo...' : 'Subir' }}</span>
+  </button>
+</mat-dialog-actions>
