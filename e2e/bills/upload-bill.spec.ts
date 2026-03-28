@@ -121,7 +121,7 @@ test.describe('Bill Upload Flow', () => {
     await page.getByLabel('Notas adicionales (opcional)').fill('Nota E2E');
 
     // Adjuntar archivo (reemplazar con un archivo en buffer simulado)
-    const fileInput = page.locator('input[type="file"]');
+    const fileInput = page.locator('input[type="file"]').first();
     await fileInput.setInputFiles({
       name: 'factura.png',
       mimeType: 'image/png',
@@ -165,7 +165,7 @@ test.describe('Bill Upload Flow', () => {
   test('should handle upload errors properly and maintain modal open', async ({ page }) => {
     await page.getByRole('button', { name: /subir imagen/i }).click();
 
-    const fileInput = page.locator('input[type="file"]');
+    const fileInput = page.locator('input[type="file"]').first();
     await fileInput.setInputFiles({
       name: 'factura_error.png',
       mimeType: 'image/png',
