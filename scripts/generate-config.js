@@ -19,12 +19,28 @@ const config = {
 
 // Escribir config.json en public/
 const configPath = path.join(__dirname, '..', 'public', 'config.json');
+const manifestPath = path.join(__dirname, '..', 'public', 'manifest.webmanifest');
 
 try {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
   console.log('✅ config.json generated successfully');
   console.log('📍 Location:', configPath);
+
+  // Actualizar manifest.webmanifest dinámicamente si existe
+  if (fs.existsSync(manifestPath)) {
+    const rawManifest = fs.readFileSync(manifestPath, 'utf8');
+    const manifest = JSON.parse(rawManifest);
+
+    // Sobreescribir con variables de entorno o usar valores por defecto
+    manifest.name = process.env['PWA_APP_NAME'] || 'Bills Tracker';
+    manifest.short_name = process.env['PWA_SHORT_NAME'] || 'Bills';
+    manifest.theme_color = process.env['PWA_THEME_COLOR'] || '#1976d2';
+    manifest.background_color = process.env['PWA_BACKGROUND_COLOR'] || '#ffffff';
+
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+    console.log('✅ manifest.webmanifest updated successfully from environment variables');
+  }
 } catch (error) {
-  console.error('❌ Error generating config.json:', error);
+  console.error('❌ Error generating config files:', error);
   process.exit(1);
 }
