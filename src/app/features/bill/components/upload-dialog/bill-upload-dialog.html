@@ -11,9 +11,28 @@
         <mat-icon class="upload-icon">cloud_upload</mat-icon>
         <p>Arrastre y suelte una imagen aquí</p>
         <p class="separator">o</p>
-        <button mat-stroked-button color="primary" (click)="fileInput.click()">
-          Seleccionar Archivo
-        </button>
+        <div class="upload-actions">
+          <button mat-stroked-button color="primary" (click)="cameraInput.click()">
+            <mat-icon>photo_camera</mat-icon>
+            Tomar Foto
+          </button>
+          <button mat-stroked-button color="primary" (click)="fileInput.click()">
+            <mat-icon>folder_open</mat-icon>
+            Archivo
+          </button>
+        </div>
+
+        <!-- Input para cámara directa -->
+        <input
+          #cameraInput
+          type="file"
+          accept="image/*"
+          capture="environment"
+          style="display: none"
+          (change)="onFileSelected($event)"
+        />
+
+        <!-- Input para galería/archivos -->
         <input
           #fileInput
           type="file"

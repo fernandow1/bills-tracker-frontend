@@ -38,6 +38,13 @@
     color: var(--mat-sys-on-surface-variant, #666);
     margin: 0.5rem 0;
   }
+
+  .upload-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 10px;
+  }
 }
 
 .preview-container {
