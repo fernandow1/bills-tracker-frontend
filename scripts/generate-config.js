@@ -40,6 +40,33 @@ try {
     fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
     console.log('✅ manifest.webmanifest updated successfully from environment variables');
   }
+
+  // Actualizar vercel.json dinámicamente si existe
+  const vercelPath = path.join(__dirname, '..', 'vercel.json');
+  if (fs.existsSync(vercelPath)) {
+    const rawVercel = fs.readFileSync(vercelPath, 'utf8');
+    let vercelConfig = JSON.parse(rawVercel);
+    const apiUrl = process.env['API_BASE_URL'] || 'http://localhost:3000';
+
+    if (vercelConfig.headers) {
+      vercelConfig.headers.forEach((headerRule) => {
+        if (headerRule.headers) {
+          headerRule.headers.forEach((header) => {
+            if (header.key === 'Content-Security-Policy') {
+              // Reemplazar el connect-src con la URL de la API actual
+              header.value = header.value.replace(
+                /connect-src 'self' [^;]+;/,
+                `connect-src 'self' ${apiUrl};`
+              );
+            }
+          });
+        }
+      });
+    }
+
+    fs.writeFileSync(vercelPath, JSON.stringify(vercelConfig, null, 2));
+    console.log('✅ vercel.json updated successfully with API_BASE_URL in CSP');
+  }
 } catch (error) {
   console.error('❌ Error generating config files:', error);
   process.exit(1);
