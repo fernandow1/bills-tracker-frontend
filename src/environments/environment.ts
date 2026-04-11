@@ -1,10 +1,19 @@
+import { Environment, AppConfig } from '@core/interfaces/app-config.interface';
+
+// Definir interfaz global para window
+declare global {
+  interface Window {
+    __APP_CONFIG__?: AppConfig;
+  }
+}
+
 // Helper para obtener configuración de runtime
-function getAppConfig() {
-  return (window as any).__APP_CONFIG__;
+function getAppConfig(): AppConfig | undefined {
+  return window.__APP_CONFIG__;
 }
 
 // Environment de desarrollo (default)
-export const environment = {
+export const environment: Environment = {
   production: false,
 
   // API URL dinámica

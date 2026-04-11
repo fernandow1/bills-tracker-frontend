@@ -22,6 +22,7 @@ import { IShopResponse } from '@features/shop/interfaces/shop-response.interface
 import { ShopService } from '@features/shop/services/shop';
 import { NotificationService } from '@core/services/notification.service';
 import { ErrorHandlerService } from '@core/services/error-handler.service';
+import { IShopForm } from '@features/shop/interfaces/shop-form.interface';
 
 @Component({
   selector: 'app-shop-form',
@@ -53,14 +54,14 @@ export class ShopForm {
   public readonly isEditMode = !!this.dialogData;
   public shopId = this.dialogData?.id;
 
-  public shopModel = signal<IShopData>({
+  public shopModel = signal<IShopForm>({
     name: this.dialogData?.name || '',
     description: this.dialogData?.description || '',
     latitude: this.dialogData?.latitude ?? NaN,
     longitude: this.dialogData?.longitude ?? NaN,
   });
 
-  public shopForm = form<IShopData>(this.shopModel, (schemaPath) => {
+  public shopForm = form<IShopForm>(this.shopModel, (schemaPath) => {
     required(schemaPath.name, { message: 'El nombre de la tienda es obligatorio' });
     minLength(schemaPath.name, 3, { message: 'El nombre debe tener al menos 3 caracteres' });
     maxLength(schemaPath.name, 255, { message: 'El nombre no puede exceder 100 caracteres' });
@@ -72,7 +73,7 @@ export class ShopForm {
     min(schemaPath.latitude, -90, { message: 'La latitud debe ser mayor o igual a -90' });
     max(schemaPath.latitude, 90, { message: 'La latitud debe ser menor o igual a 90' });
 
-    // Validaciones para longitud (aplicadas siempre, pero solo validan si hay valor)
+    // Validaciones para longitud
     min(schemaPath.longitude, -180, { message: 'La longitud debe ser mayor o igual a -180' });
     max(schemaPath.longitude, 180, { message: 'La longitud debe ser menor o igual a 180' });
   });
@@ -125,8 +126,8 @@ export class ShopForm {
       return null;
     }
 
-    const numLat = typeof lat === 'string' ? parseFloat(lat) : lat;
-    const numLng = typeof lng === 'string' ? parseFloat(lng) : lng;
+    const numLat = typeof lat === 'string' ? parseFloat(lat) : (lat as number);
+    const numLng = typeof lng === 'string' ? parseFloat(lng) : (lng as number);
 
     if (numLat === undefined || numLng === undefined || isNaN(numLat) || isNaN(numLng)) {
       return null;
@@ -145,10 +146,15 @@ export class ShopForm {
         this.shopService.isValidCoordinate(lat, -90, 90) &&
         this.shopService.isValidCoordinate(lng, -180, 180)
       ) {
-        const numLat = typeof lat === 'string' ? parseFloat(lat) : lat;
-        const numLng = typeof lng === 'string' ? parseFloat(lng) : lng;
+        const numLat = typeof lat === 'string' ? parseFloat(lat) : (lat as number);
+        const numLng = typeof lng === 'string' ? parseFloat(lng) : (lng as number);
 
-        if (!isNaN(numLat) && !isNaN(numLng)) {
+        if (
+          typeof numLat === 'number' &&
+          typeof numLng === 'number' &&
+          !isNaN(numLat) &&
+          !isNaN(numLng)
+        ) {
           this.markerPosition.set([numLng, numLat]);
           this.mapCenter.set([numLng, numLat]);
         }
@@ -212,8 +218,8 @@ export class ShopForm {
         this.shopService.isValidCoordinate(lat, -90, 90) &&
         this.shopService.isValidCoordinate(lng, -180, 180)
       ) {
-        const numLat = typeof lat === 'string' ? parseFloat(lat) : lat;
-        const numLng = typeof lng === 'string' ? parseFloat(lng) : lng;
+        const numLat = typeof lat === 'string' ? parseFloat(lat) : (lat as number);
+        const numLng = typeof lng === 'string' ? parseFloat(lng) : (lng as number);
 
         if (numLat !== undefined && numLng !== undefined && !isNaN(numLat) && !isNaN(numLng)) {
           this.markerPosition.set([numLng, numLat]);

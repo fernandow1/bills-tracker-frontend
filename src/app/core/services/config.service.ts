@@ -121,7 +121,7 @@ export class ConfigService {
   /**
    * Método estático para logging
    */
-  public static log(message: string, ...args: any[]): void {
+  public static log(message: string, ...args: unknown[]): void {
     if (environment.enableLogging) {
       // eslint-disable-next-line no-console
       console.log(`[${environment.appName}]`, message, ...args);
@@ -131,14 +131,14 @@ export class ConfigService {
   /**
    * Método estático para errores
    */
-  public static error(message: string, ...args: any[]): void {
+  public static error(message: string, ...args: unknown[]): void {
     console.error(`[${environment.appName} ERROR]`, message, ...args);
   }
 
   /**
    * Método estático para warnings
    */
-  public static warn(message: string, ...args: any[]): void {
+  public static warn(message: string, ...args: unknown[]): void {
     console.warn(`[${environment.appName} WARN]`, message, ...args);
   }
 }
