@@ -15,12 +15,12 @@
       </button>
     </div>
 
-    @if (isLoading) {
+    @if (isLoading()) {
       <div class="loading-container">
         <mat-spinner></mat-spinner>
         <p>Cargando marcas...</p>
       </div>
-    } @else if (hasError) {
+    } @else if (hasError()) {
       <div class="error-container">
         <mat-icon color="warn">error</mat-icon>
         <p>Error al cargar las marcas</p>
@@ -29,14 +29,14 @@
           Reintentar
         </button>
       </div>
-    } @else if (brands.length === 0) {
+    } @else if (brands().length === 0) {
       <div class="empty-container">
         <mat-icon>inbox</mat-icon>
         <p>No hay marcas registradas</p>
       </div>
     } @else {
       <div class="table-container">
-        <table mat-table [dataSource]="brands" class="mat-elevation-z2">
+        <table mat-table [dataSource]="brands()" class="mat-elevation-z2">
           <!-- Columna Nombre -->
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef>Nombre</th>
@@ -74,7 +74,7 @@
         </table>
 
         <mat-paginator
-          [length]="totalItems"
+          [length]="totalItems()"
           [pageSize]="pageSize"
           [pageSizeOptions]="pageSizeOptions"
           [pageIndex]="currentPage - 1"

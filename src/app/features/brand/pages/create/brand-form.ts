@@ -9,9 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IBrandResponse } from '@features/brand/interfaces/brand-response.interface';
 import { IBrandData } from '@features/brand/interfaces/brand-data.interface';
-import { BrandService } from '@features/brand/services/brand';
-import { NotificationService } from '@core/services/notification.service';
-import { ErrorHandlerService } from '@core/services/error-handler.service';
+import { BRAND_FACADE } from '@features/brand/facades/brand.facade';
 
 @Component({
   selector: 'app-brand-form',
@@ -30,9 +28,7 @@ import { ErrorHandlerService } from '@core/services/error-handler.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BrandForm {
-  private readonly brandService = inject(BrandService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly errorHandler = inject(ErrorHandlerService);
+  private readonly facade = inject(BRAND_FACADE);
   private readonly dialogRef = inject(MatDialogRef<BrandForm>, { optional: true });
   private readonly dialogData = inject<IBrandResponse | null>(MAT_DIALOG_DATA, {
     optional: true,
@@ -52,18 +48,16 @@ export class BrandForm {
   });
 
   constructor() {
-    // Resetear triggers al inicializar el componente
-    this.brandService.resetCreateTrigger();
-    this.brandService.resetUpdateTrigger();
+    // Resetear triggers al inicializar el componente a través del facade
+    this.facade.resetTriggers();
 
     effect((): void => {
-      const createdBrand = this.brandService.createdBrand;
-      const createError = this.brandService.createError;
+      const createdBrand = this.facade.createdBrand();
+      const createError = this.facade.createError();
 
       if (createdBrand) {
-        this.notificationService.success('Marca creada exitosamente');
         this.resetForm();
-        this.brandService.resetCreateTrigger();
+        this.facade.resetTriggers();
 
         if (this.dialogRef) {
           this.dialogRef.close(createdBrand);
@@ -71,20 +65,17 @@ export class BrandForm {
       }
 
       if (createError) {
-        const formattedError = this.errorHandler.formatErrorResponse(createError);
-        this.notificationService.showError(formattedError);
-        this.brandService.resetCreateTrigger();
+        this.facade.resetTriggers();
       }
     });
 
     effect((): void => {
-      const updatedBrand = this.brandService.updatedBrand;
-      const updateError = this.brandService.updateError;
+      const updatedBrand = this.facade.updatedBrand();
+      const updateError = this.facade.updateError();
 
       if (updatedBrand) {
-        this.notificationService.success('Marca actualizada exitosamente');
         this.resetForm();
-        this.brandService.resetUpdateTrigger();
+        this.facade.resetTriggers();
 
         if (this.dialogRef) {
           this.dialogRef.close(updatedBrand);
@@ -92,9 +83,7 @@ export class BrandForm {
       }
 
       if (updateError) {
-        const formattedError = this.errorHandler.formatErrorResponse(updateError);
-        this.notificationService.showError(formattedError);
-        this.brandService.resetUpdateTrigger();
+        this.facade.resetTriggers();
       }
     });
   }
@@ -108,14 +97,14 @@ export class BrandForm {
     const brandData: IBrandData = this.brandForm().value();
 
     if (this.isEditMode && this.brandId) {
-      this.brandService.updateBrand(this.brandId, brandData);
+      this.facade.updateBrand(this.brandId, brandData);
     } else {
-      this.brandService.createBrand(brandData);
+      this.facade.createBrand(brandData);
     }
   }
 
   public get isLoading(): boolean {
-    return this.brandService.isCreatingBrand || this.brandService.isUpdatingBrand;
+    return this.facade.isSaving();
   }
 
   private resetForm(): void {
