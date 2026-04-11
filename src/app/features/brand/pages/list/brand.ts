@@ -6,10 +6,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { BrandService } from '@features/brand/services/brand';
-import { IBrandResponse } from '@features/brand/interfaces/brand-response.interface';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { BrandForm } from '@src/app/features/brand/pages/create/brand-form';
+import { BRAND_FACADE } from '@features/brand/facades/brand.facade';
+import { IBrandResponse } from '@features/brand/interfaces/brand-response.interface';
+import { BrandForm } from '@features/brand/pages/create/brand-form';
 
 @Component({
   selector: 'app-brand-list',
@@ -28,10 +28,10 @@ import { BrandForm } from '@src/app/features/brand/pages/create/brand-form';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Brand {
-  public readonly displayedColumns: string[] = ['name', 'createdAt', 'actions'];
-
-  private readonly service = inject(BrandService);
+  private readonly facade = inject(BRAND_FACADE);
   private readonly dialog = inject(MatDialog);
+
+  public readonly displayedColumns: string[] = ['name', 'createdAt', 'actions'];
   private reloadCooldown = signal<boolean>(false);
   private readonly COOLDOWN_TIME = 2000; // 2 segundos
 
@@ -40,45 +40,33 @@ export class Brand {
   public pageSize = 10;
   public readonly pageSizeOptions = [5, 10, 25, 50];
 
+  public readonly brands = this.facade.brands;
+  public readonly totalItems = this.facade.totalItems;
+  public readonly isLoading = this.facade.isLoading;
+  public readonly hasError = this.facade.hasError;
+
   constructor() {
     // Cargar marcas con paginación
     this.loadData();
   }
 
   private loadData(): void {
-    this.service.searchBrands(this.currentPage, this.pageSize);
-  }
-
-  public get brands(): IBrandResponse[] {
-    return this.service.searchedBrands;
-  }
-
-  public get totalItems(): number {
-    return this.service.searchedBrandsCount;
-  }
-
-  public get isLoading(): boolean {
-    return this.service.isSearchingBrands;
-  }
-
-  public get hasError(): boolean {
-    return !!this.service.searchError;
+    this.facade.searchBrands(this.currentPage, this.pageSize);
   }
 
   public get isReloadDisabled(): boolean {
-    return this.reloadCooldown() || this.isLoading;
+    return this.reloadCooldown() || this.isLoading();
   }
 
   public openCreateDialog(): void {
     const dialogRef = this.dialog.open(BrandForm, {
       width: '500px',
       disableClose: false,
-      data: null, // null para modo creación
+      data: null,
     });
 
-    dialogRef.afterClosed().subscribe((result): void => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        // Si se creó una marca, recargar la lista
         this.loadData();
       }
     });
@@ -88,12 +76,11 @@ export class Brand {
     const dialogRef = this.dialog.open(BrandForm, {
       width: '500px',
       disableClose: false,
-      data: brand, // pasar la marca para modo edición
+      data: brand,
     });
 
-    dialogRef.afterClosed().subscribe((result): void => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        // Si se editó una marca, recargar la lista
         this.loadData();
       }
     });
