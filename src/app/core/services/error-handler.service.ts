@@ -51,7 +51,11 @@ export class ErrorHandlerService {
       'error' in error &&
       typeof error.status === 'number'
     ) {
-      const httpLikeError = error as Error & { status: number; statusText?: string; error: unknown };
+      const httpLikeError = error as Error & {
+        status: number;
+        statusText?: string;
+        error: unknown;
+      };
       const backendError = httpLikeError.error as Record<string, unknown> | null;
 
       // Si el backend ya devuelve ErrorResponse
