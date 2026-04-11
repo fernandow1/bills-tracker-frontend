@@ -371,10 +371,8 @@ export class BillService {
    * @param file Archivo de imagen de la factura
    * @param metadata Metadatos opcionales (notas, tags, etc.)
    */
-  public async uploadBillImage(file: File, metadata?: Record<string, any>): Promise<any> {
-    const url = this.configService.buildApiUrl(
-      (this.configService.billsEndpoints as any).upload || '/api/bills/extract-image',
-    );
+  public async uploadBillImage(file: File, metadata?: Record<string, unknown>): Promise<unknown> {
+    const url = this.configService.buildApiUrl(this.configService.billsEndpoints.upload);
 
     const formData = new FormData();
     formData.append('image', file);

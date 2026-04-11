@@ -60,6 +60,7 @@
     "@types/mapbox-gl": "^3.4.1",
     "@vitest/coverage-v8": "^4.0.17",
     "angular-eslint": "21.0.1",
+    "baseline-browser-mapping": "^2.10.18",
     "eslint": "^9.39.1",
     "jsdom": "^27.1.0",
     "prettier": "^3.8.0",
