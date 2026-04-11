@@ -12,7 +12,7 @@ fetch('/config.json')
   })
   .then((config) => {
     // Guardar config en window para acceso global
-    (window as any).__APP_CONFIG__ = config;
+    window.__APP_CONFIG__ = config;
     console.log('✅ Configuration loaded successfully');
 
     // Bootstrap de Angular
