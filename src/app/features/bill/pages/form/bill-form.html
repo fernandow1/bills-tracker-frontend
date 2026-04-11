@@ -97,7 +97,12 @@
 
           @if (billItems().length > 0) {
             <div class="table-wrapper">
-              <table mat-table [dataSource]="billItems()" class="items-table">
+              <table
+                mat-table
+                [dataSource]="billItems()"
+                [trackBy]="trackByIndex"
+                class="items-table"
+              >
                 <!-- Product Column -->
                 <ng-container matColumnDef="product">
                   <th mat-header-cell *matHeaderCellDef>Producto</th>
@@ -261,12 +266,7 @@
                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                 <tr
                   mat-row
-                  *matRowDef="
-                    let row;
-                    let i = index;
-                    columns: displayedColumns;
-                    trackBy: trackByIndex
-                  "
+                  *matRowDef="let row; let i = index; columns: displayedColumns"
                   [attr.data-index]="i"
                 ></tr>
               </table>
