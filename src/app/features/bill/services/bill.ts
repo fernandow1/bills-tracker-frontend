@@ -47,7 +47,6 @@ export class BillService {
   public searchBillsResource = resource({
     loader: async () => {
       const searchParams = this.searchBillsTrigger();
-
       if (!searchParams) {
         return null;
       }
@@ -78,16 +77,15 @@ export class BillService {
           ),
         );
       }
+
       // Construir params con filtros
       const finalParams = buildFilterParams(filters);
       finalParams['page'] = searchParams.page.toString();
       finalParams['pageSize'] = searchParams.pageSize.toString();
-
       const queryString = new URLSearchParams(finalParams).toString();
       const url = `${this.configService.buildApiUrl(
         this.configService.billsEndpoints.list,
       )}?${queryString}`;
-
       const response = await this.authFetch.fetch(url, {
         method: 'GET',
         headers: this.getAuthHeaders(),
@@ -219,6 +217,7 @@ export class BillService {
    */
   public searchBills(page: number, pageSize: number, filters?: IBillSearchFilters): void {
     this.searchBillsTrigger.set({ page, pageSize, filters });
+    this.searchBillsResource.reload();
   }
 
   /**
