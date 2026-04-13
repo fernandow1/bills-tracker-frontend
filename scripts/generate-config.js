@@ -41,31 +41,17 @@ try {
     console.log('✅ manifest.webmanifest updated successfully from environment variables');
   }
 
-  // Actualizar vercel.json dinámicamente si existe
-  const vercelPath = path.join(__dirname, '..', 'vercel.json');
-  if (fs.existsSync(vercelPath)) {
-    const rawVercel = fs.readFileSync(vercelPath, 'utf8');
-    let vercelConfig = JSON.parse(rawVercel);
+  // Actualizar src/index.html dinámicamente si existe
+  const indexPath = path.join(__dirname, '..', 'src', 'index.html');
+  if (fs.existsSync(indexPath)) {
+    let indexHtml = fs.readFileSync(indexPath, 'utf8');
     const apiUrl = process.env['API_BASE_URL'] || 'http://localhost:3000';
 
-    if (vercelConfig.headers) {
-      vercelConfig.headers.forEach((headerRule) => {
-        if (headerRule.headers) {
-          headerRule.headers.forEach((header) => {
-            if (header.key === 'Content-Security-Policy') {
-              // Reemplazar el connect-src con la URL de la API actual
-              header.value = header.value.replace(
-                /connect-src 'self' [^;]+;/,
-                `connect-src 'self' ${apiUrl};`
-              );
-            }
-          });
-        }
-      });
-    }
+    // Reemplazar el placeholder de la URL de la API en el CSP meta tag
+    indexHtml = indexHtml.replace('API_URL_PLACEHOLDER', apiUrl);
 
-    fs.writeFileSync(vercelPath, JSON.stringify(vercelConfig, null, 2));
-    console.log('✅ vercel.json updated successfully with API_BASE_URL in CSP');
+    fs.writeFileSync(indexPath, indexHtml);
+    console.log('✅ src/index.html updated successfully with API_BASE_URL in CSP');
   }
 } catch (error) {
   console.error('❌ Error generating config files:', error);
