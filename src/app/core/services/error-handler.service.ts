@@ -5,6 +5,7 @@ import {
   ApiErrorResponse,
   FormattedError,
   LegacyValidationError,
+  ValidationError,
 } from '@core/interfaces/error-response.interface';
 import { NotificationService } from '@core/services/notification.service';
 
@@ -50,12 +51,21 @@ export class ErrorHandlerService {
       'error' in error &&
       typeof error.status === 'number'
     ) {
-      const httpLikeError = error as Error & { status: number; statusText?: string; error: any };
-      const backendError = httpLikeError.error;
+      const httpLikeError = error as Error & {
+        status: number;
+        statusText?: string;
+        error: unknown;
+      };
+      const backendError = httpLikeError.error as Record<string, unknown> | null;
 
       // Si el backend ya devuelve ErrorResponse
-      if (backendError?.status && backendError?.title && backendError?.detail) {
-        return backendError as ErrorResponse;
+      if (
+        backendError?.['status'] &&
+        typeof backendError['status'] === 'number' &&
+        backendError['title'] &&
+        backendError['detail']
+      ) {
+        return backendError as unknown as ErrorResponse;
       }
 
       // Fallback: construir ErrorResponse desde estructura legacy
@@ -63,9 +73,11 @@ export class ErrorHandlerService {
         status: httpLikeError.status || 500,
         title: this.getErrorTitle(httpLikeError.status || 500),
         detail: this.extractMessage(backendError),
-        errors: backendError?.errors || backendError?.validationErrors || undefined,
-        path: backendError?.path,
-        timestamp: backendError?.timestamp,
+        errors: (backendError?.['errors'] || backendError?.['validationErrors']) as
+          | ValidationError[]
+          | undefined,
+        path: backendError?.['path'] as string | undefined,
+        timestamp: backendError?.['timestamp'] as string | undefined,
       };
     }
 
@@ -89,17 +101,23 @@ export class ErrorHandlerService {
   /**
    * Extrae el mensaje de diferentes estructuras de error
    */
-  private extractMessage(errorBody: any): string {
+  private extractMessage(errorBody: unknown): string {
+    if (!errorBody || typeof errorBody !== 'object') {
+      return 'Error en la operación';
+    }
+
+    const body = errorBody as Record<string, unknown>;
+
     // Priorizar el campo 'detail' si existe (nuevo formato)
-    if (errorBody.detail) {
-      return errorBody.detail;
+    if (typeof body['detail'] === 'string' && body['detail']) {
+      return body['detail'];
     }
     // Luego intentar con 'message' (formato legacy)
-    if (typeof errorBody.message === 'string') {
-      return errorBody.message;
+    if (typeof body['message'] === 'string') {
+      return body['message'];
     }
-    if (Array.isArray(errorBody.message)) {
-      return errorBody.message[0] || 'Error en la operación';
+    if (Array.isArray(body['message'])) {
+      return (body['message'][0] as string) || 'Error en la operación';
     }
     return 'Error en la operación';
   }

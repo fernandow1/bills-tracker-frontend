@@ -178,8 +178,8 @@ export class ShopService {
   private mapShopDataForBackend(shopData: IShopData): IShopData {
     return {
       ...shopData,
-      latitude: this.parseCoordinate(shopData.latitude) as any,
-      longitude: this.parseCoordinate(shopData.longitude) as any,
+      latitude: this.parseCoordinate(shopData.latitude),
+      longitude: this.parseCoordinate(shopData.longitude),
     };
   }
 
@@ -188,9 +188,8 @@ export class ShopService {
    * @param value Valor de la coordenada (puede ser number, string, undefined)
    * @returns number si es válido, null si está vacío, undefined, NaN o Infinity
    */
-  private parseCoordinate(value: number | string | undefined): number | null {
-    // Si es falsy (undefined, null, '', 0 se evalúa después), retornar null
-    // Nota: 0 es falsy pero es una coordenada válida, se maneja después
+  private parseCoordinate(value: number | string | undefined | null): number | null {
+    // Si no hay valor o es inválido, retornar null
     if (!value && value !== 0) {
       return null;
     }
@@ -224,7 +223,11 @@ export class ShopService {
    * @param max Valor máximo permitido
    * @returns true si la coordenada es válida, false en caso contrario
    */
-  public isValidCoordinate(value: number | string | undefined, min: number, max: number): boolean {
+  public isValidCoordinate(
+    value: number | string | undefined | null,
+    min: number,
+    max: number,
+  ): boolean {
     if (value === undefined || value === null || value === '') {
       return false;
     }

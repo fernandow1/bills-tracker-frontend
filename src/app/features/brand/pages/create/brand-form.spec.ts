@@ -1,69 +1,58 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { NotificationService } from '@core/services/notification.service';
-import { ErrorHandlerService } from '@core/services/error-handler.service';
+import { signal } from '@angular/core';
 
 import { BrandForm } from './brand-form';
-import { BrandService } from '@features/brand/services/brand';
 import { IBrandResponse } from '@features/brand/interfaces/brand-response.interface';
+import { BRAND_FACADE } from '@features/brand/facades/brand.facade';
 
-// Mock del BrandService
-const mockBrandService = {
-  createdBrand: null as IBrandResponse | null,
-  createError: null as Error | null,
-  updatedBrand: null as IBrandResponse | null,
-  updateError: null as Error | null,
-  isCreatingBrand: false,
-  isUpdatingBrand: false,
+// Mock del BRAND_FACADE
+const mockBrandFacade = {
+  brands: signal<IBrandResponse[]>([]),
+  totalItems: signal(0),
+  isLoading: signal(false),
+  hasError: signal(false),
+  isSaving: signal(false),
+  createdBrand: signal<IBrandResponse | null | undefined>(null),
+  updatedBrand: signal<IBrandResponse | null | undefined>(null),
+  createError: signal<unknown>(null),
+  updateError: signal<unknown>(null),
+
+  searchBrands: vi.fn(),
   createBrand: vi.fn(),
   updateBrand: vi.fn(),
-  resetCreateTrigger: vi.fn(),
-  resetUpdateTrigger: vi.fn(),
-};
-
-// Mock del NotificationService
-const mockNotificationService = {
-  success: vi.fn(),
-  error: vi.fn(),
-  showError: vi.fn(),
-  info: vi.fn(),
-  warning: vi.fn(),
-};
-
-// Mock del ErrorHandlerService
-const mockErrorHandlerService = {
-  formatErrorResponse: vi.fn(),
+  resetTriggers: vi.fn(),
+  handleSuccess: vi.fn(),
   handleError: vi.fn(),
 };
 
 describe('BrandForm', () => {
   let component: BrandForm;
   let fixture: ComponentFixture<BrandForm>;
-  let brandService: typeof mockBrandService;
+  let facade: typeof mockBrandFacade;
 
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    // Reset mocks
-    mockBrandService.createdBrand = null;
-    mockBrandService.createError = null;
-    mockBrandService.updatedBrand = null;
-    mockBrandService.updateError = null;
-    mockBrandService.isCreatingBrand = false;
-    mockBrandService.isUpdatingBrand = false;
+    // Reset signal states
+    mockBrandFacade.brands.set([]);
+    mockBrandFacade.totalItems.set(0);
+    mockBrandFacade.isLoading.set(false);
+    mockBrandFacade.hasError.set(false);
+    mockBrandFacade.isSaving.set(false);
+    mockBrandFacade.createdBrand.set(null);
+    mockBrandFacade.updatedBrand.set(null);
+    mockBrandFacade.createError.set(null);
+    mockBrandFacade.updateError.set(null);
 
     await TestBed.configureTestingModule({
       imports: [BrandForm],
-      providers: [
-        { provide: BrandService, useValue: mockBrandService },
-        { provide: NotificationService, useValue: mockNotificationService },
-        { provide: ErrorHandlerService, useValue: mockErrorHandlerService },
-      ],
+      providers: [{ provide: BRAND_FACADE, useValue: mockBrandFacade }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(BrandForm);
     component = fixture.componentInstance;
-    brandService = TestBed.inject(BrandService) as any as typeof mockBrandService;
+    facade = TestBed.inject(BRAND_FACADE) as any as typeof mockBrandFacade;
 
     fixture.detectChanges();
   });
@@ -79,16 +68,8 @@ describe('BrandForm', () => {
       });
     });
 
-    it('should inject BrandService', () => {
-      expect(component['brandService']).toBeDefined();
-    });
-
-    it('should inject NotificationService', () => {
-      expect(component['notificationService']).toBeDefined();
-    });
-
-    it('should inject ErrorHandlerService', () => {
-      expect(component['errorHandler']).toBeDefined();
+    it('should inject BrandFacade through token', () => {
+      expect(component['facade']).toBeDefined();
     });
   });
 
@@ -147,7 +128,7 @@ describe('BrandForm', () => {
 
       component.onSubmit();
 
-      expect(brandService.createBrand).not.toHaveBeenCalled();
+      expect(facade.createBrand).not.toHaveBeenCalled();
     });
 
     it('should mark form as touched when invalid', () => {
@@ -163,34 +144,28 @@ describe('BrandForm', () => {
       expect(markAsTouchedSpy).toHaveBeenCalled();
     });
 
-    it('should call BrandService.createBrand when form is valid', () => {
+    it('should call facade.createBrand when form is valid', () => {
       component.brandModel.set({
         name: 'Test Brand',
       });
 
       component.onSubmit();
 
-      expect(brandService.createBrand).toHaveBeenCalledWith({
+      expect(facade.createBrand).toHaveBeenCalledWith({
         name: 'Test Brand',
       });
     });
   });
 
   describe('Loading State', () => {
-    it('should return false when service is not creating brand', () => {
-      brandService.isCreatingBrand = false;
+    it('should return false when facade is not saving', () => {
+      facade.isSaving.set(false);
 
       expect(component.isLoading).toBe(false);
     });
 
-    it('should return true when service is creating brand', () => {
-      brandService.isCreatingBrand = true;
-
-      expect(component.isLoading).toBe(true);
-    });
-
-    it('should return true when service is updating brand', () => {
-      brandService.isUpdatingBrand = true;
+    it('should return true when facade is saving', () => {
+      facade.isSaving.set(true);
 
       expect(component.isLoading).toBe(true);
     });
@@ -226,24 +201,18 @@ describe('BrandForm', () => {
     });
   });
 
-  describe('Service Integration', () => {
-    it('should have access to BrandService methods', () => {
-      expect(component['brandService']).toBeDefined();
-      expect(typeof component['brandService'].createBrand).toBe('function');
-      expect(typeof component['brandService'].resetCreateTrigger).toBe('function');
+  describe('Facade Integration', () => {
+    it('should have access to facade methods', () => {
+      expect(component['facade']).toBeDefined();
+      expect(typeof component['facade'].createBrand).toBe('function');
+      expect(typeof component['facade'].resetTriggers).toBe('function');
     });
 
-    it('should have access to NotificationService methods', () => {
-      expect(component['notificationService']).toBeDefined();
-      expect(typeof component['notificationService'].success).toBe('function');
-      expect(typeof component['notificationService'].showError).toBe('function');
-    });
-
-    it('should use BrandService properties for loading state', () => {
-      brandService.isCreatingBrand = false;
+    it('should use facade property for loading state', () => {
+      facade.isSaving.set(false);
       expect(component.isLoading).toBe(false);
 
-      brandService.isCreatingBrand = true;
+      facade.isSaving.set(true);
       expect(component.isLoading).toBe(true);
     });
   });
@@ -305,8 +274,8 @@ describe('BrandForm', () => {
       expect(button.textContent).toContain('Create Brand');
     });
 
-    it('should show loading state when creating brand', () => {
-      brandService.isCreatingBrand = true;
+    it('should show loading state when facade is saving', () => {
+      facade.isSaving.set(true);
       fixture.detectChanges();
 
       expect(component.isLoading).toBe(true);
@@ -350,7 +319,7 @@ describe('BrandForm', () => {
   });
 
   describe('Edit Mode', () => {
-    it('should call BrandService.updateBrand when in edit mode', () => {
+    it('should call facade.updateBrand when in edit mode', () => {
       // Simulate edit mode
       component['brandId'] = '123';
       Object.defineProperty(component, 'isEditMode', { get: () => true });
@@ -361,7 +330,7 @@ describe('BrandForm', () => {
 
       component.onSubmit();
 
-      expect(brandService.updateBrand).toHaveBeenCalledWith('123', {
+      expect(facade.updateBrand).toHaveBeenCalledWith('123', {
         name: 'Updated Brand',
       });
     });

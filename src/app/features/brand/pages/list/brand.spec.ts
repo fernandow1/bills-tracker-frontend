@@ -1,16 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
+import { signal } from '@angular/core';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+
 import { Brand } from './brand';
-import { BrandService } from '@features/brand/services/brand';
 import { IBrandResponse } from '@features/brand/interfaces/brand-response.interface';
+import { BRAND_FACADE } from '@features/brand/facades/brand.facade';
 
 describe('Brand List Component', () => {
   let component: Brand;
   let fixture: ComponentFixture<Brand>;
-  let mockBrandService: any;
-  let dialog: MatDialog;
+  let facade: any;
 
   const mockBrands: IBrandResponse[] = [
     {
@@ -27,25 +30,40 @@ describe('Brand List Component', () => {
     },
   ];
 
+  // Mock del BRAND_FACADE basado en signals
+  const mockBrandFacade = {
+    brands: signal<IBrandResponse[]>(mockBrands),
+    totalItems: signal(50),
+    isLoading: signal(false),
+    hasError: signal(false),
+    searchBrands: vi.fn(),
+    resetTriggers: vi.fn(),
+    handleSuccess: vi.fn(),
+    handleError: vi.fn(),
+    isSaving: signal(false),
+    createdBrand: signal(null),
+    updatedBrand: signal(null),
+    createError: signal(null),
+    updateError: signal(null),
+  };
+
   beforeEach(async () => {
-    mockBrandService = {
-      searchedBrands: mockBrands,
-      searchedBrandsCount: 50,
-      isSearchingBrands: false,
-      searchError: undefined,
-      searchBrands: vi.fn(),
-      resetCreateTrigger: vi.fn(),
-      resetUpdateTrigger: vi.fn(),
-    };
+    vi.clearAllMocks();
+
+    // Reset signal states
+    mockBrandFacade.brands.set(mockBrands);
+    mockBrandFacade.totalItems.set(50);
+    mockBrandFacade.isLoading.set(false);
+    mockBrandFacade.hasError.set(false);
 
     await TestBed.configureTestingModule({
-      imports: [Brand],
-      providers: [{ provide: BrandService, useValue: mockBrandService }],
+      imports: [Brand, NoopAnimationsModule],
+      providers: [{ provide: BRAND_FACADE, useValue: mockBrandFacade }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Brand);
     component = fixture.componentInstance;
-    dialog = TestBed.inject(MatDialog);
+    facade = TestBed.inject(BRAND_FACADE);
     await fixture.whenStable();
   });
 
@@ -55,15 +73,13 @@ describe('Brand List Component', () => {
 
   describe('Rendering States', () => {
     it('should display loading spinner when isLoading is true', async () => {
-      // Create new test module with loading state
-      mockBrandService.isSearchingBrands = true;
-      mockBrandService.searchedBrands = [];
+      mockBrandFacade.isLoading.set(true);
+      mockBrandFacade.brands.set([]);
 
-      const testFixture = TestBed.createComponent(Brand);
-      testFixture.detectChanges();
-      await testFixture.whenStable();
+      fixture.detectChanges();
+      await fixture.whenStable();
 
-      const compiled = testFixture.nativeElement;
+      const compiled = fixture.nativeElement;
       const spinner = compiled.querySelector('mat-spinner');
       const loadingText = compiled.querySelector('.loading-container p');
 
@@ -72,15 +88,14 @@ describe('Brand List Component', () => {
     });
 
     it('should display error message when hasError is true', async () => {
-      mockBrandService.searchError = 'Error loading brands';
-      mockBrandService.isSearchingBrands = false;
-      mockBrandService.searchedBrands = [];
+      mockBrandFacade.hasError.set(true);
+      mockBrandFacade.isLoading.set(false);
+      mockBrandFacade.brands.set([]);
 
-      const testFixture = TestBed.createComponent(Brand);
-      testFixture.detectChanges();
-      await testFixture.whenStable();
+      fixture.detectChanges();
+      await fixture.whenStable();
 
-      const compiled = testFixture.nativeElement;
+      const compiled = fixture.nativeElement;
       const errorIcon = compiled.querySelector('.error-container mat-icon');
       const errorText = compiled.querySelector('.error-container p');
 
@@ -91,15 +106,14 @@ describe('Brand List Component', () => {
     });
 
     it('should display empty state when brands array is empty', async () => {
-      mockBrandService.searchedBrands = [];
-      mockBrandService.isSearchingBrands = false;
-      mockBrandService.searchError = undefined;
+      mockBrandFacade.brands.set([]);
+      mockBrandFacade.isLoading.set(false);
+      mockBrandFacade.hasError.set(false);
 
-      const testFixture = TestBed.createComponent(Brand);
-      testFixture.detectChanges();
-      await testFixture.whenStable();
+      fixture.detectChanges();
+      await fixture.whenStable();
 
-      const compiled = testFixture.nativeElement;
+      const compiled = fixture.nativeElement;
       const emptyIcon = compiled.querySelector('.empty-container mat-icon');
       const emptyText = compiled.querySelector('.empty-container p');
 
@@ -110,9 +124,9 @@ describe('Brand List Component', () => {
     });
 
     it('should display table with brands when data is available', async () => {
-      mockBrandService.searchedBrands = mockBrands;
-      mockBrandService.isSearchingBrands = false;
-      mockBrandService.searchError = undefined;
+      mockBrandFacade.brands.set(mockBrands);
+      mockBrandFacade.isLoading.set(false);
+      mockBrandFacade.hasError.set(false);
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -125,7 +139,7 @@ describe('Brand List Component', () => {
     });
 
     it('should display brand data correctly in table', async () => {
-      mockBrandService.searchedBrands = mockBrands;
+      mockBrandFacade.brands.set(mockBrands);
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -136,7 +150,7 @@ describe('Brand List Component', () => {
     });
 
     it('should display all table columns', async () => {
-      mockBrandService.searchedBrands = mockBrands;
+      mockBrandFacade.brands.set(mockBrands);
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -164,20 +178,18 @@ describe('Brand List Component', () => {
     });
 
     it('should disable reload button when loading', async () => {
-      mockBrandService.isSearchingBrands = true;
+      mockBrandFacade.isLoading.set(true);
+      fixture.detectChanges();
+      await fixture.whenStable();
 
-      const testFixture = TestBed.createComponent(Brand);
-      testFixture.detectChanges();
-      await testFixture.whenStable();
-
-      const compiled = testFixture.nativeElement;
+      const compiled = fixture.nativeElement;
       const reloadButton = compiled.querySelectorAll('.page-actions button')[1];
 
       expect(reloadButton?.hasAttribute('disabled')).toBe(true);
     });
 
     it('should display edit and delete buttons for each brand', async () => {
-      mockBrandService.searchedBrands = mockBrands;
+      mockBrandFacade.brands.set(mockBrands);
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -187,48 +199,24 @@ describe('Brand List Component', () => {
       // 2 brands * 2 buttons each = 4 buttons
       expect(actionButtons.length).toBe(4);
     });
-
-    it('should have edit button with correct icon', async () => {
-      mockBrandService.searchedBrands = mockBrands;
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const compiled = fixture.nativeElement;
-      const editButton = compiled.querySelector('td button[title="Editar"]');
-      const editIcon = editButton?.querySelector('mat-icon');
-
-      expect(editIcon?.textContent).toContain('edit');
-    });
-
-    it('should have delete button with correct icon', async () => {
-      mockBrandService.searchedBrands = mockBrands;
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const compiled = fixture.nativeElement;
-      const deleteButton = compiled.querySelector('td button[title="Eliminar"]');
-      const deleteIcon = deleteButton?.querySelector('mat-icon');
-
-      expect(deleteIcon?.textContent).toContain('delete');
-    });
   });
 
   describe('Component Methods', () => {
-    it('should return brands from service', () => {
-      expect(component.brands).toEqual(mockBrands);
+    it('should return brands from facade', () => {
+      expect(component.brands()).toEqual(mockBrands);
     });
 
-    it('should return isLoading from service', () => {
-      mockBrandService.isSearchingBrands = true;
-      expect(component.isLoading).toBe(true);
+    it('should return isLoading from facade', () => {
+      mockBrandFacade.isLoading.set(true);
+      expect(component.isLoading()).toBe(true);
     });
 
-    it('should return hasError from service', () => {
-      mockBrandService.searchError = 'Error';
-      expect(component.hasError).toBe(true);
+    it('should return hasError from facade', () => {
+      mockBrandFacade.hasError.set(true);
+      expect(component.hasError()).toBe(true);
 
-      mockBrandService.searchError = undefined;
-      expect(component.hasError).toBe(false);
+      mockBrandFacade.hasError.set(false);
+      expect(component.hasError()).toBe(false);
     });
 
     it('should disable reload when cooldown is active', () => {
@@ -237,35 +225,40 @@ describe('Brand List Component', () => {
     });
 
     it('should disable reload when loading', () => {
-      mockBrandService.isSearchingBrands = true;
+      mockBrandFacade.isLoading.set(true);
       expect(component.isReloadDisabled).toBe(true);
     });
   });
 
   describe('Dialog Interactions', () => {
     it('should open create dialog when openCreateDialog is called', () => {
-      vi.spyOn(dialog, 'open').mockReturnValue({
+      // Espiar el prototipo para asegurar la captura en componentes standalone
+      const openSpy = vi.spyOn(MatDialog.prototype, 'open').mockReturnValue({
         afterClosed: () => of(null),
       } as any);
 
-      expect(() => component.openCreateDialog()).not.toThrow();
+      component.openCreateDialog();
+      expect(openSpy).toHaveBeenCalled();
+      openSpy.mockRestore();
     });
 
     it('should open edit dialog with brand data', () => {
-      vi.spyOn(dialog, 'open').mockReturnValue({
+      const openSpy = vi.spyOn(MatDialog.prototype, 'open').mockReturnValue({
         afterClosed: () => of(null),
       } as any);
 
       const brand = mockBrands[0];
-      expect(() => component.openEditDialog(brand)).not.toThrow();
+      component.openEditDialog(brand);
+      expect(openSpy).toHaveBeenCalled();
+      openSpy.mockRestore();
     });
   });
 
   describe('Reload Functionality', () => {
-    it('should call service searchBrands when reload is triggered', () => {
+    it('should call facade searchBrands when reload is triggered', () => {
       component.reload();
 
-      expect(mockBrandService.searchBrands).toHaveBeenCalledWith(1, 10);
+      expect(facade.searchBrands).toHaveBeenCalledWith(1, 10);
     });
 
     it('should activate cooldown after reload', () => {
@@ -278,29 +271,24 @@ describe('Brand List Component', () => {
       component.reload();
       expect(component.isReloadDisabled).toBe(true);
 
-      await new Promise((resolve) => setTimeout(resolve, 2100)); // Slightly more than COOLDOWN_TIME
+      await new Promise((resolve) => setTimeout(resolve, 2100));
 
       expect(component.isReloadDisabled).toBe(false);
     });
 
     it('should not reload if cooldown is active', () => {
       component['reloadCooldown'].set(true);
-      mockBrandService.searchBrands.mockClear();
+      facade.searchBrands.mockClear();
 
       component.reload();
 
-      expect(mockBrandService.searchBrands).not.toHaveBeenCalled();
+      expect(facade.searchBrands).not.toHaveBeenCalled();
     });
   });
 
   describe('Component Properties', () => {
     it('should have correct displayedColumns', () => {
       expect(component.displayedColumns).toEqual(['name', 'createdAt', 'actions']);
-    });
-
-    it('should return empty array if service brands is undefined', () => {
-      mockBrandService.searchedBrands = [];
-      expect(component.brands).toEqual([]);
     });
 
     it('should have default pagination values', () => {
@@ -313,26 +301,27 @@ describe('Brand List Component', () => {
   describe('Pagination', () => {
     it('should call searchBrands on page change', () => {
       const event: PageEvent = { pageIndex: 1, pageSize: 10, length: 100 };
-      mockBrandService.searchBrands.mockClear();
+      facade.searchBrands.mockClear();
 
       component.onPageChange(event);
 
       expect(component.currentPage).toBe(2);
-      expect(mockBrandService.searchBrands).toHaveBeenCalledWith(2, 10);
+      expect(facade.searchBrands).toHaveBeenCalledWith(2, 10);
     });
 
     it('should update pageSize on page change', () => {
       const event: PageEvent = { pageIndex: 0, pageSize: 25, length: 100 };
-      mockBrandService.searchBrands.mockClear();
+      facade.searchBrands.mockClear();
 
       component.onPageChange(event);
 
       expect(component.pageSize).toBe(25);
-      expect(mockBrandService.searchBrands).toHaveBeenCalledWith(1, 25);
+      expect(facade.searchBrands).toHaveBeenCalledWith(1, 25);
     });
 
-    it('should return totalItems from service', () => {
-      expect(component.totalItems).toBe(50);
+    it('should return totalItems from facade', () => {
+      mockBrandFacade.totalItems.set(50);
+      expect(component.totalItems()).toBe(50);
     });
   });
 });

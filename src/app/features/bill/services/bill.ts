@@ -47,7 +47,6 @@ export class BillService {
   public searchBillsResource = resource({
     loader: async () => {
       const searchParams = this.searchBillsTrigger();
-
       if (!searchParams) {
         return null;
       }
@@ -78,16 +77,15 @@ export class BillService {
           ),
         );
       }
+
       // Construir params con filtros
       const finalParams = buildFilterParams(filters);
       finalParams['page'] = searchParams.page.toString();
       finalParams['pageSize'] = searchParams.pageSize.toString();
-
       const queryString = new URLSearchParams(finalParams).toString();
       const url = `${this.configService.buildApiUrl(
         this.configService.billsEndpoints.list,
       )}?${queryString}`;
-
       const response = await this.authFetch.fetch(url, {
         method: 'GET',
         headers: this.getAuthHeaders(),
@@ -219,6 +217,7 @@ export class BillService {
    */
   public searchBills(page: number, pageSize: number, filters?: IBillSearchFilters): void {
     this.searchBillsTrigger.set({ page, pageSize, filters });
+    this.searchBillsResource.reload();
   }
 
   /**
@@ -372,10 +371,8 @@ export class BillService {
    * @param file Archivo de imagen de la factura
    * @param metadata Metadatos opcionales (notas, tags, etc.)
    */
-  public async uploadBillImage(file: File, metadata?: Record<string, any>): Promise<any> {
-    const url = this.configService.buildApiUrl(
-      (this.configService.billsEndpoints as any).upload || '/api/bills/extract-image',
-    );
+  public async uploadBillImage(file: File, metadata?: Record<string, unknown>): Promise<unknown> {
+    const url = this.configService.buildApiUrl(this.configService.billsEndpoints.upload);
 
     const formData = new FormData();
     formData.append('image', file);
