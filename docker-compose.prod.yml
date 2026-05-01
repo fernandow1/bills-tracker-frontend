@@ -1,0 +1,13 @@
+services:
+  frontend:
+    image: ferdog96/bills-tracker-frontend:latest
+    container_name: bills-tracker-frontend
+    restart: unless-stopped
+    expose:
+      - '80'
+    networks:
+      - bills-tracker-prod_default
+
+networks:
+  bills-tracker-prod_default:
+    external: true
