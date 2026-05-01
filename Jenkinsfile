@@ -54,8 +54,21 @@ pipeline {
                 withCredentials([
                     string(credentialsId: 'mapbox-token', variable: 'MAPBOX_ACCESS_TOKEN')
                 ]) {
-                    // Instalamos los navegadores requeridos Y sus dependencias del sistema operativo (--with-deps)
-                    sh 'npx playwright install --with-deps chromium firefox'
+                    // Esperar a que APT se libere si está bloqueado por otro proceso
+                    sh '''
+                        MAX_RETRIES=30
+                        COUNT=0
+                        while fuser /var/lib/apt/lists/lock >/dev/null 2>&1 || fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+                            if [ $COUNT -ge $MAX_RETRIES ]; then
+                                echo "Timeout esperando a que APT se libere."
+                                exit 1
+                            fi
+                            echo "APT está bloqueado por otro proceso, esperando 5 segundos... ($COUNT/$MAX_RETRIES)"
+                            sleep 5
+                            COUNT=$((COUNT + 1))
+                        done
+                        npx playwright install --with-deps chromium firefox
+                    '''
                     sh 'npm run test:e2e:ci'
                 }
             }
@@ -75,7 +88,8 @@ pipeline {
                     ]) {
                         def apiBaseUrl = 'https://bills.fwabab.dev'
                         
-                        // 1. Construir la imagen inyectando las variables
+                        // Usamos comillas dobles para que Groovy expanda commitSha e IMAGE_NAME
+                        // Usamos \$ para que el Shell reciba las variables de las credenciales
                         sh """
                             docker build \\
                             --build-arg MAPBOX_ACCESS_TOKEN=\"\$MAPBOX_ACCESS_TOKEN\" \\
@@ -83,7 +97,7 @@ pipeline {
                             -t ${env.IMAGE_NAME}:${commitSha} -f Dockerfile .
                         """
                         
-                        // 2. Escanear vulnerabilidades con Trivy
+                        // Escaneo con Trivy
                         sh """
                             docker run --rm \\
                             -v /var/run/docker.sock:/var/run/docker.sock \\
@@ -94,7 +108,7 @@ pipeline {
                             ${env.IMAGE_NAME}:${commitSha}
                         """
 
-                        // 3. Login y Push
+                        // Login y Push (Escapamos \$DOCKER_PASSWORD para que el shell la lea)
                         sh "echo \$DOCKER_PASSWORD | docker login -u \$DOCKER_USERNAME --password-stdin"
                         sh "docker push ${env.IMAGE_NAME}:${commitSha}"
                         
