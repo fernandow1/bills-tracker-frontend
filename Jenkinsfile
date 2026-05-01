@@ -49,8 +49,6 @@ pipeline {
             }
         }
 
-        /* 
-        // TODO: Descomentar cuando los tests de Playwright estén actualizados
         stage('Test E2E') {
             steps {
                 withCredentials([
@@ -62,7 +60,6 @@ pipeline {
                 }
             }
         }
-        */
 
         stage('Docker Build and Push') {
             when {
