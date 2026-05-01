@@ -82,7 +82,7 @@ pipeline {
                         sh """
                             docker build \\
                             --build-arg MAPBOX_ACCESS_TOKEN=\"\$MAPBOX_ACCESS_TOKEN\" \\
-                            --build-arg API_BASE_URL=\"\${apiBaseUrl}\" \\
+                            --build-arg API_BASE_URL=\"${apiBaseUrl}\" \\
                             -t ${env.IMAGE_NAME}:${commitSha} -f Dockerfile .
                         """
                         
