@@ -1,96 +1,49 @@
-# Playwright E2E Tests
+# Playwright E2E Testing Strategy
 
-Este directorio contiene los tests E2E (end-to-end) para la aplicación Bills Tracker.
+Este directorio contiene la suite de pruebas End-to-End (E2E) optimizada para Bills Tracker. Hemos rediseñado la estrategia para que los tests sean rápidos, deterministas y fáciles de mantener.
 
-## Estructura
+## 🚀 Estrategia de Pruebas
+
+Para maximizar la eficiencia y evitar la fragilidad típica de los tests E2E, utilizamos las siguientes técnicas:
+
+### 1. Bypass de Autenticación (Login Rápido)
+No realizamos el flujo de Login por UI en cada test. En su lugar, inyectamos directamente el estado de la sesión en el `localStorage` mediante `page.addInitScript`.
+- **Beneficio**: Ahorra ~5-10 segundos por cada test.
+- **Implementación**: Generamos un token JWT estructurado con fecha de expiración futura para engañar al `TokenService` de Angular.
+
+### 2. Mocking de API y Configuración
+Aislamos completamente el frontend del backend real:
+- **`config.json`**: Interceptamos la petición al archivo de configuración para forzar la URL del API a `localhost:3000`. Esto evita que la app intente conectarse a producción durante los tests.
+- **Endpoints del API**: Utilizamos `page.route` para interceptar las llamadas al API y devolver datos controlados. Esto permite probar casos de éxito, error y estados de carga (usando delays) sin depender de una base de datos real.
+
+### 3. Bypass de CSP (Content Security Policy)
+Para permitir que el frontend (en `localhost:4200`) se comunique con el API mockeado (en `localhost:3000`) sin violar las políticas de seguridad, hemos habilitado `bypassCSP: true` en `playwright.config.ts`.
+
+## 📂 Estructura de Tests
 
 ```
 e2e/
-├── categories/         # Tests del módulo de categorías
-│   └── category.spec.ts
-├── auth/              # Tests de autenticación (TODO)
-└── ...                # Otros módulos
+└── payment-methods/
+    └── payment-method.spec.ts  # Ejemplo de referencia (CRUD completo)
 ```
 
-## Ejecutar Tests
+## 🛠️ Ejecución Local
 
 ```bash
-# Ejecutar todos los tests E2E
-npm run test:e2e
+# Ejecutar tests con 1 worker (recomendado para estabilidad local)
+npm run test:e2e -- --workers=1
 
-# Ejecutar con UI interactiva (recomendado para desarrollo)
+# Abrir la UI interactiva de Playwright
 npm run test:e2e:ui
-
-# Ejecutar con navegador visible (headed mode)
-npm run test:e2e:headed
-
-# Ejecutar en modo debug
-npm run test:e2e:debug
-
-# Ver el reporte HTML de la última ejecución
-npm run test:e2e:report
 ```
 
-## Ejecutar tests específicos
+## 🏗️ Integración Continua (CI/CD)
 
-```bash
-# Solo tests de categorías
-npx playwright test categories
+Los tests se ejecutan automáticamente en Jenkins mediante el stage `Test E2E`.
+- **Entorno**: Se instalan los navegadores y sus dependencias necesarias.
+- **Reportes**: Playwright genera un reporte HTML que puede ser consultado en caso de fallo.
 
-# Un archivo específico
-npx playwright test e2e/categories/category.spec.ts
-
-# Un test específico por nombre
-npx playwright test -g "should create a new category"
-
-# Solo en Chromium
-npx playwright test --project=chromium
-```
-
-## Configuración
-
-La configuración está en `playwright.config.ts` en la raíz del proyecto.
-
-### Características clave:
-
-- ✅ Multi-navegador (Chromium, Firefox, WebKit)
-- ✅ Auto-inicia el servidor de desarrollo Angular
-- ✅ Screenshots en fallos
-- ✅ Trace para debugging
-- ✅ Tests paralelos
-- ✅ Reintentos automáticos en CI
-
-## Tips para escribir tests
-
-1. **Usa selectores semánticos**: Prefiere roles y texto visible sobre clases CSS
-
-   ```typescript
-   page.getByRole('button', { name: 'Crear' });
-   page.getByLabel('Nombre');
-   page.getByText('Categoría creada');
-   ```
-
-2. **Auto-waiting**: Playwright espera automáticamente
-
-   ```typescript
-   await page.click('button'); // Espera a que sea clickeable
-   await expect(element).toBeVisible(); // Espera a que sea visible
-   ```
-
-3. **Mock de APIs**: Para tests aislados
-
-   ```typescript
-   await page.route('**/api/categories', route => {
-     route.fulfill({ body: JSON.stringify([...]) });
-   });
-   ```
-
-4. **Usa Page Objects** para tests complejos (crear cuando sea necesario)
-
-## TODO
-
-- [ ] Ajustar selectores según la UI real
-- [x] Agregar tests de autenticación
-- [ ] Tests de navegación completa
-- [ ] Tests de responsive design
-- [ ] Tests de accessibility
+## 💡 Mejores Prácticas
+- **Selectores**: Usa `page.getByRole`, `page.getByLabel` o `page.getByText`. Evita clases CSS que puedan cambiar.
+- **Aislamiento**: Cada test debe ser independiente. Usa `test.beforeEach` para preparar el estado.
+- **Sincronización**: Playwright tiene auto-waiting, pero para componentes complejos de Material, a veces es necesario esperar a que un elemento específico (como una celda de tabla) sea visible.
