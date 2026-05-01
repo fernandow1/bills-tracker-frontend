@@ -27,6 +27,8 @@ export default defineConfig({
   use: {
     /* URL base para usar en page.goto('/') */
     baseURL: 'http://localhost:4200',
+    /* Ignorar políticas de CSP para permitir mocks de API */
+    bypassCSP: true,
     /* Trace solo cuando falla */
     trace: 'on-first-retry',
     /* Screenshot solo en fallos */
