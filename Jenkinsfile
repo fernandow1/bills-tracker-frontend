@@ -51,9 +51,13 @@ pipeline {
 
         stage('Test E2E') {
             steps {
-                // Instalamos los navegadores necesarios (Playwright) y ejecutamos en modo CI
-                sh 'npx playwright install chromium firefox'
-                sh 'npm run test:e2e:ci'
+                withCredentials([
+                    string(credentialsId: 'mapbox-token', variable: 'MAPBOX_ACCESS_TOKEN')
+                ]) {
+                    // Instalamos los navegadores requeridos Y sus dependencias del sistema operativo (--with-deps)
+                    sh 'npx playwright install --with-deps chromium firefox'
+                    sh 'npm run test:e2e:ci'
+                }
             }
         }
 
