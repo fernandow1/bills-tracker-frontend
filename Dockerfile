@@ -1,4 +1,6 @@
 FROM node:20-alpine AS builder
+# Actualizar paquetes de seguridad
+RUN apk update && apk upgrade --no-cache
 WORKDIR /app
 
 # Declaración de variables de entorno (args) al momento de hacer build
@@ -24,6 +26,8 @@ RUN npm run build
 
 # Stage 2: Servidor Nginx interno (para contener y servir la SPA)
 FROM nginx:alpine
+# Actualizar paquetes para corregir vulnerabilidades de seguridad (ej. CVE-2026-27135 en nghttp2)
+RUN apk update && apk upgrade --no-cache
 # Copia los archivos estáticos generados por Angular
 COPY --from=builder /app/dist/bills-tracker/browser /usr/share/nginx/html
 # Copia la configuración que asegura el correcto enrutamiento SPA
