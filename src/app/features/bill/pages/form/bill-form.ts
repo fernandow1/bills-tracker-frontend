@@ -138,7 +138,7 @@ export class BillForm {
     );
   }
 
-  public trackByIndex(index: number, item?: any): number {
+  public trackByIndex(index: number, _item?: unknown): number {
     return index;
   }
 }

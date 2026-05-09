@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, input, output, computed } from '@angular/core';
+import { Component, inject, signal, OnInit, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,7 +14,8 @@ import { IProductResponse } from '@features/product/interfaces/product-response.
 import { CurrencyFormatPipe } from '@shared/pipes';
 
 @Component({
-  selector: 'tr[app-bill-item-row]',
+  // eslint-disable-next-line @angular-eslint/component-selector
+  selector: '[app-bill-item-row]',
   standalone: true,
   imports: [
     CommonModule,
@@ -28,14 +29,15 @@ import { CurrencyFormatPipe } from '@shared/pipes';
     CurrencyFormatPipe,
   ],
   templateUrl: './bill-item-row.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BillItemRowComponent implements OnInit {
-  item = input.required<IBillItemData>();
-  initialProduct = input<IProductResponse | null>(null);
-  disabled = input(false);
+  public item = input.required<IBillItemData>();
+  public initialProduct = input<IProductResponse | null>(null);
+  public disabled = input(false);
 
-  itemChange = output<IBillItemData>();
-  remove = output<void>();
+  public itemChange = output<IBillItemData>();
+  public remove = output<void>();
 
   private readonly productService = inject(ProductService);
 
@@ -44,7 +46,7 @@ export class BillItemRowComponent implements OnInit {
   public searchedProducts = signal<IProductResponse[]>([]);
   public selectedProduct = signal<IProductResponse | null>(null);
 
-  ngOnInit() {
+  public ngOnInit() {
     const initial = this.initialProduct();
     if (initial) {
       this.selectedProduct.set(initial);
@@ -53,13 +55,14 @@ export class BillItemRowComponent implements OnInit {
   }
 
   public displayProduct(product: IProductResponse | string | null): string {
-    if (!product || typeof product === 'string') return '';
+    if (!product || typeof product === 'string') {return '';}
     return product.name;
   }
 
   public onProductSearch(searchTerm: string): void {
     if (searchTerm.trim() === '') {
-      this.searchedProducts.set(this.selectedProduct() ? [this.selectedProduct()!] : []);
+      const selected = this.selectedProduct();
+      this.searchedProducts.set(selected ? [selected] : []);
       return;
     }
 
@@ -71,8 +74,9 @@ export class BillItemRowComponent implements OnInit {
       const results = this.productService.searchedProducts ?? [];
       const map = new Map<number, IProductResponse>();
 
-      if (this.selectedProduct()) {
-        map.set(Number(this.selectedProduct()!.id), this.selectedProduct()!);
+      const selected = this.selectedProduct();
+      if (selected) {
+        map.set(Number(selected.id), selected);
       }
 
       results.forEach((p) => map.set(Number(p.id), p));
