@@ -25,7 +25,7 @@ export class BillFormFacadeService implements IBillFormFacade {
   public readonly currencies = computed(() => this.currencyService.currencies ?? []);
   public readonly paymentMethods = computed(() => this.paymentMethodService.paymentMethods ?? []);
   public readonly shops = computed(() => this.shopService.searchedShops ?? []);
-  
+
   public readonly billItems = signal<IBillItemData[]>([]);
   public readonly isSuccess = signal<boolean>(false);
 
@@ -38,8 +38,8 @@ export class BillFormFacadeService implements IBillFormFacade {
     }, 0);
   });
 
-  public readonly isLoading = computed(() => 
-    this.billService.isCreatingBill || this.billService.isUpdatingBill
+  public readonly isLoading = computed(
+    () => this.billService.isCreatingBill || this.billService.isUpdatingBill,
   );
 
   constructor() {
@@ -49,39 +49,45 @@ export class BillFormFacadeService implements IBillFormFacade {
     this.billService.resetCreateTrigger();
     this.billService.resetUpdateTrigger();
 
-    effect(() => {
-      const createdBill = this.billService.createdBill;
-      const createError = this.billService.createError;
+    effect(
+      () => {
+        const createdBill = this.billService.createdBill;
+        const createError = this.billService.createError;
 
-      if (createdBill) {
-        this.notificationService.success('Factura creada exitosamente');
-        this.billService.resetCreateTrigger();
-        this.isSuccess.set(true);
-      }
+        if (createdBill) {
+          this.notificationService.success('Factura creada exitosamente');
+          this.billService.resetCreateTrigger();
+          this.isSuccess.set(true);
+        }
 
-      if (createError) {
-        const formattedError = this.errorHandler.formatErrorResponse(createError);
-        this.notificationService.showError(formattedError);
-        this.billService.resetCreateTrigger();
-      }
-    }, { allowSignalWrites: true });
+        if (createError) {
+          const formattedError = this.errorHandler.formatErrorResponse(createError);
+          this.notificationService.showError(formattedError);
+          this.billService.resetCreateTrigger();
+        }
+      },
+      { allowSignalWrites: true },
+    );
 
-    effect(() => {
-      const updatedBill = this.billService.updatedBill;
-      const updateError = this.billService.updateError;
+    effect(
+      () => {
+        const updatedBill = this.billService.updatedBill;
+        const updateError = this.billService.updateError;
 
-      if (updatedBill) {
-        this.notificationService.success('Factura actualizada exitosamente');
-        this.billService.resetUpdateTrigger();
-        this.isSuccess.set(true);
-      }
+        if (updatedBill) {
+          this.notificationService.success('Factura actualizada exitosamente');
+          this.billService.resetUpdateTrigger();
+          this.isSuccess.set(true);
+        }
 
-      if (updateError) {
-        const formattedError = this.errorHandler.formatErrorResponse(updateError);
-        this.notificationService.showError(formattedError);
-        this.billService.resetUpdateTrigger();
-      }
-    }, { allowSignalWrites: true });
+        if (updateError) {
+          const formattedError = this.errorHandler.formatErrorResponse(updateError);
+          this.notificationService.showError(formattedError);
+          this.billService.resetUpdateTrigger();
+        }
+      },
+      { allowSignalWrites: true },
+    );
   }
 
   public initialize(initialItems: IBillItemData[]): void {
@@ -105,7 +111,12 @@ export class BillFormFacadeService implements IBillFormFacade {
     });
   }
 
-  public submit(isEditMode: boolean, billId: number | undefined, formValue: any, isFormInvalid: boolean): void {
+  public submit(
+    isEditMode: boolean,
+    billId: number | undefined,
+    formValue: any,
+    isFormInvalid: boolean,
+  ): void {
     if (!this.authService.isLoggedIn()) {
       this.notificationService.error('Su sesión ha expirado. Por favor, inicie sesión nuevamente.');
       this.authService.logout();
@@ -115,7 +126,9 @@ export class BillFormFacadeService implements IBillFormFacade {
 
     const userId = this.authService.getUserId();
     if (!userId) {
-      this.notificationService.error('No se pudo obtener el usuario. Por favor, inicie sesión nuevamente.');
+      this.notificationService.error(
+        'No se pudo obtener el usuario. Por favor, inicie sesión nuevamente.',
+      );
       this.authService.logout();
       this.isSuccess.set(true);
       return;
@@ -130,7 +143,9 @@ export class BillFormFacadeService implements IBillFormFacade {
       return;
     }
 
-    const hasInvalidItems = this.billItems().some((item) => !item.idProduct || item.idProduct === 0);
+    const hasInvalidItems = this.billItems().some(
+      (item) => !item.idProduct || item.idProduct === 0,
+    );
     if (hasInvalidItems) {
       this.notificationService.warning('Todos los items deben tener un producto seleccionado');
       return;

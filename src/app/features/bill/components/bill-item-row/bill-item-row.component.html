@@ -59,7 +59,9 @@
       matInput
       type="number"
       [value]="item().contentValue || ''"
-      (blur)="updateField('contentValue', $any($event.target).value ? +$any($event.target).value : null)"
+      (blur)="
+        updateField('contentValue', $any($event.target).value ? +$any($event.target).value : null)
+      "
       [disabled]="disabled() || !isContentValueEnabled()"
       placeholder="Peso/Volumen"
       min="0"

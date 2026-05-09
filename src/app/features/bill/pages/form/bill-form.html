@@ -112,8 +112,12 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @for (item of facade.billItems(); track trackByIndex($index, item); let i = $index) {
-                    <tr 
+                  @for (
+                    item of facade.billItems();
+                    track trackByIndex($index, item);
+                    let i = $index
+                  ) {
+                    <tr
                       app-bill-item-row
                       [item]="item"
                       [initialProduct]="getInitialProduct(i)"

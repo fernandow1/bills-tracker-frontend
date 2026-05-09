@@ -1,4 +1,13 @@
-import { Component, inject, signal, OnInit, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  OnInit,
+  input,
+  output,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -55,7 +64,9 @@ export class BillItemRowComponent implements OnInit {
   }
 
   public displayProduct(product: IProductResponse | string | null): string {
-    if (!product || typeof product === 'string') {return '';}
+    if (!product || typeof product === 'string') {
+      return '';
+    }
     return product.name;
   }
 
