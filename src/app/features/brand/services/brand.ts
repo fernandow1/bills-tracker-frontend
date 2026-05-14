@@ -1,8 +1,6 @@
 import { Injectable, signal, resource, inject } from '@angular/core';
 import { ConfigService } from '@core/services/config.service';
-import { AuthService } from '@features/auth/services/auth.service';
-import { ErrorHandlerService } from '@core/services/error-handler.service';
-import { AuthFetchHelper } from '@core/utils/auth-fetch.helper';
+import { HttpFetchAdapter } from '@core/adapters/http-fetch.adapter';
 import { IBrandData } from '@features/brand/interfaces/brand-data.interface';
 import { IBrandResponse } from '@features/brand/interfaces/brand-response.interface';
 import { createFilter, buildFilterParams } from '@core/utils/filter-builder.helper';
@@ -14,20 +12,7 @@ import { Pagination, SearchParams } from '@core/interfaces';
 })
 export class BrandService {
   private readonly configService = new ConfigService();
-  private readonly authService = inject(AuthService);
-  private readonly errorHandler = inject(ErrorHandlerService);
-  private readonly authFetch = new AuthFetchHelper(this.authService, this.errorHandler);
-
-  /**
-   * Obtiene los headers con autenticación para fetch
-   */
-  private getAuthHeaders(): HeadersInit {
-    const token = localStorage.getItem(this.configService.authConfig.tokenKey);
-    return {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
-  }
+  private readonly http = inject(HttpFetchAdapter);
 
   // Signal para controlar cuándo crear una marca
   private createBrandTrigger = signal<IBrandData | null>(null);
@@ -40,7 +25,7 @@ export class BrandService {
 
   // Resource para búsqueda de marcas con paginación y filtro
   public searchBrandsResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       const searchParams = this.searchBrandTrigger();
 
       if (!searchParams) {
@@ -64,91 +49,37 @@ export class BrandService {
         this.configService.brandEndpoints.search,
       )}?${queryString}`;
 
-      const response = await this.authFetch.fetch(url, {
-        method: 'GET',
-        headers: this.getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      return (await response.json()) as Pagination<IBrandResponse>;
+      return this.http.get<Pagination<IBrandResponse>>(url, { signal: abortSignal });
     },
   });
 
   // Resource para crear marca (POST) - con trigger para evitar carga inicial
   public createBrandResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       const brandData = this.createBrandTrigger();
 
       if (!brandData) {
         return null;
       }
 
-      const response = await this.authFetch.fetch(
-        this.configService.buildApiUrl(this.configService.brandEndpoints.create),
-        {
-          method: 'POST',
-          headers: this.getAuthHeaders(),
-          body: JSON.stringify(brandData),
-        },
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      return (await response.json()) as IBrandResponse;
+      const url = this.configService.buildApiUrl(this.configService.brandEndpoints.create);
+      return this.http.post<IBrandResponse>(url, brandData, { signal: abortSignal });
     },
   });
 
   // Resource para actualizar marca (PUT) - con trigger para evitar carga inicial
   public updateBrandResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       const updateData = this.updateBrandTrigger();
 
       if (!updateData) {
         return null;
       }
 
-      const response = await this.authFetch.fetch(
-        this.configService.buildApiUrl(
-          this.configService.brandEndpoints.update.replace(':id', updateData.id),
-        ),
-        {
-          method: 'PUT',
-          headers: this.getAuthHeaders(),
-          body: JSON.stringify(updateData.data),
-        },
+      const url = this.configService.buildApiUrl(
+        this.configService.brandEndpoints.update.replace(':id', updateData.id),
       );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      return (await response.json()) as IBrandResponse;
+      return this.http.put<IBrandResponse>(url, updateData.data, { signal: abortSignal });
     },
   });
 

@@ -1,8 +1,6 @@
 import { Injectable, signal, resource, inject } from '@angular/core';
 import { ConfigService } from '@core/services/config.service';
-import { AuthService } from '@features/auth/services/auth.service';
-import { ErrorHandlerService } from '@core/services/error-handler.service';
-import { AuthFetchHelper } from '@core/utils/auth-fetch.helper';
+import { HttpFetchAdapter } from '@core/adapters/http-fetch.adapter';
 import { ICurrencyData } from '@features/currency/interfaces/currency-data.interface';
 import { ICurrencyResponse } from '@features/currency/interfaces/currency-response.interface';
 
@@ -11,20 +9,7 @@ import { ICurrencyResponse } from '@features/currency/interfaces/currency-respon
 })
 export class CurrencyService {
   private readonly configService = new ConfigService();
-  private readonly authService = inject(AuthService);
-  private readonly errorHandler = inject(ErrorHandlerService);
-  private readonly authFetch = new AuthFetchHelper(this.authService, this.errorHandler);
-
-  /**
-   * Obtiene los headers con autenticación para fetch
-   */
-  private getAuthHeaders(): HeadersInit {
-    const token = localStorage.getItem(this.configService.authConfig.tokenKey);
-    return {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
-  }
+  private readonly http = inject(HttpFetchAdapter);
 
   // Signal para controlar cuándo crear una moneda
   private createCurrencyTrigger = signal<ICurrencyData | null>(null);
@@ -37,99 +22,43 @@ export class CurrencyService {
 
   // Resource para cargar todas las monedas
   private allCurrenciesResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       if (!this.loadAllCurrenciesTrigger()) {
         return null;
       }
 
-      const response = await this.authFetch.fetch(
-        this.configService.buildApiUrl(this.configService.currencyEndpoints.list),
-        {
-          method: 'GET',
-          headers: this.getAuthHeaders(),
-        },
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      return (await response.json()) as ICurrencyResponse[];
+      const url = this.configService.buildApiUrl(this.configService.currencyEndpoints.list);
+      return this.http.get<ICurrencyResponse[]>(url, { signal: abortSignal });
     },
   });
 
   // Resource para crear moneda (POST)
   public createCurrencyResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       const currencyData = this.createCurrencyTrigger();
 
       if (!currencyData) {
         return null;
       }
 
-      const response = await this.authFetch.fetch(
-        this.configService.buildApiUrl(this.configService.currencyEndpoints.create),
-        {
-          method: 'POST',
-          headers: this.getAuthHeaders(),
-          body: JSON.stringify(currencyData),
-        },
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      return (await response.json()) as ICurrencyResponse;
+      const url = this.configService.buildApiUrl(this.configService.currencyEndpoints.create);
+      return this.http.post<ICurrencyResponse>(url, currencyData, { signal: abortSignal });
     },
   });
 
   // Resource para actualizar moneda (PUT)
   public updateCurrencyResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       const updateData = this.updateCurrencyTrigger();
 
       if (!updateData) {
         return null;
       }
 
-      const response = await this.authFetch.fetch(
-        this.configService.buildApiUrl(
-          this.configService.currencyEndpoints.update.replace(':id', updateData.id),
-        ),
-        {
-          method: 'PUT',
-          headers: this.getAuthHeaders(),
-          body: JSON.stringify(updateData.data),
-        },
+      const url = this.configService.buildApiUrl(
+        this.configService.currencyEndpoints.update.replace(':id', updateData.id),
       );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      return (await response.json()) as ICurrencyResponse;
+      return this.http.put<ICurrencyResponse>(url, updateData.data, { signal: abortSignal });
     },
   });
 

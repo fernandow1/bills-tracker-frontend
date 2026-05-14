@@ -1,8 +1,6 @@
 import { Injectable, signal, resource, inject } from '@angular/core';
 import { ConfigService } from '@core/services/config.service';
-import { AuthService } from '@features/auth/services/auth.service';
-import { ErrorHandlerService } from '@core/services/error-handler.service';
-import { AuthFetchHelper } from '@core/utils/auth-fetch.helper';
+import { HttpFetchAdapter } from '@core/adapters/http-fetch.adapter';
 import { IBillData } from '@features/bill/interfaces/bill-data.interface';
 import { IBillResponse } from '@features/bill/interfaces/bill-response.interface';
 import { IBillSearchFilters } from '@features/bill/interfaces/bill-search-filters.interface';
@@ -15,170 +13,181 @@ import { FilterOperator } from '@core/utils/filter-operators.types';
 })
 export class BillService {
   private readonly configService = new ConfigService();
-  private readonly authService = inject(AuthService);
-  private readonly errorHandler = inject(ErrorHandlerService);
-  private readonly authFetch = new AuthFetchHelper(this.authService, this.errorHandler);
+  private readonly http = inject(HttpFetchAdapter);
 
-  /**
-   * Obtiene los headers con autenticación para fetch
-   */
-  private getAuthHeaders(): HeadersInit {
-    const token = localStorage.getItem(this.configService.authConfig.tokenKey);
-    return {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
-  }
+  // Signal para la subida y extracción de factura
+  public extractionRequest = signal<{ file: File; metadata?: Record<string, unknown> } | null>(
+    null,
+  );
 
-  // Signal para controlar cuándo crear una factura
-  private createBillTrigger = signal<IBillData | null>(null);
+  // Resource para subir y extraer imagen de factura
+  public extractImageResource = resource({
+    loader: async ({ abortSignal }) => {
+      const request = this.extractionRequest();
+      if (!request) {
+        return null;
+      }
 
-  // Signal para controlar cuándo actualizar una factura
-  private updateBillTrigger = signal<{ id: number; data: IBillData } | null>(null);
+      const url = this.configService.buildApiUrl(this.configService.billsEndpoints.upload);
+      const formData = new FormData();
+      formData.append('image', request.file);
 
-  // Signal para controlar la búsqueda de facturas con filtros y paginación
+      if (request.metadata) {
+        formData.append('metadata', JSON.stringify(request.metadata));
+      }
+
+      return this.http.post<unknown>(url, formData, { signal: abortSignal });
+    },
+  });
+
+  // Signal para controlar la búsqueda de facturas
   private searchBillsTrigger = signal<{
     page: number;
     pageSize: number;
     filters?: IBillSearchFilters;
   } | null>(null);
 
-  // Resource para búsqueda de facturas con paginación y filtros
+  // Resource para búsqueda de facturas (usando endpoint 'list' ya que 'search' no existe)
   public searchBillsResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       const searchParams = this.searchBillsTrigger();
       if (!searchParams) {
         return null;
       }
 
       const filters = [];
-
-      // Agregar filtros si existen
       if (searchParams.filters?.idShop) {
-        filters.push(
-          createFilter('idShop', searchParams.filters.idShop.toString(), FilterOperator.EQUALS),
-        );
+        filters.push(createFilter('idShop', searchParams.filters.idShop, FilterOperator.EQUALS));
       }
       if (searchParams.filters?.idCurrency) {
         filters.push(
-          createFilter(
-            'idCurrency',
-            searchParams.filters.idCurrency.toString(),
-            FilterOperator.EQUALS,
-          ),
+          createFilter('idCurrency', searchParams.filters.idCurrency, FilterOperator.EQUALS),
         );
       }
       if (searchParams.filters?.idPaymentMethod) {
         filters.push(
           createFilter(
             'idPaymentMethod',
-            searchParams.filters.idPaymentMethod.toString(),
+            searchParams.filters.idPaymentMethod,
             FilterOperator.EQUALS,
           ),
         );
       }
-
-      // Construir params con filtros
-      const finalParams = buildFilterParams(filters);
-      finalParams['page'] = searchParams.page.toString();
-      finalParams['pageSize'] = searchParams.pageSize.toString();
-      const queryString = new URLSearchParams(finalParams).toString();
-      const url = `${this.configService.buildApiUrl(
-        this.configService.billsEndpoints.list,
-      )}?${queryString}`;
-      const response = await this.authFetch.fetch(url, {
-        method: 'GET',
-        headers: this.getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
+      if (searchParams.filters?.total) {
+        filters.push(createFilter('total', searchParams.filters.total, FilterOperator.EQUALS));
+      }
+      if (searchParams.filters?.idProduct) {
+        filters.push(
+          createFilter('idProduct', searchParams.filters.idProduct, FilterOperator.EQUALS),
+        );
       }
 
-      return (await response.json()) as Pagination<IBillResponse>;
+      const params = buildFilterParams(filters);
+      params['page'] = searchParams.page.toString();
+      params['pageSize'] = searchParams.pageSize.toString();
+
+      const queryString = new URLSearchParams(params).toString();
+      const url = `${this.configService.buildApiUrl(this.configService.billsEndpoints.list)}?${queryString}`;
+
+      return this.http.get<Pagination<IBillResponse>>(url, { signal: abortSignal });
     },
   });
 
+  // Signal para controlar cuándo crear una factura
+  private createBillTrigger = signal<IBillData | null>(null);
+
   // Resource para crear factura (POST)
   public createBillResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       const billData = this.createBillTrigger();
-
       if (!billData) {
         return null;
       }
 
-      const response = await this.authFetch.fetch(
-        this.configService.buildApiUrl(this.configService.billsEndpoints.create),
-        {
-          method: 'POST',
-          headers: this.getAuthHeaders(),
-          body: JSON.stringify(billData),
-        },
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      const result = (await response.json()) as IBillResponse;
-
-      return result;
+      const url = this.configService.buildApiUrl(this.configService.billsEndpoints.create);
+      return this.http.post<IBillResponse>(url, billData, { signal: abortSignal });
     },
   });
 
+  // Signal para controlar cuándo actualizar una factura
+  private updateBillTrigger = signal<{ id: string | number; data: IBillData } | null>(null);
+
   // Resource para actualizar factura (PUT)
   public updateBillResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       const updateData = this.updateBillTrigger();
-
       if (!updateData) {
         return null;
       }
 
-      const response = await this.authFetch.fetch(
-        this.configService.buildApiUrl(
-          this.configService.billsEndpoints.update.replace(':id', updateData.id.toString()),
-        ),
-        {
-          method: 'PUT',
-          headers: this.getAuthHeaders(),
-          body: JSON.stringify(updateData.data),
-        },
+      const url = this.configService.buildApiUrl(
+        this.configService.billsEndpoints.update.replace(':id', String(updateData.id)),
       );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      return (await response.json()) as IBillResponse;
+      return this.http.put<IBillResponse>(url, updateData.data, { signal: abortSignal });
     },
   });
 
   /**
+   * Inicia la extracción de datos desde una imagen
+   * @param file Archivo de imagen de la factura
+   * @param metadata Metadatos adicionales
+   */
+  public uploadBillImage(file: File, metadata?: Record<string, unknown>): void {
+    this.extractionRequest.set({ file, metadata });
+    this.extractImageResource.reload();
+  }
+
+  /**
+   * Cancela la extracción en progreso
+   */
+  public cancelExtraction(): void {
+    this.extractionRequest.set(null);
+  }
+
+  /**
+   * Busca facturas con paginación y filtros
+   */
+  public searchBills(page: number, pageSize: number, filters?: IBillSearchFilters): void {
+    this.searchBillsTrigger.set({ page, pageSize, filters });
+  }
+
+  /**
+   * Resetea el trigger de búsqueda
+   */
+  public resetSearchTrigger(): void {
+    this.searchBillsTrigger.set(null);
+  }
+
+  /**
+   * Obtiene las facturas encontradas
+   */
+  public get searchedBills(): IBillResponse[] {
+    return this.searchBillsResource.value()?.data || [];
+  }
+
+  /**
+   * Obtiene el total de facturas encontradas
+   */
+  public get searchedBillsCount(): number {
+    return this.searchBillsResource.value()?.count || 0;
+  }
+
+  /**
+   * Obtiene el estado de carga de la búsqueda
+   */
+  public get isSearchingBills(): boolean {
+    return this.searchBillsResource.status() === 'loading';
+  }
+
+  /**
+   * Obtiene el error de búsqueda
+   */
+  public get searchError(): unknown {
+    return this.searchBillsResource.error() ?? null;
+  }
+
+  /**
    * Crea una nueva factura
-   * @param billData Datos de la factura a crear
    */
   public createBill(billData: IBillData): void {
     this.createBillTrigger.set(billData);
@@ -186,7 +195,7 @@ export class BillService {
   }
 
   /**
-   * Resetea el trigger para evitar llamadas no deseadas
+   * Resetea el trigger de creación
    */
   public resetCreateTrigger(): void {
     this.createBillTrigger.set(null);
@@ -194,10 +203,8 @@ export class BillService {
 
   /**
    * Actualiza una factura existente
-   * @param id ID de la factura a actualizar
-   * @param billData Datos actualizados de la factura
    */
-  public updateBill(id: number, billData: IBillData): void {
+  public updateBill(id: string | number, billData: IBillData): void {
     this.updateBillTrigger.set({ id, data: billData });
     this.updateBillResource.reload();
   }
@@ -210,68 +217,14 @@ export class BillService {
   }
 
   /**
-   * Busca facturas con paginación y filtros
-   * @param page Número de página
-   * @param pageSize Tamaño de página
-   * @param filters Filtros opcionales
+   * Obtiene el estado de creación
    */
-  public searchBills(page: number, pageSize: number, filters?: IBillSearchFilters): void {
-    this.searchBillsTrigger.set({ page, pageSize, filters });
-    this.searchBillsResource.reload();
+  public get isCreatingBill(): boolean {
+    return this.createBillResource.status() === 'loading';
   }
 
   /**
-   * Resetea el trigger de búsqueda
-   */
-  public resetSearchTrigger(): void {
-    this.searchBillsTrigger.set(null);
-  }
-
-  /**
-   * Obtiene las facturas de la búsqueda
-   */
-  public get searchedBills(): IBillResponse[] {
-    const result = this.searchBillsResource.value();
-    return result?.data || [];
-  }
-
-  /**
-   * Obtiene el total de facturas en la búsqueda
-   */
-  public get searchedBillsCount(): number {
-    const result = this.searchBillsResource.value();
-    return result?.count || 0;
-  }
-
-  /**
-   * Obtiene el estado de carga de la búsqueda
-   */
-  public get isSearchingBills(): boolean {
-    return this.searchBillsResource.status() === 'loading';
-  }
-
-  /**
-   * Obtiene el error de búsqueda si existe
-   */
-  public get searchError(): unknown {
-    if (this.searchBillsTrigger() === null) {
-      return null;
-    }
-    return this.searchBillsResource.error();
-  }
-
-  /**
-   * Obtiene la factura creada
-   */
-  public get createdBill(): IBillResponse | null {
-    if (this.createBillTrigger() === null) {
-      return null;
-    }
-    return this.createBillResource.value() ?? null;
-  }
-
-  /**
-   * Obtiene el error de creación si existe
+   * Obtiene el error de creación
    */
   public get createError(): unknown {
     if (this.createBillTrigger() === null) {
@@ -281,24 +234,24 @@ export class BillService {
   }
 
   /**
-   * Obtiene el estado de carga de creación
+   * Obtiene la factura creada
    */
-  public get isCreatingBill(): boolean {
-    return this.createBillResource.status() === 'loading';
-  }
-
-  /**
-   * Obtiene la factura actualizada
-   */
-  public get updatedBill(): IBillResponse | null {
-    if (this.updateBillTrigger() === null) {
+  public get createdBill(): IBillResponse | null | undefined {
+    if (this.createBillTrigger() === null) {
       return null;
     }
-    return this.updateBillResource.value() ?? null;
+    return this.createBillResource.value();
   }
 
   /**
-   * Obtiene el error de actualización si existe
+   * Obtiene el estado de actualización
+   */
+  public get isUpdatingBill(): boolean {
+    return this.updateBillResource.status() === 'loading';
+  }
+
+  /**
+   * Obtiene el error de actualización
    */
   public get updateError(): unknown {
     if (this.updateBillTrigger() === null) {
@@ -308,102 +261,23 @@ export class BillService {
   }
 
   /**
-   * Obtiene el estado de carga de actualización
+   * Obtiene la factura actualizada
    */
-  public get isUpdatingBill(): boolean {
-    return this.updateBillResource.status() === 'loading';
-  }
-
-  /**
-   * Obtiene una factura por ID
-   */
-  public async getBillById(id: string): Promise<IBillResponse> {
-    const url = this.configService.buildApiUrl(
-      this.configService.billsEndpoints.base.replace(':id', id),
-    );
-
-    const response = await this.authFetch.fetch(url, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-      const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-      Object.assign(error, {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorData,
-      });
-      throw error;
+  public get updatedBill(): IBillResponse | null | undefined {
+    if (this.updateBillTrigger() === null) {
+      return null;
     }
-
-    return (await response.json()) as IBillResponse;
+    return this.updateBillResource.value();
   }
 
   /**
    * Elimina una factura
    */
-  public async deleteBill(id: number): Promise<void> {
+  public async deleteBill(id: string | number): Promise<void> {
     const url = this.configService.buildApiUrl(
-      this.configService.billsEndpoints.delete.replace(':id', id.toString()),
+      this.configService.billsEndpoints.delete.replace(':id', String(id)),
     );
-
-    const response = await this.authFetch.fetch(url, {
-      method: 'DELETE',
-      headers: this.getAuthHeaders(),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-      const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-      Object.assign(error, {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorData,
-      });
-      throw error;
-    }
-  }
-
-  /**
-   * Sube una imagen de factura
-   * @param file Archivo de imagen de la factura
-   * @param metadata Metadatos opcionales (notas, tags, etc.)
-   */
-  public async uploadBillImage(file: File, metadata?: Record<string, unknown>): Promise<unknown> {
-    const url = this.configService.buildApiUrl(this.configService.billsEndpoints.upload);
-
-    const formData = new FormData();
-    formData.append('image', file);
-
-    if (metadata) {
-      // Dependiendo de cómo el backend espere los metadatos.
-      // Aquí los enviamos como string JSON o campos separados.
-      formData.append('metadata', JSON.stringify(metadata));
-    }
-
-    const headers = this.getAuthHeaders() as Record<string, string>;
-    // El navegador establecerá el Content-Type correcto con el boundary para multipart/form-data
-    delete headers['Content-Type'];
-
-    const response = await this.authFetch.fetch(url, {
-      method: 'POST',
-      headers,
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-      const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-      Object.assign(error, {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorData,
-      });
-      throw error;
-    }
-
-    return await response.json().catch(() => ({ success: true }));
+    await this.http.delete<void>(url);
+    this.searchBillsResource.reload();
   }
 }
