@@ -1,8 +1,6 @@
 import { Injectable, signal, resource, inject } from '@angular/core';
 import { ConfigService } from '@core/services/config.service';
-import { AuthService } from '@features/auth/services/auth.service';
-import { ErrorHandlerService } from '@core/services/error-handler.service';
-import { AuthFetchHelper } from '@core/utils/auth-fetch.helper';
+import { HttpFetchAdapter } from '@core/adapters/http-fetch.adapter';
 import { IShopData } from '@features/shop/interfaces/shop-data.interface';
 import { IShopResponse } from '@features/shop/interfaces/shop-response.interface';
 import { Pagination } from '@core/interfaces/pagination.interface';
@@ -14,20 +12,7 @@ import { FilterOperator } from '@core/utils/filter-operators.types';
 })
 export class ShopService {
   private readonly configService = new ConfigService();
-  private readonly authService = inject(AuthService);
-  private readonly errorHandler = inject(ErrorHandlerService);
-  private readonly authFetch = new AuthFetchHelper(this.authService, this.errorHandler);
-
-  /**
-   * Obtiene los headers con autenticación para fetch
-   */
-  private getAuthHeaders(): HeadersInit {
-    const token = localStorage.getItem(this.configService.authConfig.tokenKey);
-    return {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
-  }
+  private readonly http = inject(HttpFetchAdapter);
 
   // Signal para controlar cuándo crear una tienda
   private createShopTrigger = signal<IShopData | null>(null);
@@ -44,7 +29,7 @@ export class ShopService {
 
   // Resource para búsqueda de tiendas con paginación y filtros
   public searchShopsResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       const searchParams = this.searchShopsTrigger();
 
       if (!searchParams) {
@@ -81,91 +66,37 @@ export class ShopService {
         this.configService.shopEndpoints.search,
       )}?${queryString}`;
 
-      const response = await this.authFetch.fetch(url, {
-        method: 'GET',
-        headers: this.getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      return (await response.json()) as Pagination<IShopResponse>;
+      return this.http.get<Pagination<IShopResponse>>(url, { signal: abortSignal });
     },
   });
 
   // Resource para crear tienda (POST) - con trigger para evitar carga inicial
   public createShopResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       const shopData = this.createShopTrigger();
 
       if (!shopData) {
         return null;
       }
 
-      const response = await this.authFetch.fetch(
-        this.configService.buildApiUrl(this.configService.shopEndpoints.create),
-        {
-          method: 'POST',
-          headers: this.getAuthHeaders(),
-          body: JSON.stringify(shopData),
-        },
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      return (await response.json()) as IShopResponse;
+      const url = this.configService.buildApiUrl(this.configService.shopEndpoints.create);
+      return this.http.post<IShopResponse>(url, shopData, { signal: abortSignal });
     },
   });
 
   // Resource para actualizar tienda (PUT) - con trigger para evitar carga inicial
   public updateShopResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       const updateData = this.updateShopTrigger();
 
       if (!updateData) {
         return null;
       }
 
-      const response = await this.authFetch.fetch(
-        this.configService.buildApiUrl(
-          this.configService.shopEndpoints.update.replace(':id', String(updateData.id)),
-        ),
-        {
-          method: 'PUT',
-          headers: this.getAuthHeaders(),
-          body: JSON.stringify(updateData.data),
-        },
+      const url = this.configService.buildApiUrl(
+        this.configService.shopEndpoints.update.replace(':id', String(updateData.id)),
       );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      return (await response.json()) as IShopResponse;
+      return this.http.put<IShopResponse>(url, updateData.data, { signal: abortSignal });
     },
   });
 
