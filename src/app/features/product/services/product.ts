@@ -1,8 +1,6 @@
 import { Injectable, signal, resource, inject } from '@angular/core';
 import { ConfigService } from '@core/services/config.service';
-import { AuthService } from '@features/auth/services/auth.service';
-import { ErrorHandlerService } from '@core/services/error-handler.service';
-import { AuthFetchHelper } from '@core/utils/auth-fetch.helper';
+import { HttpFetchAdapter } from '@core/adapters/http-fetch.adapter';
 import { IProductData } from '@features/product/interfaces/product-data.interface';
 import { IProductResponse } from '@features/product/interfaces/product-response.interface';
 import { Pagination } from '@core/interfaces/pagination.interface';
@@ -14,20 +12,7 @@ import { FilterOperator } from '@core/utils/filter-operators.types';
 })
 export class ProductService {
   private readonly configService = new ConfigService();
-  private readonly authService = inject(AuthService);
-  private readonly errorHandler = inject(ErrorHandlerService);
-  private readonly authFetch = new AuthFetchHelper(this.authService, this.errorHandler);
-
-  /**
-   * Obtiene los headers con autenticación para fetch
-   */
-  private getAuthHeaders(): HeadersInit {
-    const token = localStorage.getItem(this.configService.authConfig.tokenKey);
-    return {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
-  }
+  private readonly http = inject(HttpFetchAdapter);
 
   // Signal para controlar cuándo crear un producto
   private createProductTrigger = signal<IProductData | null>(null);
@@ -50,7 +35,7 @@ export class ProductService {
 
   // Resource para búsqueda de productos con paginación y filtros
   public searchProductsResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       const searchParams = this.searchProductsTrigger();
 
       if (!searchParams) {
@@ -95,91 +80,37 @@ export class ProductService {
         this.configService.productEndpoints.search,
       )}?${queryString}`;
 
-      const response = await this.authFetch.fetch(url, {
-        method: 'GET',
-        headers: this.getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      return (await response.json()) as Pagination<IProductResponse>;
+      return this.http.get<Pagination<IProductResponse>>(url, { signal: abortSignal });
     },
   });
 
   // Resource para crear producto (POST) - con trigger para evitar carga inicial
   public createProductResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       const productData = this.createProductTrigger();
 
       if (!productData) {
         return null;
       }
 
-      const response = await this.authFetch.fetch(
-        this.configService.buildApiUrl(this.configService.productEndpoints.create),
-        {
-          method: 'POST',
-          headers: this.getAuthHeaders(),
-          body: JSON.stringify(productData),
-        },
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      return (await response.json()) as IProductResponse;
+      const url = this.configService.buildApiUrl(this.configService.productEndpoints.create);
+      return this.http.post<IProductResponse>(url, productData, { signal: abortSignal });
     },
   });
 
   // Resource para actualizar producto (PUT) - con trigger para evitar carga inicial
   public updateProductResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       const updateData = this.updateProductTrigger();
 
       if (!updateData) {
         return null;
       }
 
-      const response = await this.authFetch.fetch(
-        this.configService.buildApiUrl(
-          this.configService.productEndpoints.update.replace(':id', updateData.id),
-        ),
-        {
-          method: 'PUT',
-          headers: this.getAuthHeaders(),
-          body: JSON.stringify(updateData.data),
-        },
+      const url = this.configService.buildApiUrl(
+        this.configService.productEndpoints.update.replace(':id', updateData.id),
       );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      return (await response.json()) as IProductResponse;
+      return this.http.put<IProductResponse>(url, updateData.data, { signal: abortSignal });
     },
   });
 

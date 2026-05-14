@@ -1,8 +1,6 @@
 import { Injectable, signal, resource, inject } from '@angular/core';
 import { ConfigService } from '@core/services/config.service';
-import { AuthService } from '@features/auth/services/auth.service';
-import { ErrorHandlerService } from '@core/services/error-handler.service';
-import { AuthFetchHelper } from '@core/utils/auth-fetch.helper';
+import { HttpFetchAdapter } from '@core/adapters/http-fetch.adapter';
 import { ICategoryData } from '@features/category/interfaces/category-data.interface';
 import { createFilter, buildFilterParams } from '@core/utils/filter-builder.helper';
 import { FilterOperator } from '@core/utils/filter-operators.types';
@@ -19,29 +17,13 @@ export interface ICategoryResponse extends ICategoryData {
 })
 export class CategoryService {
   private readonly configService = new ConfigService();
-  private readonly authService = inject(AuthService);
-  private readonly errorHandler = inject(ErrorHandlerService);
-  private readonly authFetch = new AuthFetchHelper(this.authService, this.errorHandler);
-
-  /**
-   * Obtiene los headers con autenticación para fetch
-   */
-  private getAuthHeaders(): HeadersInit {
-    const token = localStorage.getItem(this.configService.authConfig.tokenKey);
-    return {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
-  }
+  private readonly http = inject(HttpFetchAdapter);
 
   // Signal para controlar cuándo crear una categoría
   private createCategoryTrigger = signal<ICategoryData | null>(null);
 
   // Signal para controlar cuándo actualizar una categoría
   private updateCategoryTrigger = signal<{ id: string; data: ICategoryData } | null>(null);
-
-  // Signal para controlar búsqueda de categorías
-  // private searchCategoryTrigger = signal<string | null>(null);
 
   // Signal para controlar carga completa de categorías (solo para páginas de listado)
   private searchCategoriesTrigger = signal<{
@@ -52,7 +34,7 @@ export class CategoryService {
 
   // Resource para búsqueda de categorías con filtro
   public searchCategoriesResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       const searchTerm = this.searchCategoriesTrigger();
 
       if (searchTerm === null) {
@@ -67,7 +49,6 @@ export class CategoryService {
       }
 
       // Construir filtro usando los helpers
-      //const filter = createFilter('name', searchTerm.filters.name, FilterOperator.LIKE);
       const params = buildFilterParams(filters);
 
       // Agregar parámetros de paginación para el autocomplete
@@ -79,93 +60,37 @@ export class CategoryService {
         this.configService.categoryEndpoints.search,
       )}?${queryString}`;
 
-      const response = await this.authFetch.fetch(url, {
-        method: 'GET',
-        headers: this.getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      const result = (await response.json()) as Pagination<ICategoryResponse>;
-
-      return result;
+      return this.http.get<Pagination<ICategoryResponse>>(url, { signal: abortSignal });
     },
   });
 
   // Resource para crear categoría
   public createCategoryResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       const categoryData = this.createCategoryTrigger();
 
       if (!categoryData) {
         return null;
       }
 
-      const response = await this.authFetch.fetch(
-        this.configService.buildApiUrl(this.configService.categoryEndpoints.create),
-        {
-          method: 'POST',
-          headers: this.getAuthHeaders(),
-          body: JSON.stringify(categoryData),
-        },
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      return (await response.json()) as ICategoryResponse;
+      const url = this.configService.buildApiUrl(this.configService.categoryEndpoints.create);
+      return this.http.post<ICategoryResponse>(url, categoryData, { signal: abortSignal });
     },
   });
 
   // Resource para actualizar categoría
   public updateCategoryResource = resource({
-    loader: async () => {
+    loader: async ({ abortSignal }) => {
       const updateData = this.updateCategoryTrigger();
 
       if (!updateData) {
         return null;
       }
 
-      const response = await this.authFetch.fetch(
-        this.configService.buildApiUrl(
-          this.configService.categoryEndpoints.update.replace(':id', updateData.id),
-        ),
-        {
-          method: 'PUT',
-          headers: this.getAuthHeaders(),
-          body: JSON.stringify(updateData.data),
-        },
+      const url = this.configService.buildApiUrl(
+        this.configService.categoryEndpoints.update.replace(':id', updateData.id),
       );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error de red' }));
-        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
-        Object.assign(error, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-        throw error;
-      }
-
-      return (await response.json()) as ICategoryResponse;
+      return this.http.put<ICategoryResponse>(url, updateData.data, { signal: abortSignal });
     },
   });
 

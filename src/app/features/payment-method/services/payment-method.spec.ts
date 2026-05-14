@@ -202,14 +202,14 @@ describe('PaymentMethodService', () => {
 
       // Assert
       expect(result).toEqual(mockPaymentMethodResponse);
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:3000/api/payment-methods', {
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:3000/api/payment-methods', expect.objectContaining({
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer mock-token',
-        },
         body: JSON.stringify(mockPaymentMethodData),
-      });
+      }));
+      
+      const headers = mockFetch.mock.calls[0][1].headers as Headers;
+      expect(headers.get('Content-Type')).toBe('application/json');
+      expect(headers.get('Authorization')).toBe('Bearer mock-token');
     });
 
     it('should throw error when creation fails', async () => {
@@ -263,15 +263,15 @@ describe('PaymentMethodService', () => {
       expect(result).toEqual(updatedResponse);
       expect(mockFetch).toHaveBeenCalledWith(
         'http://localhost:3000/api/payment-methods/some-uuid',
-        {
+        expect.objectContaining({
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer mock-token',
-          },
           body: JSON.stringify(updatedData),
-        },
+        }),
       );
+      
+      const headers = mockFetch.mock.calls[0][1].headers as Headers;
+      expect(headers.get('Content-Type')).toBe('application/json');
+      expect(headers.get('Authorization')).toBe('Bearer mock-token');
     });
 
     it('should throw error when update fails', async () => {
@@ -301,27 +301,7 @@ describe('PaymentMethodService', () => {
     });
   });
 
-  describe('getAuthHeaders', () => {
-    it('should include Authorization header when token exists', () => {
-      // Arrange - token is mocked in beforeEach
-      const headers = service['getAuthHeaders']();
 
-      // Assert
-      expect(headers).toHaveProperty('Content-Type', 'application/json');
-      expect(headers).toHaveProperty('Authorization', 'Bearer mock-token');
-    });
-
-    it('should not include Authorization header when token is null', () => {
-      // Arrange - Mock localStorage to return null
-      (window.localStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue(null);
-
-      const headers = service['getAuthHeaders']();
-
-      // Assert
-      expect(headers).toHaveProperty('Content-Type', 'application/json');
-      expect(headers).not.toHaveProperty('Authorization');
-    });
-  });
 
   describe('ConfigService integration', () => {
     it('should have access to ConfigService', () => {
