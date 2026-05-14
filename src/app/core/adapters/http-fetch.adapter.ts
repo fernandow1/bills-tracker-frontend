@@ -41,12 +41,12 @@ export class HttpFetchAdapter {
       try {
         this.isRefreshing = true;
         const refreshResponse = await firstValueFrom(this.authService.refreshToken());
-        
+
         // Actualizar el token y reintentar
         const headers = new Headers(options.headers);
         headers.set('Authorization', `Bearer ${refreshResponse.accessToken}`);
         options.headers = headers;
-        
+
         this.isRefreshing = false;
         response = await fetch(url, options);
       } catch (refreshError) {
@@ -58,7 +58,10 @@ export class HttpFetchAdapter {
     }
 
     if (!response.ok) {
-      const errorData = await response.clone().json().catch(() => ({ message: 'Error de red' }));
+      const errorData = await response
+        .clone()
+        .json()
+        .catch(() => ({ message: 'Error de red' }));
       const context = options.context || `${options.method || 'GET'} ${url}`;
 
       const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -70,10 +73,7 @@ export class HttpFetchAdapter {
 
       const method = options.method?.toUpperCase();
       const showSnackbar =
-        method !== 'POST' &&
-        method !== 'PUT' &&
-        response.status !== 422 &&
-        response.status !== 400;
+        method !== 'POST' && method !== 'PUT' && response.status !== 422 && response.status !== 400;
       this.errorHandler.handleError(error, context, showSnackbar);
 
       throw error;

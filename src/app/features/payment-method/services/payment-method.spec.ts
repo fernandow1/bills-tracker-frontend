@@ -202,11 +202,14 @@ describe('PaymentMethodService', () => {
 
       // Assert
       expect(result).toEqual(mockPaymentMethodResponse);
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:3000/api/payment-methods', expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify(mockPaymentMethodData),
-      }));
-      
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:3000/api/payment-methods',
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify(mockPaymentMethodData),
+        }),
+      );
+
       const headers = mockFetch.mock.calls[0][1].headers as Headers;
       expect(headers.get('Content-Type')).toBe('application/json');
       expect(headers.get('Authorization')).toBe('Bearer mock-token');
@@ -268,7 +271,7 @@ describe('PaymentMethodService', () => {
           body: JSON.stringify(updatedData),
         }),
       );
-      
+
       const headers = mockFetch.mock.calls[0][1].headers as Headers;
       expect(headers.get('Content-Type')).toBe('application/json');
       expect(headers.get('Authorization')).toBe('Bearer mock-token');
@@ -300,8 +303,6 @@ describe('PaymentMethodService', () => {
       );
     });
   });
-
-
 
   describe('ConfigService integration', () => {
     it('should have access to ConfigService', () => {

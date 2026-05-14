@@ -28,6 +28,5 @@ export {
 
 // Auth helpers
 
-
 // Math helpers
 export { roundAmount } from './round-amount.helper';
