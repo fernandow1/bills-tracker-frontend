@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+  computed,
+  effect,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -62,6 +69,20 @@ export class BillUploadDialog {
     this.currencyService.loadAllCurrencies();
     this.paymentMethodService.loadAllPaymentMethods();
     this.shopService.searchShops(1, 25);
+
+    effect(() => {
+      const status = this.billService.extractImageResource.status();
+
+      if (this.isUploading()) {
+        if (status === 'resolved') {
+          this.isUploading.set(false);
+          this.dialogRef.close({ success: true });
+        } else if (status === 'error') {
+          this.isUploading.set(false);
+          this.errorMessage.set('Error al subir la imagen. Por favor, intente nuevamente.');
+        }
+      }
+    });
   }
 
   public onFileSelected(event: Event): void {
@@ -103,7 +124,7 @@ export class BillUploadDialog {
     this.previewUrl.set(null);
   }
 
-  public async upload(): Promise<void> {
+  public upload(): void {
     const file = this.selectedFile();
     if (!file) {
       return;
@@ -112,23 +133,18 @@ export class BillUploadDialog {
     this.isUploading.set(true);
     this.errorMessage.set(null);
 
-    try {
-      const formValue = this.metadataForm.value;
-      const metadata = {
-        ...formValue,
-        idShop: formValue.idShop ? Number(formValue.idShop) : null,
-        idCurrency: formValue.idCurrency ? Number(formValue.idCurrency) : null,
-        idUser: this.authService.getUserId(),
-        idUserOwner: this.authService.getUserId(),
-      };
-      await this.billService.uploadBillImage(file, metadata);
-      this.dialogRef.close({ success: true });
-    } catch (error) {
-      this.errorMessage.set('Error al subir la imagen. Por favor, intente nuevamente.');
-      console.error('Upload error:', error);
-    } finally {
-      this.isUploading.set(false);
-    }
+    const formValue = this.metadataForm.value;
+    const metadata = {
+      ...formValue,
+      idShop: formValue.idShop ? Number(formValue.idShop) : null,
+      idCurrency: formValue.idCurrency ? Number(formValue.idCurrency) : null,
+      idUser: this.authService.getUserId(),
+      idUserOwner: this.authService.getUserId(),
+    };
+
+    // uploadBillImage is synchronous and sets the signal.
+    // The effect in the constructor will react to the resource status change.
+    this.billService.uploadBillImage(file, metadata);
   }
 
   public cancel(): void {
