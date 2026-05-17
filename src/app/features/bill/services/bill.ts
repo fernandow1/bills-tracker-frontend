@@ -149,6 +149,7 @@ export class BillService {
    */
   public searchBills(page: number, pageSize: number, filters?: IBillSearchFilters): void {
     this.searchBillsTrigger.set({ page, pageSize, filters });
+    this.searchBillsResource.reload();
   }
 
   /**
