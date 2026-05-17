@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -20,8 +21,13 @@ describe('BillUploadDialog', () => {
     close: vi.fn(),
   };
 
+  const mockResourceStatus = signal('idle');
+
   const mockBillService = {
     uploadBillImage: vi.fn(),
+    extractImageResource: {
+      status: mockResourceStatus,
+    },
   };
 
   const mockCurrencyService = {
@@ -75,6 +81,7 @@ describe('BillUploadDialog', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+    mockResourceStatus.set('idle');
   });
 
   describe('Initialization', () => {
@@ -149,14 +156,14 @@ describe('BillUploadDialog', () => {
   });
 
   describe('upload', () => {
-    it('no debe hacer nada si no hay archivo seleccionado', async () => {
+    it('no debe hacer nada si no hay archivo seleccionado', () => {
       component.selectedFile.set(null);
-      await component.upload();
+      component.upload();
 
       expect(mockBillService.uploadBillImage).not.toHaveBeenCalled();
     });
 
-    it('debe subir la imagen con la metadata correcta y cerrar modal', async () => {
+    it('debe subir la imagen con la metadata correcta y cerrar modal al completarse', () => {
       const file = new File([''], 'test.png', { type: 'image/png' });
       component.selectedFile.set(file);
 
@@ -167,11 +174,9 @@ describe('BillUploadDialog', () => {
         aiInstructions: 'test instruction',
       });
 
-      mockBillService.uploadBillImage.mockResolvedValueOnce(true);
+      component.upload();
 
-      await component.upload();
-
-      expect(component.isUploading()).toBe(false);
+      expect(component.isUploading()).toBe(true);
       expect(mockBillService.uploadBillImage).toHaveBeenCalledWith(
         file,
         expect.objectContaining({
@@ -183,16 +188,26 @@ describe('BillUploadDialog', () => {
           aiInstructions: 'test instruction',
         }),
       );
+
+      // Simulamos que el recurso de carga se resolvio exitosamente
+      mockResourceStatus.set('resolved');
+      fixture.detectChanges(); // Ejecuta los efectos (flushEffects)
+
+      expect(component.isUploading()).toBe(false);
       expect(mockDialogRef.close).toHaveBeenCalledWith({ success: true });
     });
 
-    it('debe setear error si la subida falla', async () => {
+    it('debe setear error si la subida falla', () => {
       const file = new File([''], 'test.png', { type: 'image/png' });
       component.selectedFile.set(file);
 
-      mockBillService.uploadBillImage.mockRejectedValueOnce(new Error('Network error'));
+      component.upload();
 
-      await component.upload();
+      expect(component.isUploading()).toBe(true);
+
+      // Simulamos que el recurso falla
+      mockResourceStatus.set('error');
+      fixture.detectChanges();
 
       expect(component.isUploading()).toBe(false);
       expect(mockDialogRef.close).not.toHaveBeenCalled();
